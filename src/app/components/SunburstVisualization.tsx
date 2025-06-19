@@ -716,7 +716,7 @@ const SunburstVisualization: React.FC = () => {
           {tooltip.voiceHook && (
             <div className="mb-3">
               <p className="text-xs text-blue-300 font-medium mb-1">Voice Hook:</p>
-              <p className="text-sm italic">"{tooltip.voiceHook}"</p>
+              <p className="text-sm italic">&quot;{tooltip.voiceHook}&quot;</p>
             </div>
           )}
           
