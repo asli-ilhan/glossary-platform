@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import * as d3 from 'd3';
+import { select, selectAll } from 'd3-selection';
+import { hierarchy, partition } from 'd3-hierarchy';
+import { arc } from 'd3-shape';
+import { scaleOrdinal, scaleLinear } from 'd3-scale';
+import { interpolate } from 'd3-interpolate';
+import { schemeCategory10 } from 'd3-scale-chromatic';
+import { transition } from 'd3-transition';
 
 interface SunburstNode {
   _id: string;
@@ -246,7 +252,7 @@ const SunburstVisualization: React.FC = () => {
   }, []);
 
   // Color scale - Vibrant greens with white/gray like the reference image
-  const getColorScale = useCallback((level: number): d3.ScaleOrdinal<string, string> => {
+  const getColorScale = useCallback((level: number) => {
     const colorSchemes: { [key: number]: readonly string[] } = {
       1: ['#ffffff', '#f3f4f6', '#e5e7eb', '#d1d5db', '#9ca3af'], // Whites to light greys
       2: ['#00ff88', '#00e676', '#00c853', '#4caf50', '#2e7d32'], // Vibrant greens
@@ -254,7 +260,7 @@ const SunburstVisualization: React.FC = () => {
       4: ['#00ff9f', '#00e5ff', '#1de9b6', '#4db6ac', '#26a69a'], // Bright cyan-greens
       5: ['#6b7280', '#4b5563', '#374151', '#1f2937', '#111827']  // Medium to dark greys
     };
-    return d3.scaleOrdinal(colorSchemes[level] || d3.schemeCategory10);
+    return scaleOrdinal(colorSchemes[level] || schemeCategory10);
   }, []);
 
   // Create sunburst visualization
@@ -266,7 +272,7 @@ const SunburstVisualization: React.FC = () => {
 
     console.log('Creating sunburst visualization with', data.length, 'data points');
 
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
     svg.selectAll('*').remove();
 
     const { width, height } = dimensions;
@@ -285,22 +291,22 @@ const SunburstVisualization: React.FC = () => {
     const hierarchyData = buildHierarchy(data);
     console.log('Hierarchy data:', hierarchyData);
     
-    const root = d3.hierarchy(hierarchyData)
+    const root = hierarchy(hierarchyData)
       .sum(d => d.value || 1)
       .sort((a, b) => (b.value || 0) - (a.value || 0));
 
     console.log('D3 hierarchy root:', root);
 
     // Create partition layout
-    const partition = d3.partition<HierarchyNode>()
+    const partitionLayout = partition<HierarchyNode>()
       .size([2 * Math.PI, radius]);
 
-    partition(root);
+    partitionLayout(root);
     
     console.log('Partitioned data points:', root.descendants().length);
 
     // Arc generator
-    const arc = d3.arc<d3.HierarchyRectangularNode<HierarchyNode>>()
+    const arcGenerator = arc()
       .startAngle(d => d.x0)
       .endAngle(d => d.x1)
       .innerRadius(d => d.y0)
@@ -311,7 +317,7 @@ const SunburstVisualization: React.FC = () => {
       .data(root.descendants().filter(d => d.depth > 0))
       .enter()
       .append('path')
-      .attr('d', arc)
+      .attr('d', arcGenerator as any)
       .attr('fill', d => {
         const colorScale = getColorScale(d.depth);
         let baseColor = colorScale(d.data.name);
@@ -361,7 +367,7 @@ const SunburstVisualization: React.FC = () => {
         console.log('Hovered on:', d.data.name, 'Level:', d.depth, 'Has content:', d.data.relatedContent?.length || 0);
         
         // Highlight current arc
-        d3.select(this)
+        select(this)
           .style('opacity', 1)
           .attr('stroke-width', 2);
 
@@ -370,7 +376,7 @@ const SunburstVisualization: React.FC = () => {
           .transition()
           .duration(200)
           .style('opacity', function(labelData) {
-            const segmentData = d3.select(this).datum();
+            const segmentData = select(this).datum();
             
             // Highlight current segment label
             if (segmentData === d.data) {
@@ -429,7 +435,7 @@ const SunburstVisualization: React.FC = () => {
       })
       .on('mouseleave', function() {
         // Remove highlight
-        d3.select(this)
+        select(this)
           .style('opacity', 0.8)
           .attr('stroke-width', 1);
 
@@ -438,7 +444,7 @@ const SunburstVisualization: React.FC = () => {
           .transition()
           .duration(300)
           .style('opacity', function() {
-            const d = d3.select(this).datum();
+            const d = select(this).datum();
             const angleDiff = d.x1 - d.x0;
             const radiusDiff = d.y1 - d.y0;
             const area = angleDiff * radiusDiff;
@@ -466,7 +472,7 @@ const SunburstVisualization: React.FC = () => {
         const newY1 = Math.min(radius, clickedNode.y1);
 
         // Update partition with zoom
-        const newPartition = d3.partition<HierarchyNode>()
+        const newPartition = partition<HierarchyNode>()
           .size([newX1 - newX0, newY1 - newY0]);
 
         // Smooth transition
@@ -474,17 +480,17 @@ const SunburstVisualization: React.FC = () => {
 
         arcs.transition(t)
           .attrTween('d', (node) => {
-            const interpolateX0 = d3.interpolate(node.x0, node.x0 - clickedNode.x0);
-            const interpolateX1 = d3.interpolate(node.x1, node.x1 - clickedNode.x0);
-            const interpolateY0 = d3.interpolate(node.y0, node.y0 - clickedNode.y0);
-            const interpolateY1 = d3.interpolate(node.y1, node.y1 - clickedNode.y0);
+            const interpolateX0 = interpolate(node.x0, node.x0 - clickedNode.x0);
+            const interpolateX1 = interpolate(node.x1, node.x1 - clickedNode.x0);
+            const interpolateY0 = interpolate(node.y0, node.y0 - clickedNode.y0);
+            const interpolateY1 = interpolate(node.y1, node.y1 - clickedNode.y0);
 
             return (time) => {
               node.x0 = interpolateX0(time);
               node.x1 = interpolateX1(time);
               node.y0 = interpolateY0(time);
               node.y1 = interpolateY1(time);
-              return arc(node);
+              return arcGenerator(node);
             };
           });
       });

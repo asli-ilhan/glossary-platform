@@ -52,7 +52,7 @@ export async function GET(req: Request) {
       .populate('userId', 'email profile.firstName profile.lastName')
       .populate('approvedBy', 'email profile.firstName profile.lastName')
       .sort(search ? { score: { $meta: 'textScore' } } : { title: 1 });
-    
+
     return NextResponse.json(terms);
   } catch (error) {
     console.error('GET glossary error:', error);
@@ -65,11 +65,11 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
-    }
-    
+    return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+  }
+
     const user = await User.findOne({ email: session.user.email }) as IUser | null;
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -84,9 +84,9 @@ export async function POST(req: Request) {
     const lowerTitle = title.toLowerCase().trim();
     const existing = await GlossaryTerm.findOne({ title: lowerTitle });
     if (existing) {
-      return NextResponse.json({ error: 'This term already exists!' }, { status: 400 });
-    }
-    
+    return NextResponse.json({ error: 'This term already exists!' }, { status: 400 });
+  }
+
     const term = new GlossaryTerm({
       title: lowerTitle,
       description: description.trim(),
@@ -121,7 +121,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('POST glossary error:', error);
     return NextResponse.json({ error: 'Failed to create term' }, { status: 500 });
-  }
+}
 }
 
 // PATCH — Update/approve a term with enhanced fields (admin or owner only)
@@ -138,14 +138,14 @@ export async function PATCH(req: Request) {
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    
-    const url = new URL(req.url);
+
+  const url = new URL(req.url);
     const id = url.searchParams.get('id');
-    if (!id) {
+  if (!id) {
       return NextResponse.json({ error: 'Missing term ID' }, { status: 400 });
-    }
-    
-    const payload = await req.json();
+  }
+
+  const payload = await req.json();
     const term = await GlossaryTerm.findById(id).populate('userId', 'email');
     if (!term) {
       return NextResponse.json({ error: 'Term not found' }, { status: 404 });
@@ -172,7 +172,7 @@ export async function PATCH(req: Request) {
       
       const wasApproved = term.approved;
       term.approved = payload.approved;
-      
+
       if (payload.approved) {
         term.approvedBy = (user as any)._id;
       }
@@ -216,7 +216,7 @@ export async function PATCH(req: Request) {
   } catch (error) {
     console.error('PATCH glossary error:', error);
     return NextResponse.json({ error: 'Failed to update term' }, { status: 500 });
-  }
+}
 }
 
 // DELETE — Only admin or owner can delete

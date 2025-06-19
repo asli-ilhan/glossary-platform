@@ -119,10 +119,10 @@ export default function AdminDashboard() {
 
   const fetchTerms = async () => {
     try {
-      const res = await fetch("/api/glossary");
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setTerms(data);
+    const res = await fetch("/api/glossary");
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      setTerms(data);
       }
     } catch (error) {
       console.error("Failed to fetch terms:", error);
@@ -803,22 +803,22 @@ export default function AdminDashboard() {
         </div>
 
         {/* Edit Modal */}
-        {editing && (
+      {editing && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-gray-800 rounded-lg shadow-xl w-96 p-6" onClick={(e) => e.stopPropagation()}>
               <h2 className="text-xl font-bold text-white mb-4">Edit Term</h2>
-              <input
+            <input
                 className="w-full mb-2 p-2 bg-gray-700 text-white border border-gray-600 rounded focus:border-green-400 focus:outline-none"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                placeholder="Edit Title"
-              />
-              <textarea
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              placeholder="Edit Title"
+            />
+            <textarea
                 className="w-full mb-4 p-2 bg-gray-700 text-white border border-gray-600 rounded focus:border-green-400 focus:outline-none h-32"
-                value={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-                placeholder="Edit Description"
-              />
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              placeholder="Edit Description"
+            />
               <div className="flex space-x-2">
                 <button 
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition-colors" 
@@ -836,7 +836,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-      </div>
+        </div>
     </div>
   );
 }
