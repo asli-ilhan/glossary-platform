@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styling - Black & White Theme */
+body {
+  @apply bg-black text-white font-sans;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* Input Fields */
+input {
+  @apply w-full p-3 border border-gray-500 bg-black text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 mb-4; /* Added mb-4 */
+}
+
+/* Buttons */
+button {
+  @apply px-4 py-2 rounded-md text-white font-medium transition-all mb-4 mx-1;
+}
+
+button.primary {
+  @apply bg-white text-black hover:bg-gray-300;
+}
+
+button.secondary {
+  @apply bg-gray-700 text-white hover:bg-gray-500;
+}
+
+button.danger {
+  @apply bg-red-500 hover:bg-red-600;
+}
+
+/* Header */
+header {
+  @apply bg-gray-900 text-white p-4 flex justify-between items-center shadow-md;
+}
+
+nav a {
+  @apply px-4 py-2 text-lg font-medium transition-all hover:bg-gray-700 rounded;
+}
+
+/* Letter Tabs - Horizontal & Smaller */
+.tab-container {
+  @apply flex flex-wrap justify-center gap-2 mt-4;
+}
+
+.tab {
+  @apply px-3 py-1 text-sm font-medium rounded-md cursor-pointer transition-all bg-gray-800;
+}
+
+.tab.active {
+  @apply bg-gray-600;
+}
+
+.tab:hover {
+  @apply bg-gray-500;
+}
+
+/* Term List */
+.term-list {
+  @apply bg-gray-900 p-4 rounded-lg shadow-md mt-4;
+}
+
+.term-item {
+  @apply p-3 border-b border-gray-700 cursor-pointer hover:bg-gray-800;
+}
+
+.modal {
+  @apply fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  @apply bg-gray-900 p-6 rounded-lg shadow-lg w-96 text-center relative;
+  z-index: 70;
+}
+
+/* Footer Styling */
+footer {
+  @apply bg-gray-900 text-gray-300 text-center p-6 shadow-md;
+}
+
+footer a {
+  @apply text-gray-400 hover:text-gray-200 transition-all mx-2;
+}
+
+footer p {
+  @apply text-gray-600 mb-4;
+}
+
+footer div {
+  @apply mt-2;
+}
