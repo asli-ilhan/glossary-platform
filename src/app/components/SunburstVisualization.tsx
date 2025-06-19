@@ -103,28 +103,24 @@ const SunburstVisualization: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
 
-  // Fetch sunburst data
+  // Load static sunburst data
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/sunburst');
-        if (!response.ok) {
-          throw new Error('Failed to fetch sunburst data');
-        }
-        const sunburstData = await response.json();
-        console.log('Fetched sunburst data:', sunburstData.length, 'items');
-        console.log('Sample item with content:', sunburstData.find(item => item.relatedContent?.length > 0));
-        setData(sunburstData);
+        const { demoSunburstData } = await import('@/app/data/sunburstData');
+        console.log('Loaded static sunburst data:', demoSunburstData.length, 'items');
+        console.log('Sample item with content:', demoSunburstData.find(item => item.relatedContent?.length > 0));
+        setData(demoSunburstData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
-        console.error('Error fetching sunburst data:', err);
+        console.error('Error loading sunburst data:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    loadData();
   }, []);
 
   // Transform flat data into better categorized hierarchical structure
