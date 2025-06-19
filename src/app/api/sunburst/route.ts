@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/lib/auth';
 
-// Fallback demo data for when MongoDB is not available
+// Demo data for the sunburst visualization
 const demoSunburstData = [
   {
     _id: 'demo-1',
@@ -188,34 +186,8 @@ const demoSunburstData = [
 
 export async function GET(req: NextRequest) {
   try {
-    // Try to connect to MongoDB first
-    const { dbConnect, SunburstMap } = await import('@/app/utils/models');
-    await dbConnect();
+    console.log('Sunburst API called');
     
-    const url = new URL(req.url);
-    const level = url.searchParams.get('level');
-    const includeInactive = url.searchParams.get('includeInactive') === 'true';
-    
-    let query: any = {};
-    
-    if (!includeInactive) {
-      query.isActive = true;
-    }
-    
-    if (level) {
-      query['position.level'] = parseInt(level);
-    }
-    
-    const sunburstData = await SunburstMap.find(query)
-      .populate('relatedContent', 'title contentType moderationStatus')
-      .populate('createdBy', 'email profile.firstName profile.lastName')
-      .sort({ 'position.level': 1, 'position.order': 1 });
-    
-    return NextResponse.json(sunburstData);
-  } catch (error) {
-    console.error('MongoDB connection failed, using demo data:', error);
-    
-    // If MongoDB fails, return demo data
     const url = new URL(req.url);
     const level = url.searchParams.get('level');
     const includeInactive = url.searchParams.get('includeInactive') === 'true';
@@ -230,57 +202,14 @@ export async function GET(req: NextRequest) {
       filteredData = filteredData.filter(item => item.position.level === parseInt(level));
     }
     
+    console.log(`Returning ${filteredData.length} items`);
     return NextResponse.json(filteredData);
+  } catch (error) {
+    console.error('Sunburst API error:', error);
+    return NextResponse.json({ error: 'Failed to fetch sunburst data' }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
-    
-    // Try MongoDB connection
-    const { dbConnect, SunburstMap, User } = await import('@/app/utils/models');
-    await dbConnect();
-    
-    const user = await User.findOne({ email: session.user.email });
-    if (!user || user.role !== 'admin') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
-    
-    const {
-      themeCluster,
-      knowledgeArea,
-      discipline,
-      roleSystemOrientation,
-      toolTechnology,
-      description,
-      voiceHook,
-      position,
-    } = await req.json();
-    
-    const sunburstEntry = new SunburstMap({
-      themeCluster,
-      knowledgeArea,
-      discipline,
-      roleSystemOrientation,
-      toolTechnology,
-      description,
-      voiceHook,
-      position,
-      relatedContent: [],
-      isActive: true,
-      createdBy: (user as any)._id,
-    });
-    
-    await sunburstEntry.save();
-    
-    return NextResponse.json(sunburstEntry, { status: 201 });
-  } catch (error) {
-    console.error('POST sunburst error:', error);
-    return NextResponse.json({ error: 'Demo mode: Cannot create entries without database' }, { status: 503 });
-  }
+  return NextResponse.json({ error: 'Demo mode: Cannot create entries' }, { status: 503 });
 } 
