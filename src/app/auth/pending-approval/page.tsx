@@ -2,15 +2,16 @@
 
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function PendingApprovalPage() {
+function PendingApprovalContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
   const role = searchParams.get('role');
 
   return (
-          <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center px-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center px-8">
       <div className="max-w-md w-full bg-black rounded-lg shadow-xl p-8 text-center border border-gray-700">
         {/* Waiting Icon */}
         <div className="mb-6">
@@ -82,5 +83,17 @@ export default function PendingApprovalPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function PendingApprovalPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <PendingApprovalContent />
+    </Suspense>
   );
 } 
