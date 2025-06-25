@@ -77,6 +77,13 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+
+    // Check if user is approved (students and contributors need approval)
+    if ((user.role === 'student' || user.role === 'contributor') && !user.isApproved) {
+      return NextResponse.json({ 
+        error: 'Your account is pending admin approval. Please wait for approval before submitting content.' 
+      }, { status: 403 });
+    }
     
     const {
       title,

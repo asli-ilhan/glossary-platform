@@ -74,18 +74,34 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+
+    // Check if user is approved (students and contributors need approval)
+    if ((user.role === 'student' || user.role === 'contributor') && !user.isApproved) {
+      return NextResponse.json({ 
+        error: 'Your account is pending admin approval. Please wait for approval before submitting content.' 
+      }, { status: 403 });
+    }
     
     const { title, description, tags, category, difficulty, relatedTerms } = await req.json();
     
     if (!title || !description) {
-      return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
+      return NextResponse.json({ error: 'Please complete all required fields.' }, { status: 400 });
     }
     
     const lowerTitle = title.toLowerCase().trim();
-    const existing = await GlossaryTerm.findOne({ title: lowerTitle });
-    if (existing) {
-    return NextResponse.json({ error: 'This term already exists!' }, { status: 400 });
-  }
+    const existingTerms = await GlossaryTerm.find({ title: lowerTitle });
+    const hasExisting = existingTerms.length > 0;
+    
+    // Check if user already submitted this term
+    const userAlreadySubmitted = existingTerms.some(term => 
+      term.userId.toString() === (user as any)._id.toString()
+    );
+    
+    if (userAlreadySubmitted) {
+      return NextResponse.json({ 
+        error: 'This term already exists, consider adding an alternative definition instead.' 
+      }, { status: 400 });
+    }
 
     const term = new GlossaryTerm({
       title: lowerTitle,
@@ -103,11 +119,15 @@ export async function POST(req: Request) {
     
     // Create notification for admins about new term submission
     const admins = await User.find({ role: 'admin' });
+    const notificationMessage = hasExisting 
+      ? `"${term.title}" has been submitted for review by ${user.email} (additional definition for existing term)`
+      : `"${term.title}" has been submitted for review by ${user.email}`;
+      
     const notifications = admins.map(admin => ({
       userId: (admin as any)._id,
       type: 'new_content',
       title: 'New Glossary Term Submitted',
-      message: `"${term.title}" has been submitted for review by ${user.email}`,
+      message: notificationMessage,
       actionUrl: `/admin/dashboard?tab=glossary&termId=${term._id}`,
       relatedItemType: 'glossary',
       relatedItemId: term._id,
@@ -117,10 +137,16 @@ export async function POST(req: Request) {
       await Notification.insertMany(notifications);
     }
     
-    return NextResponse.json(term, { status: 201 });
+    // Return success with warning if term already exists
+    const response = {
+      term,
+      warning: hasExisting ? `This entry is awaiting moderation.` : null
+    };
+    
+    return NextResponse.json(response, { status: 201 });
   } catch (error) {
     console.error('POST glossary error:', error);
-    return NextResponse.json({ error: 'Failed to create term' }, { status: 500 });
+    return NextResponse.json({ error: 'There was a problem submitting your entry. Please try again or contact an administrator.' }, { status: 500 });
 }
 }
 

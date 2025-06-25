@@ -66,6 +66,55 @@ type ImportResult = {
   };
 };
 
+interface User {
+  _id: string;
+  email: string;
+  role: 'admin' | 'student' | 'contributor';
+  isApproved: boolean;
+  isBlocked: boolean;
+  approvedAt?: string;
+  approvedBy?: { email: string };
+  blockedAt?: string;
+  blockedBy?: { email: string };
+  blockReason?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
+  createdAt: string;
+}
+
+interface AdminSettings {
+  registrationEnabled: boolean;
+  blockedEmails: string[];
+  blockedDomains: string[];
+  lastUpdatedBy: string;
+  updatedAt: string;
+}
+
+interface Stats {
+  totalUsers: number;
+  pendingUsers: number;
+  approvedUsers: number;
+  blockedUsers: number;
+  totalGlossaryTerms: number;
+  totalContent: number;
+}
+
+interface UserContribution {
+  userId: string;
+  userEmail: string;
+  userRole: 'admin' | 'student' | 'contributor';
+  glossaryTerms: number;
+  contentModules: number;
+  sunburstEntries: number;
+  totalContributions: number;
+  recentActivity: Date;
+  entries: {
+    glossaryTerms: Term[];
+    contentModules: ContentModule[];
+    sunburstEntries: SunburstEntry[];
+  };
+}
+
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -78,6 +127,8 @@ export default function AdminDashboard() {
   const [terms, setTerms] = useState<Term[]>([]);
   const [contentModules, setContentModules] = useState<ContentModule[]>([]);
   const [sunburstEntries, setSunburstEntries] = useState<SunburstEntry[]>([]);
+  const [pendingUsers, setPendingUsers] = useState<any[]>([]);
+  const [approvedUsers, setApprovedUsers] = useState<any[]>([]);
   
   // CSV Import states
   const [csvFile, setCsvFile] = useState<File | null>(null);
@@ -90,7 +141,34 @@ export default function AdminDashboard() {
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
-  // Authentication check
+  // New states for user management
+  const [stats, setStats] = useState<Stats>({
+    totalUsers: 0,
+    pendingUsers: 0,
+    approvedUsers: 0,
+    blockedUsers: 0,
+    totalGlossaryTerms: 0,
+    totalContent: 0,
+  });
+  const [users, setUsers] = useState<User[]>([]);
+  const [adminSettings, setAdminSettings] = useState<AdminSettings>({
+    registrationEnabled: true,
+    blockedEmails: [],
+    blockedDomains: [],
+    lastUpdatedBy: '',
+    updatedAt: '',
+  });
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [newBlockedEmail, setNewBlockedEmail] = useState('');
+  const [newBlockedDomain, setNewBlockedDomain] = useState('');
+  const [blockReason, setBlockReason] = useState('');
+
+  // Analytics states
+  const [userContributions, setUserContributions] = useState<UserContribution[]>([]);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+
+  // Authentication check - ALWAYS first useEffect
   useEffect(() => {
     if (status === 'loading') return;
     
@@ -109,17 +187,32 @@ export default function AdminDashboard() {
     fetchAllData();
   }, [session, status, router]);
 
+  // Effect to fetch user contributions when selectedUser changes - ALWAYS second useEffect
+  useEffect(() => {
+    if (selectedUser && terms.length > 0 && contentModules.length > 0 && sunburstEntries.length > 0) {
+      fetchUserContributions();
+    }
+  }, [selectedUser, terms, contentModules, sunburstEntries]);
+
+  // Effect to fetch all contributions when tab is analytics and data is loaded - ALWAYS third useEffect
+  useEffect(() => {
+    if (activeTab === 'analytics' && terms.length > 0 && contentModules.length > 0 && sunburstEntries.length > 0 && users.length > 0) {
+      fetchAllUserContributions();
+    }
+  }, [activeTab, terms, contentModules, sunburstEntries, users]);
+
   const fetchAllData = async () => {
     await Promise.all([
       fetchTerms(),
       fetchContent(),
-      fetchSunburstData()
+      fetchSunburstData(),
+      fetchUsers()
     ]);
   };
 
   const fetchTerms = async () => {
     try {
-    const res = await fetch("/api/glossary");
+    const res = await fetch("/api/glossary?all=true");
     const data = await res.json();
     if (Array.isArray(data)) {
       setTerms(data);
@@ -131,7 +224,7 @@ export default function AdminDashboard() {
 
   const fetchContent = async () => {
     try {
-      const res = await fetch("/api/content");
+      const res = await fetch("/api/content?all=true");
       const data = await res.json();
       if (Array.isArray(data)) {
         setContentModules(data);
@@ -150,6 +243,44 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error("Failed to fetch sunburst data:", error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      // Fetch all users
+      const allUsersRes = await fetch("/api/users?status=all");
+      const allUsersData = await allUsersRes.json();
+      if (Array.isArray(allUsersData)) {
+        setUsers(allUsersData);
+        
+        // Update legacy state for backwards compatibility
+        setPendingUsers(allUsersData.filter((u: User) => !u.isApproved && !u.isBlocked));
+        setApprovedUsers(allUsersData.filter((u: User) => u.isApproved && !u.isBlocked));
+        
+        // Calculate stats
+        const totalUsers = allUsersData.length;
+        const pendingUsers = allUsersData.filter((u: User) => !u.isApproved && !u.isBlocked).length;
+        const approvedUsers = allUsersData.filter((u: User) => u.isApproved && !u.isBlocked).length;
+        const blockedUsers = allUsersData.filter((u: User) => u.isBlocked).length;
+        
+        setStats(prev => ({
+          ...prev,
+          totalUsers,
+          pendingUsers,
+          approvedUsers,
+          blockedUsers,
+        }));
+      }
+
+      // Fetch admin settings
+      const settingsRes = await fetch('/api/admin/settings');
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json();
+        setAdminSettings(settingsData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
     }
   };
 
@@ -198,6 +329,56 @@ export default function AdminDashboard() {
     });
     setEditing(null);
     fetchTerms();
+  };
+
+  // User management functions
+  const handleUserAction = async (userId: string, action: string, reason?: string) => {
+    try {
+      setActionLoading(userId);
+      const response = await fetch('/api/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, action, reason }),
+      });
+
+      if (response.ok) {
+        await fetchUsers(); // Fixed function name
+        setBlockReason(''); // Clear reason input
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Failed to update user');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setActionLoading(userId);
+      const response = await fetch(`/api/users?userId=${userId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        await fetchUsers(); // Fixed function name
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   // CSV Import functions
@@ -280,42 +461,234 @@ export default function AdminDashboard() {
     }
   };
 
-  // Loading and auth checks
-  if (loading || status === 'loading') {
+
+
+  const updateSettings = async (updates: Partial<AdminSettings>) => {
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...adminSettings, ...updates }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAdminSettings(data.settings);
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      alert('Failed to update settings');
+    }
+  };
+
+  const addToBlocklist = async (type: 'email' | 'domain', value: string) => {
+    if (!value.trim()) return;
+
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, value: value.trim() }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAdminSettings(data.settings);
+        if (type === 'email') setNewBlockedEmail('');
+        if (type === 'domain') setNewBlockedDomain('');
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error adding to blocklist:', error);
+      alert('Failed to add to blocklist');
+    }
+  };
+
+  const removeFromBlocklist = async (type: 'email' | 'domain', value: string) => {
+    const updatedList = type === 'email' 
+      ? adminSettings.blockedEmails.filter(email => email !== value)
+      : adminSettings.blockedDomains.filter(domain => domain !== value);
+
+    const updates = type === 'email' 
+      ? { blockedEmails: updatedList }
+      : { blockedDomains: updatedList };
+
+    await updateSettings(updates);
+  };
+
+  const fetchUserContributions = async () => {
+    if (!selectedUser) return;
+    
+    setAnalyticsLoading(true);
+    try {
+      // Find the selected user
+      const user = users.find(u => u._id === selectedUser);
+      if (!user) return;
+
+      // Filter entries by user
+      const userTerms = terms.filter(term => 
+        term.userId?.email === user.email || 
+        (term as any).createdBy?.email === user.email
+      );
+      
+      const userContent = contentModules.filter(content => 
+        content.createdBy?.email === user.email
+      );
+      
+      const userSunburst = sunburstEntries.filter(entry => 
+        entry.createdBy?.email === user.email
+      );
+
+      // Calculate contribution data
+      const contribution: UserContribution = {
+        userId: user._id,
+        userEmail: user.email,
+        userRole: user.role,
+        glossaryTerms: userTerms.length,
+        contentModules: userContent.length,
+        sunburstEntries: userSunburst.length,
+        totalContributions: userTerms.length + userContent.length + userSunburst.length,
+        recentActivity: new Date(Math.max(
+          ...userTerms.map(t => new Date(t.createdAt).getTime()),
+          ...userContent.map(c => new Date(c.createdAt).getTime()),
+          ...userSunburst.map(s => new Date(s.createdAt).getTime()),
+          0
+        )),
+        entries: {
+          glossaryTerms: userTerms,
+          contentModules: userContent,
+          sunburstEntries: userSunburst,
+        }
+      };
+
+      setUserContributions([contribution]);
+    } catch (error) {
+      console.error('Error fetching user contributions:', error);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
+  const fetchAllUserContributions = async () => {
+    setAnalyticsLoading(true);
+    try {
+      const contributions: UserContribution[] = [];
+      
+      for (const user of users.filter(u => u.isApproved && !u.isBlocked)) {
+        // Filter entries by user
+        const userTerms = terms.filter(term => 
+          term.userId?.email === user.email || 
+          (term as any).createdBy?.email === user.email
+        );
+        
+        const userContent = contentModules.filter(content => 
+          content.createdBy?.email === user.email
+        );
+        
+        const userSunburst = sunburstEntries.filter(entry => 
+          entry.createdBy?.email === user.email
+        );
+
+        const totalContributions = userTerms.length + userContent.length + userSunburst.length;
+        
+        // Only include users with contributions
+        if (totalContributions > 0) {
+          const contribution: UserContribution = {
+            userId: user._id,
+            userEmail: user.email,
+            userRole: user.role,
+            glossaryTerms: userTerms.length,
+            contentModules: userContent.length,
+            sunburstEntries: userSunburst.length,
+            totalContributions,
+            recentActivity: new Date(Math.max(
+              ...userTerms.map(t => new Date(t.createdAt).getTime()),
+              ...userContent.map(c => new Date(c.createdAt).getTime()),
+              ...userSunburst.map(s => new Date(s.createdAt).getTime()),
+              0
+            )),
+            entries: {
+              glossaryTerms: userTerms,
+              contentModules: userContent,
+              sunburstEntries: userSunburst,
+            }
+          };
+          
+          contributions.push(contribution);
+        }
+      }
+      
+      // Sort by total contributions (descending)
+      contributions.sort((a, b) => b.totalContributions - a.totalContributions);
+      setUserContributions(contributions);
+    } catch (error) {
+      console.error('Error fetching all user contributions:', error);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'text-purple-600 bg-purple-100';
+      case 'contributor': return 'text-blue-600 bg-blue-100';
+      case 'student': return 'text-green-600 bg-green-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  const getStatusBadge = (user: User) => {
+    if (user.isBlocked) {
+      return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Blocked</span>;
+    }
+    if (!user.isApproved) {
+      return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>;
+    }
+    return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>;
+  };
+
+  // Early returns to prevent conditional hook issues
+  if (status === 'loading' || loading) {
     return (
-      <div className="container text-center mt-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto mb-4"></div>
-        <h1>Loading Admin Dashboard...</h1>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
       </div>
     );
   }
 
   if (!session) {
-    return (
-      <div className="container text-center mt-12">
-        <h1>Please sign in to access the admin dashboard</h1>
-      </div>
-    );
+    return null; // Will redirect in useEffect
   }
 
   const user = session.user as { id: string; email: string; role: string } | undefined;
-  if (user?.role !== 'admin') {
-    return (
-      <div className="container text-center mt-12">
-        <h1>Access Denied</h1>
-        <p>You need admin privileges to access this page.</p>
-      </div>
-    );
+  if (!user || user.role !== 'admin') {
+    return null; // Will redirect in useEffect
   }
 
-  // Statistics
-  const pendingTerms = terms.filter(t => !t.approved).length;
-  const pendingContent = contentModules.filter(c => c.moderationStatus === 'pending').length;
+  // Calculate derived values
   const totalEntries = terms.length + contentModules.length + sunburstEntries.length;
+  const pendingTerms = terms.filter(term => !term.approved).length;
+  const pendingContent = contentModules.filter(module => module.moderationStatus === 'pending').length;
+  const pendingUsersCount = pendingUsers.length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
@@ -325,18 +698,20 @@ export default function AdminDashboard() {
         {/* Tab Navigation */}
         <div className="mb-8">
           <div className="border-b border-gray-700">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex justify-center space-x-4 overflow-x-auto">
               {[
                 { id: 'overview', name: 'Overview', count: null },
+                { id: 'users', name: 'User Management', count: pendingUsersCount },
                 { id: 'terms', name: 'Glossary Terms', count: pendingTerms },
                 { id: 'content', name: 'Content Modules', count: pendingContent },
-                { id: 'sunburst', name: 'Sunburst Data', count: null },
+                { id: 'sunburst', name: 'Knowledge Map Data', count: null },
                 { id: 'import', name: 'CSV Import', count: null },
+                { id: 'analytics', name: 'Content Analytics', count: null },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-200 ${
+                  className={`py-4 px-3 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-200 min-w-max ${
                     activeTab === tab.id
                       ? 'border-green-400 text-green-400'
                       : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
@@ -361,11 +736,17 @@ export default function AdminDashboard() {
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-white mb-4">Dashboard Overview</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
                   <h3 className="text-lg font-semibold mb-2">Total Entries</h3>
                   <p className="text-3xl font-bold">{totalEntries}</p>
                   <p className="text-blue-200 text-sm">Across all collections</p>
+                </div>
+                
+                <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-lg p-6 text-white">
+                  <h3 className="text-lg font-semibold mb-2">Pending Users</h3>
+                  <p className="text-3xl font-bold">{pendingUsersCount}</p>
+                  <p className="text-red-200 text-sm">Awaiting approval</p>
                 </div>
                 
                 <div className="bg-gradient-to-r from-yellow-600 to-yellow-700 rounded-lg p-6 text-white">
@@ -394,7 +775,7 @@ export default function AdminDashboard() {
                       <span className="text-white font-semibold">{contentModules.length}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-300">Sunburst Entries:</span>
+                      <span className="text-gray-300">Knowledge Map Entries:</span>
                       <span className="text-white font-semibold">{sunburstEntries.length}</span>
                     </div>
                   </div>
@@ -404,14 +785,14 @@ export default function AdminDashboard() {
                   <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
                   <div className="space-y-3">
                     <button 
-                      onClick={() => setActiveTab('import')}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition-colors"
+                      onClick={() => setActiveTab('users')}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors"
                     >
-                      Import CSV Data
+                      Approve Users ({pendingUsersCount})
                     </button>
                     <button 
                       onClick={() => setActiveTab('terms')}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition-colors"
+                      className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded transition-colors"
                     >
                       Review Pending Terms
                     </button>
@@ -421,8 +802,140 @@ export default function AdminDashboard() {
                     >
                       Moderate Content
                     </button>
+                    <button 
+                      onClick={() => setActiveTab('import')}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition-colors"
+                    >
+                      Import CSV Data
+                    </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* User Management Tab */}
+          {activeTab === 'users' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white mb-4">User Management</h2>
+              
+              {/* Pending Users Section */}
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                  Pending User Approvals 
+                  <span className="ml-2 bg-red-600 text-white text-sm rounded-full px-2 py-1">
+                    {pendingUsersCount}
+                  </span>
+                </h3>
+                
+                {pendingUsers.length === 0 ? (
+                  <div className="bg-gray-700 rounded-lg p-6 text-center">
+                    <p className="text-gray-400">No pending user approvals</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {pendingUsers.map((user) => (
+                      <div key={user._id} className="bg-gray-700 rounded-lg p-6 border border-gray-600">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-2">
+                              <h4 className="text-lg font-semibold text-white">{user.email}</h4>
+                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                user.role === 'student' ? 'bg-blue-600 text-blue-100' :
+                                user.role === 'contributor' ? 'bg-green-600 text-green-100' :
+                                'bg-gray-600 text-gray-100'
+                              }`}>
+                                {user.role === 'student' ? '📚 Student' : 
+                                 user.role === 'contributor' ? '✍️ Contributor' : user.role}
+                              </span>
+                            </div>
+                            <p className="text-gray-300 text-sm mb-3">
+                              Registered: {new Date(user.createdAt).toLocaleDateString()}
+                            </p>
+                            {user.profile && (
+                              <div className="text-sm text-gray-400">
+                                {user.profile.firstName && (
+                                  <p>Name: {user.profile.firstName} {user.profile.lastName}</p>
+                                )}
+                                {user.profile.institution && (
+                                  <p>Institution: {user.profile.institution}</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex space-x-3">
+                            <button
+                              onClick={() => handleUserAction(user._id, 'approve')}
+                              disabled={actionLoading === user._id}
+                              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                            >
+                              ✓ Approve
+                            </button>
+                            <button
+                              onClick={() => {
+                                const reason = prompt('Rejection reason (optional):');
+                                if (reason !== null) {
+                                  handleUserAction(user._id, 'reject', reason);
+                                }
+                              }}
+                              disabled={actionLoading === user._id}
+                              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                            >
+                              ✗ Reject
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Approved Users Section */}
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                  Approved Users
+                  <span className="ml-2 bg-green-600 text-white text-sm rounded-full px-2 py-1">
+                    {approvedUsers.length}
+                  </span>
+                </h3>
+                
+                {approvedUsers.length === 0 ? (
+                  <div className="bg-gray-700 rounded-lg p-6 text-center">
+                    <p className="text-gray-400">No approved users</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {approvedUsers.map((user) => (
+                      <div key={user._id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="text-sm font-semibold text-white truncate">{user.email}</h4>
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            user.role === 'admin' ? 'bg-red-600 text-red-100' :
+                            user.role === 'student' ? 'bg-blue-600 text-blue-100' :
+                            user.role === 'contributor' ? 'bg-green-600 text-green-100' :
+                            'bg-gray-600 text-gray-100'
+                          }`}>
+                            {user.role === 'admin' ? '👑' :
+                             user.role === 'student' ? '📚' :
+                             user.role === 'contributor' ? '✍️' : '👤'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-400 mb-2">
+                          Approved: {user.approvedAt ? new Date(user.approvedAt).toLocaleDateString() : 'N/A'}
+                        </p>
+                        {user.role !== 'admin' && (
+                          <button
+                            onClick={() => handleDeleteUser(user._id)}
+                            className="text-red-400 hover:text-red-300 text-xs underline"
+                          >
+                            Delete User
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -570,13 +1083,13 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Sunburst Data Tab */}
+          {/* Knowledge Map Data Tab */}
           {activeTab === 'sunburst' && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white mb-4">Sunburst Visualization Data</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">Knowledge Map Visualization Data</h2>
               
               {sunburstEntries.length === 0 ? (
-                <p className="text-gray-400">No sunburst entries found.</p>
+                <p className="text-gray-400">No knowledge map entries found.</p>
               ) : (
                 sunburstEntries.map((entry) => (
                   <div key={entry._id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
@@ -637,7 +1150,7 @@ export default function AdminDashboard() {
                       className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:border-green-400 focus:outline-none"
                     >
                       <option value="auto">Auto-detect</option>
-                      <option value="sunburst">Sunburst Data</option>
+                      <option value="sunburst">Knowledge Map Data</option>
                       <option value="content">Content Modules</option>
                     </select>
                   </div>
@@ -680,7 +1193,7 @@ export default function AdminDashboard() {
                       onClick={() => downloadTemplate('sunburst')}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors text-sm"
                     >
-                      Download Sunburst Template
+                      Download Knowledge Map Template
                     </button>
                     
                     <button
@@ -757,7 +1270,7 @@ export default function AdminDashboard() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="text-green-400 font-medium mb-2">Sunburst Data CSV</h4>
+                    <h4 className="text-green-400 font-medium mb-2">Knowledge Map Data CSV</h4>
                     <p className="text-gray-300 text-sm mb-2">Required columns:</p>
                     <ul className="text-gray-400 text-sm space-y-1">
                       <li>• Theme Cluster</li>
@@ -791,13 +1304,276 @@ export default function AdminDashboard() {
                   
                   <div className="p-4 bg-orange-900 rounded border border-orange-700">
                     <p className="text-orange-200 text-sm">
-                      ⚠️ <strong>Important:</strong> When importing Sunburst Data, all existing sunburst entries will be 
+                      ⚠️ <strong>Important:</strong> When importing Knowledge Map Data, all existing knowledge map entries will be 
                       automatically cleared and replaced with the new hierarchical structure from your CSV. This ensures 
                       optimal performance and prevents data conflicts.
                     </p>
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Content Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Content Analytics</h2>
+              
+              {analyticsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto"></div>
+                  <p className="mt-4 text-gray-400">Loading analytics...</p>
+                </div>
+              ) : (
+                <>
+                  {/* Overall Statistics */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
+                      <h3 className="text-lg font-semibold mb-2">Active Contributors</h3>
+                      <p className="text-3xl font-bold">{userContributions.length}</p>
+                      <p className="text-blue-200 text-sm">Users with content</p>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-lg p-6 text-white">
+                      <h3 className="text-lg font-semibold mb-2">Total Contributions</h3>
+                      <p className="text-3xl font-bold">
+                        {userContributions.reduce((sum, user) => sum + user.totalContributions, 0)}
+                      </p>
+                      <p className="text-green-200 text-sm">All content types</p>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg p-6 text-white">
+                      <h3 className="text-lg font-semibold mb-2">Most Active User</h3>
+                      <p className="text-lg font-bold truncate">
+                        {userContributions.length > 0 ? userContributions[0].userEmail.split('@')[0] : 'N/A'}
+                      </p>
+                      <p className="text-purple-200 text-sm">
+                        {userContributions.length > 0 ? `${userContributions[0].totalContributions} contributions` : 'No data'}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg p-6 text-white">
+                      <h3 className="text-lg font-semibold mb-2">Avg per User</h3>
+                      <p className="text-3xl font-bold">
+                        {userContributions.length > 0 
+                          ? Math.round(userContributions.reduce((sum, user) => sum + user.totalContributions, 0) / userContributions.length)
+                          : 0
+                        }
+                      </p>
+                      <p className="text-orange-200 text-sm">Contributions</p>
+                    </div>
+                  </div>
+
+                  {/* User Contributions Table */}
+                  <div className="bg-gray-700 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-white mb-4">User Contributions Overview</h3>
+                    
+                    {userContributions.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-gray-400">No user contributions found</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                          <thead>
+                            <tr className="border-b border-gray-600">
+                              <th className="py-3 px-4 text-gray-300 font-medium">User</th>
+                              <th className="py-3 px-4 text-gray-300 font-medium">Role</th>
+                              <th className="py-3 px-4 text-gray-300 font-medium">Glossary Terms</th>
+                              <th className="py-3 px-4 text-gray-300 font-medium">Content Modules</th>
+                              <th className="py-3 px-4 text-gray-300 font-medium">Knowledge Map Entries</th>
+                              <th className="py-3 px-4 text-gray-300 font-medium">Total</th>
+                              <th className="py-3 px-4 text-gray-300 font-medium">Last Activity</th>
+                              <th className="py-3 px-4 text-gray-300 font-medium">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {userContributions.map((contribution) => (
+                              <tr key={contribution.userId} className="border-b border-gray-600 hover:bg-gray-600">
+                                <td className="py-3 px-4">
+                                  <div className="text-white font-medium">{contribution.userEmail}</div>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <span className={`px-2 py-1 rounded text-xs font-medium ${getRoleColor(contribution.userRole)}`}>
+                                    {contribution.userRole}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <span className="text-blue-400 font-semibold">{contribution.glossaryTerms}</span>
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <span className="text-green-400 font-semibold">{contribution.contentModules}</span>
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <span className="text-purple-400 font-semibold">{contribution.sunburstEntries}</span>
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <span className="text-yellow-400 font-bold">{contribution.totalContributions}</span>
+                                </td>
+                                <td className="py-3 px-4 text-gray-300 text-sm">
+                                  {contribution.totalContributions > 0 
+                                    ? formatDate(contribution.recentActivity.toISOString())
+                                    : 'No activity'
+                                  }
+                                </td>
+                                <td className="py-3 px-4">
+                                  <button
+                                    onClick={() => setSelectedUser(selectedUser === contribution.userId ? null : contribution.userId)}
+                                    className="text-blue-400 hover:text-blue-300 text-sm underline"
+                                  >
+                                    {selectedUser === contribution.userId ? 'Hide Details' : 'View Details'}
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Detailed User Entries */}
+                  {selectedUser && (
+                    <div className="bg-gray-700 rounded-lg p-6">
+                      <h3 className="text-xl font-semibold text-white mb-4">
+                        Detailed Entries for {userContributions.find(u => u.userId === selectedUser)?.userEmail}
+                      </h3>
+                      
+                      {(() => {
+                        const selectedContribution = userContributions.find(u => u.userId === selectedUser);
+                        if (!selectedContribution) return null;
+
+                        return (
+                          <div className="space-y-6">
+                            {/* Glossary Terms */}
+                            {selectedContribution.entries.glossaryTerms.length > 0 && (
+                              <div>
+                                <h4 className="text-lg font-medium text-blue-400 mb-3">
+                                  Glossary Terms ({selectedContribution.entries.glossaryTerms.length})
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {selectedContribution.entries.glossaryTerms.map((term) => (
+                                    <div key={term._id} className="bg-gray-600 rounded-lg p-4 border border-gray-500">
+                                      <div className="flex justify-between items-start mb-2">
+                                        <h5 className="font-medium text-white truncate">{term.title}</h5>
+                                        <span className={`px-2 py-1 rounded text-xs ${
+                                          term.approved ? 'bg-green-600 text-green-100' : 'bg-yellow-600 text-yellow-100'
+                                        }`}>
+                                          {term.approved ? 'Approved' : 'Pending'}
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-300 text-sm mb-3 line-clamp-2">{term.description}</p>
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs text-gray-400">
+                                          {formatDate(term.createdAt)}
+                                        </span>
+                                        <a
+                                          href={`/glossary?search=${encodeURIComponent(term.title)}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-blue-400 hover:text-blue-300 text-xs underline"
+                                        >
+                                          View in Glossary →
+                                        </a>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Content Modules */}
+                            {selectedContribution.entries.contentModules.length > 0 && (
+                              <div>
+                                <h4 className="text-lg font-medium text-green-400 mb-3">
+                                  Content Modules ({selectedContribution.entries.contentModules.length})
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {selectedContribution.entries.contentModules.map((content) => (
+                                    <div key={content._id} className="bg-gray-600 rounded-lg p-4 border border-gray-500">
+                                      <div className="flex justify-between items-start mb-2">
+                                        <h5 className="font-medium text-white truncate">{content.title}</h5>
+                                        <span className={`px-2 py-1 rounded text-xs ${
+                                          content.moderationStatus === 'approved' ? 'bg-green-600 text-green-100' :
+                                          content.moderationStatus === 'rejected' ? 'bg-red-600 text-red-100' :
+                                          'bg-yellow-600 text-yellow-100'
+                                        }`}>
+                                          {content.moderationStatus}
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-300 text-sm mb-2 line-clamp-2">{content.description}</p>
+                                      <div className="text-xs text-gray-400 mb-3">
+                                        <span className="inline-block mr-2">📚 {content.knowledgeArea}</span>
+                                        <span className="inline-block">🎯 {content.discipline}</span>
+                                      </div>
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs text-gray-400">
+                                          {formatDate(content.createdAt)}
+                                        </span>
+                                        {content.youtubeUrl && (
+                                          <a
+                                            href={content.youtubeUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-green-400 hover:text-green-300 text-xs underline"
+                                          >
+                                            View Content →
+                                          </a>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Knowledge Map Entries */}
+                            {selectedContribution.entries.sunburstEntries.length > 0 && (
+                              <div>
+                                <h4 className="text-lg font-medium text-purple-400 mb-3">
+                                  Knowledge Map Entries ({selectedContribution.entries.sunburstEntries.length})
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {selectedContribution.entries.sunburstEntries.map((entry) => (
+                                    <div key={entry._id} className="bg-gray-600 rounded-lg p-4 border border-gray-500">
+                                      <div className="flex justify-between items-start mb-2">
+                                        <h5 className="font-medium text-white truncate">{entry.themeCluster}</h5>
+                                        <span className={`px-2 py-1 rounded text-xs ${
+                                          entry.isActive ? 'bg-green-600 text-green-100' : 'bg-gray-600 text-gray-100'
+                                        }`}>
+                                          {entry.isActive ? 'Active' : 'Inactive'}
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-300 text-sm mb-2 line-clamp-2">{entry.description}</p>
+                                      <div className="text-xs text-gray-400 mb-3 space-y-1">
+                                        <div>🎯 {entry.knowledgeArea} → {entry.discipline}</div>
+                                        <div>🔧 {entry.toolTechnology}</div>
+                                      </div>
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs text-gray-400">
+                                          {formatDate(entry.createdAt)}
+                                        </span>
+                                        <a
+                                          href="/sunburst"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-purple-400 hover:text-purple-300 text-xs underline"
+                                        >
+                                          View Knowledge Map →
+                                        </a>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>

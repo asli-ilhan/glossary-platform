@@ -1,23 +1,15 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function StudentPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return;
-
-    if (!session) {
-      router.push('/auth/signin');
-      return;
-    }
-
+    // Redirect all users directly to glossary
     router.push('/glossary');
-  }, [session, status, router]);
+  }, [router]);
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
