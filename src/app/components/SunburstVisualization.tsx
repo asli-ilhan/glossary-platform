@@ -322,11 +322,11 @@ const SunburstVisualization: React.FC = () => {
     const g = svg.append('g')
       .attr('transform', `translate(${centerX}, ${centerY})`);
 
-    // Draw concentric rings (visual guides) - Expanded inner circles, reduced outer
+    // Draw concentric rings (visual guides) - Fine-tuned ring sizes
     const rings = [
-      { level: 1, radius: maxRadius * 0.15, label: 'Tools & Technologies', color: '#0ea5e9' }, // Expanded from 0.1
-      { level: 2, radius: maxRadius * 0.35, label: 'Disciplines', color: '#3b82f6' }, // Expanded from 0.25
-      { level: 3, radius: maxRadius * 0.5, label: 'Knowledge Areas', color: '#60a5fa' } // Slightly expanded from 0.4
+      { level: 1, radius: maxRadius * 0.73, label: 'Tools & Technologies', color: '#9b5de5' }, // Purple - fine-tuned inner boundary
+      { level: 2, radius: maxRadius * 1.18, label: 'Disciplines', color: '#f9a03f' }, // Orange - fine-tuned middle boundary  
+      { level: 3, radius: maxRadius * 1.63, label: 'Knowledge Areas', color: '#28afb0' } // Teal - fine-tuned outer boundary
     ];
 
     rings.forEach((ring, index) => {
@@ -352,17 +352,16 @@ const SunburstVisualization: React.FC = () => {
           select(this).attr('opacity', 0.05);
         });
 
-      // Add ring outline (dashed for knowledge areas)
+      // Add ring outline
       g.append('ellipse')
         .attr('cx', 0)
         .attr('cy', 0)
         .attr('rx', ring.radius * 1.2) // Horizontal radius (wider)
         .attr('ry', ring.radius * 0.8) // Vertical radius (narrower)
         .attr('fill', 'none')
-        .attr('stroke', '#1e40af')
+        .attr('stroke', ring.color)
         .attr('stroke-width', 1)
-        .attr('stroke-dasharray', ring.level === 3 ? '5,5' : 'none')
-        .attr('opacity', 0.4)
+        .attr('opacity', 0.6)
         .style('pointer-events', 'none'); // Don't interfere with the fill area clicks
     });
 
@@ -377,28 +376,28 @@ const SunburstVisualization: React.FC = () => {
       tool: radialNodes.filter(n => n.type === 'tool')
     };
 
-    // Organized ring placement - Expanded inner circles, controlled outer
+    // Fine-tuned zones to match the adjusted rings
     const ringConfigs = [
       { 
         type: 'tool', 
-        baseRadius: maxRadius * 0.15, // Expanded from 0.1 to give more space
-        radiusSpread: maxRadius * 0.025, // Slightly increased spread
-        nodeRadius: 3,
-        minSpacing: 15
+        minRadius: maxRadius * 0.1, // Start further from center
+        maxRadius: maxRadius * 0.68, // Slightly smaller to match purple ring (0.73)
+        nodeRadius: 10,
+        minSpacing: 12
       },
       { 
         type: 'discipline', 
-        baseRadius: maxRadius * 0.35, // Expanded from 0.25 to give more space
-        radiusSpread: maxRadius * 0.035, // Slightly increased spread
-        nodeRadius: 6,
-        minSpacing: 18
+        minRadius: maxRadius * 0.76, // Start after purple ring
+        maxRadius: maxRadius * 1.13, // Slightly smaller to match orange ring (1.18)
+        nodeRadius: 10,
+        minSpacing: 15
       },
       { 
         type: 'knowledgeArea', 
-        baseRadius: maxRadius * 0.5, // Slightly expanded but well contained
-        radiusSpread: maxRadius * 0.02, // Tighter spread to prevent escaping
-        nodeRadius: 15, // Updated to match actual node size
-        minSpacing: 20 // Slightly reduced spacing to match smaller nodes
+        minRadius: maxRadius * 1.23, // Start after orange ring
+        maxRadius: maxRadius * 1.53, // Pull in more to prevent any overflow
+        nodeRadius: 10,
+        minSpacing: 18
       }
     ];
 
@@ -420,13 +419,13 @@ const SunburstVisualization: React.FC = () => {
           const angleVariation = (Math.random() - 0.5) * angleStep * 0.3; // Small variation
           const angle = baseAngle + angleVariation;
           
-          // Controlled radius variation for organic feel
-          const radiusVariation = (Math.random() - 0.5) * config.radiusSpread;
-          const radius = config.baseRadius + radiusVariation;
+          // Simple radius placement within strict boundaries
+          const radiusRange = config.maxRadius - config.minRadius;
+          const radius = config.minRadius + (Math.random() * radiusRange);
           
-          // ELLIPTICAL POSITIONING: Wider horizontally, shorter vertically
-          const horizontalRadius = radius;
-          const verticalRadius = radius * 0.6; // 40% reduction in height to prevent overflow
+          // ELLIPTICAL POSITIONING: Balanced spread without overflow
+          const horizontalRadius = radius * 1.2; // Slightly less horizontal expansion
+          const verticalRadius = radius * 0.85; // Slightly more compression to prevent overflow
           
           x = Math.cos(angle) * horizontalRadius;
           y = Math.sin(angle) * verticalRadius;
@@ -448,11 +447,11 @@ const SunburstVisualization: React.FC = () => {
         // Fallback: systematic placement if collision detection fails
         if (!validPosition) {
           const fallbackAngle = index * angleStep;
-          const fallbackRadius = config.baseRadius + (attempts * 10); // Push farther out
+          const fallbackRadius = Math.min(config.minRadius + (attempts * 5), config.maxRadius); // Stay within boundaries
           
-          // ELLIPTICAL FALLBACK: Maintain elliptical shape even in fallback
-          const fallbackHorizontalRadius = fallbackRadius;
-          const fallbackVerticalRadius = fallbackRadius * 0.6; // Same 40% height reduction
+          // ELLIPTICAL FALLBACK: Balanced fallback positioning without overflow
+          const fallbackHorizontalRadius = fallbackRadius * 1.2; // Same horizontal expansion
+          const fallbackVerticalRadius = fallbackRadius * 0.85; // Same compression to prevent overflow
           
           x = Math.cos(fallbackAngle) * fallbackHorizontalRadius;
           y = Math.sin(fallbackAngle) * fallbackVerticalRadius;
@@ -519,40 +518,39 @@ const SunburstVisualization: React.FC = () => {
       .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
       .style('cursor', 'pointer');
 
-    // Tools (small, clean circles)
+    // Tools (uniform circles) - Purple
     nodeSelection.filter((d: any) => d.type === 'tool')
       .append('circle')
-      .attr('r', 6) // Smaller, more uniform
-      .attr('fill', (d: any) => d.hasContent ? '#0ea5e9' : '#475569')
-      .attr('stroke', (d: any) => d.hasContent ? '#38bdf8' : '#64748b')
-      .attr('stroke-width', 1)
+      .attr('r', 10) // Same size as all others
+      .attr('fill', (d: any) => d.hasContent ? '#9b5de5' : '#6b7280')
+      .attr('stroke', (d: any) => d.hasContent ? '#b794f6' : '#9ca3af')
+      .attr('stroke-width', 1.5)
       .attr('opacity', 0.9)
       .style('filter', (d: any) => 
         d.hasContent ? 
-        'drop-shadow(0 0 6px rgba(14, 165, 233, 0.4))' : 
-        'drop-shadow(0 0 3px rgba(71, 85, 105, 0.3))'
+        'drop-shadow(0 0 8px rgba(155, 93, 229, 0.4))' : 
+        'drop-shadow(0 0 8px rgba(107, 114, 128, 0.3))'
       );
 
-    // Disciplines (medium, clean circles)
+    // Disciplines (uniform circles) - Orange
     nodeSelection.filter((d: any) => d.type === 'discipline')
       .append('circle')
-      .attr('r', 12) // More uniform sizing
-      .attr('fill', '#3b82f6')
-      .attr('stroke', '#60a5fa')
+      .attr('r', 10) // Same size as all others
+      .attr('fill', '#f9a03f')
+      .attr('stroke', '#fbbf24')
       .attr('stroke-width', 1.5)
       .attr('opacity', 0.9)
-      .style('filter', 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.4))');
+      .style('filter', 'drop-shadow(0 0 8px rgba(249, 160, 63, 0.4))');
 
-    // Knowledge Areas (filled circles, smaller size)
+    // Knowledge Areas (uniform circles, no dashes) - Teal
     nodeSelection.filter((d: any) => d.type === 'knowledgeArea')
       .append('circle')
-      .attr('r', 15) // Reduced from 20 to 15
-      .attr('fill', '#60a5fa') // Filled instead of none
-      .attr('stroke', '#93c5fd')
-      .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '6,3') // Dashed border
-      .attr('opacity', 0.8)
-      .style('filter', 'drop-shadow(0 0 10px rgba(96, 165, 250, 0.4))');
+      .attr('r', 10) // Same size as all others
+      .attr('fill', '#28afb0') // Teal color
+      .attr('stroke', '#5eead4')
+      .attr('stroke-width', 1.5)
+      .attr('opacity', 0.9)
+      .style('filter', 'drop-shadow(0 0 8px rgba(40, 175, 176, 0.4))');
 
     // Add hover and click interactions
     nodeSelection
@@ -565,13 +563,13 @@ const SunburstVisualization: React.FC = () => {
           .duration(200)
           .style('filter', function() {
             if (d.type === 'knowledgeArea') {
-              return 'drop-shadow(0 0 20px rgba(96, 165, 250, 0.8))';
+              return 'drop-shadow(0 0 20px rgba(40, 175, 176, 0.8))';
             } else if (d.type === 'discipline') {
-              return 'drop-shadow(0 0 15px rgba(59, 130, 246, 0.7))';
+              return 'drop-shadow(0 0 15px rgba(249, 160, 63, 0.7))';
             } else {
               return d.hasContent ? 
-                'drop-shadow(0 0 15px rgba(14, 165, 233, 0.8))' : 
-                'drop-shadow(0 0 10px rgba(100, 116, 139, 0.6))';
+                'drop-shadow(0 0 15px rgba(155, 93, 229, 0.8))' : 
+                'drop-shadow(0 0 10px rgba(107, 114, 128, 0.6))';
             }
           });
         
@@ -687,13 +685,13 @@ const SunburstVisualization: React.FC = () => {
             if (!parentElement) return '';
             const d = select(parentElement).datum() as any;
             if (d.type === 'knowledgeArea') {
-              return 'drop-shadow(0 0 8px rgba(96, 165, 250, 0.4))';
+              return 'drop-shadow(0 0 10px rgba(40, 175, 176, 0.4))';
             } else if (d.type === 'discipline') {
-              return 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.3))';
+              return 'drop-shadow(0 0 8px rgba(249, 160, 63, 0.4))';
             } else {
               return d.hasContent ? 
-                'drop-shadow(0 0 8px rgba(14, 165, 233, 0.5))' : 
-                'drop-shadow(0 0 4px rgba(100, 116, 139, 0.3))';
+                'drop-shadow(0 0 6px rgba(155, 93, 229, 0.4))' : 
+                'drop-shadow(0 0 3px rgba(107, 114, 128, 0.3))';
             }
           });
         
@@ -729,24 +727,24 @@ const SunburstVisualization: React.FC = () => {
             if (nodeData.id === d.id) {
               // Clicked node gets strongest glow
               if (nodeData.type === 'knowledgeArea') {
-                return 'drop-shadow(0 0 30px rgba(96, 165, 250, 1))';
+                return 'drop-shadow(0 0 30px rgba(40, 175, 176, 1))';
               } else if (nodeData.type === 'discipline') {
-                return 'drop-shadow(0 0 25px rgba(59, 130, 246, 1))';
+                return 'drop-shadow(0 0 25px rgba(249, 160, 63, 1))';
               } else {
                 return nodeData.hasContent ? 
-                  'drop-shadow(0 0 25px rgba(14, 165, 233, 1))' : 
-                  'drop-shadow(0 0 20px rgba(100, 116, 139, 0.8))';
+                  'drop-shadow(0 0 25px rgba(155, 93, 229, 1))' : 
+                  'drop-shadow(0 0 20px rgba(107, 114, 128, 0.8))';
               }
             } else {
               // Reset others to default
               if (nodeData.type === 'knowledgeArea') {
-                return 'drop-shadow(0 0 8px rgba(96, 165, 250, 0.4))';
+                return 'drop-shadow(0 0 10px rgba(40, 175, 176, 0.4))';
               } else if (nodeData.type === 'discipline') {
-                return 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.3))';
+                return 'drop-shadow(0 0 8px rgba(249, 160, 63, 0.4))';
               } else {
                 return nodeData.hasContent ? 
-                  'drop-shadow(0 0 8px rgba(14, 165, 233, 0.5))' : 
-                  'drop-shadow(0 0 4px rgba(100, 116, 139, 0.3))';
+                  'drop-shadow(0 0 6px rgba(155, 93, 229, 0.4))' : 
+                  'drop-shadow(0 0 3px rgba(107, 114, 128, 0.3))';
               }
             }
           });
@@ -805,63 +803,74 @@ const SunburstVisualization: React.FC = () => {
           <h4 className="text-xs font-semibold text-gray-300 mb-2">Visual Legend</h4>
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full border-2 border-blue-300" style={{ borderStyle: 'dashed' }}></div>
-              <span className="text-xs text-blue-300">Knowledge Areas</span>
+              <div className="w-3 h-3 rounded-full bg-teal-400 border border-teal-400" style={{ backgroundColor: '#28afb0', borderColor: '#5eead4' }}></div>
+              <span className="text-xs" style={{ color: '#28afb0' }}>Knowledge Areas</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-400 border border-blue-400"></div>
-              <span className="text-xs text-blue-400">Disciplines</span>
+              <div className="w-3 h-3 rounded-full bg-orange-400 border border-orange-400" style={{ backgroundColor: '#f9a03f', borderColor: '#fbbf24' }}></div>
+              <span className="text-xs" style={{ color: '#f9a03f' }}>Disciplines</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-              <span className="text-xs text-blue-500">Tools & Tech</span>
+              <div className="w-3 h-3 rounded-full bg-purple-400 border border-purple-400" style={{ backgroundColor: '#9b5de5', borderColor: '#b794f6' }}></div>
+              <span className="text-xs" style={{ color: '#9b5de5' }}>Tools & Tech</span>
             </div>
           </div>
         </div>
 
-        {/* Ring Titles - Adjusted for better spacing */}
-        <div className="absolute inset-0 pointer-events-none z-20">
+        {/* Ring Titles - Positioned directly ON the ring frames */}
+        <svg className="absolute inset-0 pointer-events-none z-20" width="100%" height="100%">
           {radialNodes.length > 0 && (
             <>
-              <div 
-                className="absolute text-white font-bold text-lg"
+              {/* Knowledge Areas - Text directly on teal ring frame */}
+              <text
+                x={dimensions.width / 2 + (1.63 * 1.2 * (Math.min(dimensions.width, dimensions.height) / 2 - 120))}
+                y={dimensions.height / 2}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                className="font-bold text-sm"
+                fill="#28afb0"
                 style={{
-                  top: '25%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  textShadow: '0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4)',
-                  zIndex: 30
+                  textShadow: '0 0 8px rgba(40, 175, 176, 0.8)',
+                  fontSize: '14px'
                 }}
               >
                 Knowledge Areas
-                </div>
-              <div 
-                className="absolute text-white font-bold text-base"
+              </text>
+              
+              {/* Disciplines - Text directly on orange ring frame */}
+              <text
+                x={dimensions.width / 2 + (1.18 * 1.2 * (Math.min(dimensions.width, dimensions.height) / 2 - 120))}
+                y={dimensions.height / 2}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                className="font-bold text-sm"
+                fill="#f9a03f"
                 style={{
-                  top: '45%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  textShadow: '0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4)',
-                  zIndex: 30
+                  textShadow: '0 0 8px rgba(249, 160, 63, 0.8)',
+                  fontSize: '14px'
                 }}
               >
                 Disciplines
-                </div>
-              <div 
-                className="absolute text-white font-bold text-sm"
+              </text>
+              
+              {/* Tools & Technologies - Text directly on purple ring frame */}
+              <text
+                x={dimensions.width / 2 + (0.73 * 1.2 * (Math.min(dimensions.width, dimensions.height) / 2 - 120))}
+                y={dimensions.height / 2}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                className="font-bold text-sm"
+                fill="#9b5de5"
                 style={{
-                  top: '65%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  textShadow: '0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4)',
-                  zIndex: 30
+                  textShadow: '0 0 8px rgba(155, 93, 229, 0.8)',
+                  fontSize: '14px'
                 }}
               >
                 Tools & Technologies
-                </div>
+              </text>
             </>
           )}
-        </div>
+        </svg>
 
         {/* Scroll Down Indicator - Bottom Hover Area */}
         <div 
@@ -937,7 +946,7 @@ const SunburstVisualization: React.FC = () => {
           <div className="bg-gray-900 text-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90%] overflow-y-auto border border-blue-500">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-blue-300">Digital Literacy Toolkit - Knowledge Map</h2>
+                <h2 className="text-2xl font-bold text-blue-300">Knowledge Map</h2>
                 <button
                   onClick={() => setShowInstructions(false)}
                   className="text-gray-400 hover:text-white text-2xl p-2 rounded hover:bg-gray-700 transition-colors"
@@ -950,30 +959,30 @@ const SunburstVisualization: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-semibold text-blue-300 mb-2">How to Navigate</h3>
                   <ul className="space-y-2 text-sm list-disc list-inside">
-                    <li>• <span className="text-blue-300 font-medium">Hover to preview content and see related entries</span></li>
-                    <li>• <span className="text-blue-300 font-medium">Click a node to explore full content and resources</span></li>
-                    <li>• <span className="text-blue-300 font-medium">Ring titles are always visible</span> for context</li>
-                    <li>• <span className="text-blue-300 font-medium">Nodes glow</span> when hovered and stay glowing when clicked</li>
+                    <li><span className="text-blue-300 font-medium">Hover to preview content and see related entries</span></li>
+                    <li><span className="text-blue-300 font-medium">Click a node to explore full content and resources</span></li>
+                    <li><span className="text-blue-300 font-medium">Ring titles are always visible</span> for context</li>
+                    <li><span className="text-blue-300 font-medium">Nodes glow</span> when hovered and stay glowing when clicked</li>
                   </ul>
                 </div>
                 
                 <div>
                   <h3 className="text-lg font-semibold text-blue-300 mb-2">Visualisation Structure</h3>
-                  <ul className="space-y-2 text-sm">
-                    <li>• <span className="text-blue-300 font-medium">Outer Ring</span>: Knowledge Areas (large dashed circles)</li>
-                    <li>• <span className="text-blue-400 font-medium">Middle Ring</span>: Disciplines (medium filled circles)</li>
-                    <li>• <span className="text-blue-500 font-medium">Inner Ring</span>: Tools & Technologies (small dots)</li>
-                    <li>• <span className="text-blue-300 font-medium">Bright blue nodes</span> contain rich explainer content and technical guides</li>
+                  <ul className="space-y-2 text-sm list-disc list-inside">
+                    <li><span style={{ color: '#28afb0' }} className="font-medium">Outer Ring</span>: Knowledge Areas (teal circles)</li>
+                    <li><span style={{ color: '#f9a03f' }} className="font-medium">Middle Ring</span>: Disciplines (orange circles)</li>
+                    <li><span style={{ color: '#9b5de5' }} className="font-medium">Inner Ring</span>: Tools & Technologies (purple circles)</li>
+                    <li><span style={{ color: '#9b5de5' }} className="font-medium">Bright purple nodes</span> contain rich explainer content and technical guides</li>
                   </ul>
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-300 mb-2">Platform Features</h3>
+                  <h3 className="text-lg font-semibold text-blue-300 mb-2">Toolkit Features</h3>
                   <ul className="space-y-2 text-sm list-disc list-inside">
-                    <li>• Interactive knowledge mapping revealing power dynamics in digital systems</li>
-                    <li>• Glossary integration with collaborative definitions</li>
-                    <li>• Content modules including videos, code examples, and case studies</li>
-                    <li>• Guest speaker insights and critical analysis materials</li>
+                    <li>Interactive knowledge mapping revealing power dynamics in digital systems</li>
+                    <li>Glossary integration with collaborative definitions</li>
+                    <li>Content modules including videos, code examples, and case studies</li>
+                    <li>Guest speaker insights and critical analysis materials</li>
                   </ul>
                 </div>
               </div>
@@ -1099,6 +1108,31 @@ const SunburstVisualization: React.FC = () => {
             <div className="h-full overflow-y-auto pb-16">
               <div className="p-4 space-y-6">
                 
+                {/* Connected Data Points */}
+                {(() => {
+                  const currentNode = radialNodes.find(n => n.name === sidePanelContent.name);
+                  const connectedNodes = currentNode ? currentNode.connections
+                    .map(connId => radialNodes.find(n => n.id === connId))
+                    .filter(Boolean)
+                    .map(node => node!.name) : [];
+                  
+                  return connectedNodes.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-cyan-300 mb-2 uppercase tracking-wide">Connected Data Points</h3>
+                      <div className="flex flex-wrap gap-1">
+                        {connectedNodes.map((nodeName, index) => (
+                          <span 
+                            key={index}
+                            className="inline-block bg-gray-700 text-gray-200 text-xs px-2 py-1 rounded border border-gray-600"
+                          >
+                            {nodeName}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Description */}
                 {sidePanelContent.description && (
                   <div>

@@ -11,34 +11,20 @@ import { useState, useEffect } from 'react';
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [showLanding, setShowLanding] = useState(true);
+  const [showLanding, setShowLanding] = useState(true); // Always start with introduction
   const [showTutorial, setShowTutorial] = useState(false);
 
-  // Always show landing page by default, unless specifically navigating to visualization
+  // Handle URL parameters for specific navigation requests
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const showVisualization = urlParams.get('showVisualization');
-    const showIntroduction = urlParams.get('showIntroduction');
-    
-    // Check if this is the user's first visit
-    const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
     
     if (showVisualization === 'true') {
       setShowLanding(false);
       // Clean up URL
       window.history.replaceState({}, '', '/');
-    } else if (showIntroduction === 'true') {
-      setShowLanding(true);
-      // Clean up URL
-      window.history.replaceState({}, '', '/');
-    } else if (hasVisitedBefore === 'true') {
-      // User has visited before, go directly to visualization
-      setShowLanding(false);
-    } else {
-      // First time visitor, show landing page and mark as visited
-      setShowLanding(true);
-      localStorage.setItem('hasVisitedBefore', 'true');
     }
+    // Default: keep showing landing page (already true)
   }, []);
 
   // Listen for landing page trigger from header
@@ -118,24 +104,19 @@ export default function Home() {
             <SunburstVisualization />
           </div>
 
-          {/* Glossary Section - Better Layout */}
+          {/* Contribution Section - Better Layout */}
           <div className="bg-black mt-1">
             <div className="w-full px-8 py-12">
-              <div className="flex justify-between items-center max-w-none">
-                <div className="flex-1 pr-12">
-                  <h2 className="text-xl font-bold mb-3">Add, Edit, and Explore Key Concepts</h2>
-                  <button 
-                    onClick={() => router.push('/glossary')} 
-                    className="primary text-base px-4 py-2"
-                  >
-                    Glossary
-                  </button>
-                </div>
-                <div className="flex-1">
-                  <p className="text-gray-400 text-lg leading-relaxed">
-                    The glossary is an editable, peer-moderated space where contributors can define key terms, propose alternative interpretations, and link definitions to tools, themes, and disciplines.
-                  </p>
-                </div>
+              <div className="max-w-2xl">
+                <p className="text-gray-400 text-lg leading-relaxed mb-6">
+                  This toolkit evolves through collaborative contributions. Contributors can add new terms, expand existing descriptions, propose alternative interpretations, and actively make connections between disciplines, knowledge areas, and technologies.
+                </p>
+                <button 
+                  onClick={() => router.push('/glossary')} 
+                  className="primary text-base px-4 py-2"
+                >
+                  Contribute to the Toolkit
+                </button>
               </div>
             </div>
           </div>

@@ -20,22 +20,22 @@ export const visualizationTutorial: TutorialStep[] = [
     id: 'step-2',
     title: 'Engage with Toolkit Content',
     content: 'Each node opens a side panel with layered content: visual explainers, technical demonstrations, key terms, and contextual references. These materials are designed to connect conceptual inquiry with hands-on exploration.',
-    target: '.nodes',
+    target: 'svg g.nodes',
     position: 'right',
     action: 'click'
   },
   {
     id: 'step-3',
-    title: 'Contribute to the Glossary',
-    content: 'Students and contributors can propose new key terms, suggest edits, or offer alternative definitions. Entries are reviewed before publication and dynamically linked to relevant concepts and technologies, building a shared, evolving knowledge system.',
+    title: 'Navigate the Platform',
+    content: 'Use the menu to access different sections: the glossary for definitions, the about page for course information, and account features for contributing content.',
     target: 'header button[aria-label="Menu"]',
     position: 'bottom',
     action: 'click'
   },
   {
     id: 'step-4',
-    title: 'Submit Projects (Beta)',
-    content: 'As part of the course, students can submit project outcomes that reflect critical, creative, or research-based approaches to internet inequalities. Projects will be linked to the visual map and contribute to the wider archive as this feature develops.',
+    title: 'Access Your Account',
+    content: 'Sign in to contribute to the glossary, access administrative features, or view your profile. Account holders can submit terms and participate in the collaborative knowledge building process.',
     target: 'header div:last-child button',
     position: 'bottom',
     action: 'click'
@@ -52,58 +52,42 @@ export const glossaryTutorial: TutorialStep[] = [
     action: 'none'
   },
   {
-    id: 'navigation-back',
-    title: 'Navigation',
-    content: 'Use the hamburger menu to navigate between different sections of the platform.',
-    target: 'header button[aria-label="Menu"]',
-    position: 'bottom',
+    id: 'add-term-button',
+    title: 'Propose New Terms',
+    content: 'Contributors can propose new terms, offer alternative definitions, and link entries to technologies, practices, and knowledge areas. All submissions are reviewed before publication.',
+    target: 'button.add-term-form',
+    position: 'top',
     action: 'click'
   },
   {
-    id: 'browse-terms',
-    title: 'Search and Discover',
-    content: 'Use the letter filters or full-text search to browse terms. Clicking on an entry reveals related resources from technical tools to student projects and positions the term within the larger conceptual map.',
-    target: '.glossary-terms-container',
+    id: 'browse-letters',
+    title: 'Browse by Letter',
+    content: 'Use the letter filters to browse terms alphabetically, or click "All" to see the complete glossary. This helps you discover related concepts and terminology.',
+    target: '.tab-container',
     position: 'top',
-    action: 'none'
+    action: 'click'
   },
   {
-    id: 'term-boxes',
-    title: 'Living Archive',
-    content: 'As a living archive, it evolves through multiple contributions, recognising that definitions are shaped by context, discipline, and experience.',
-    target: '.first-term',
-    position: 'right',
+    id: 'search-terms',
+    title: 'Explore Term Details',
+    content: 'Click on any term to see its full definition(s). Terms may have multiple interpretations from different contributors, reflecting the evolving nature of digital discourse.',
+    target: '.glossary-terms-container',
+    position: 'top',
     action: 'click'
   },
   {
     id: 'multiple-definitions',
-    title: 'Shared Vocabulary',
-    content: 'This is more than a glossary. It is a shared vocabulary for digital justice, built by a community of practice.',
+    title: 'Living Archive',
+    content: 'As a living archive, the glossary evolves through multiple contributions. Some terms have multiple definitions, recognising that meanings are shaped by context, discipline, and experience.',
     target: '.definition-count-badge',
     position: 'left',
     action: 'none'
   },
   {
-    id: 'add-term-section',
-    title: 'Propose New Terms',
-    content: 'Contributors can propose new terms, offer alternative definitions, and link entries to technologies, practices, and knowledge areas.',
-    target: '.add-term-form',
-    position: 'top',
-    action: 'none'
-  },
-  {
-    id: 'term-submission',
-    title: 'Review Process',
-    content: 'All submissions are reviewed before publication to ensure clarity and relevance. Approved terms are credited and interlinked across the Toolkit.',
-    target: '.add-term-form',
-    position: 'bottom',
-    action: 'click'
-  },
-  {
-    id: 'sign-in-required',
-    title: 'Account Required',
-    content: 'You need to sign in to submit terms. Use the account menu in the header to sign in or register.',
-    target: 'header div:last-child button',
+    id: 'navigation',
+    title: 'Platform Navigation',
+    content: 'Use the hamburger menu to navigate between the knowledge map, glossary, and other platform sections. Each area offers different ways to engage with the course materials.',
+    target: 'header button[aria-label="Menu"]',
     position: 'bottom',
     action: 'click'
   }

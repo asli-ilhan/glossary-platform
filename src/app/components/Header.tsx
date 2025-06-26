@@ -4,10 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Header() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [authMenuOpen, setAuthMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -77,9 +78,12 @@ export default function Header() {
           <header className="bg-black text-white px-8 py-2 flex items-center justify-between shadow-lg relative z-50">
       {/* Left Side - Title */}
       <div className="flex items-center">
-        <Link href="/" className="hover:opacity-80 transition-opacity">
+        <button 
+          onClick={() => window.dispatchEvent(new CustomEvent('showLandingPage', { detail: { explicit: true } }))}
+          className="hover:opacity-80 transition-opacity"
+        >
           <h1 className="text-xl font-bold text-white cursor-pointer">Digital Literacy Toolkit</h1>
-        </Link>
+        </button>
       </div>
 
       {/* Right Side - Help, Account Access, Hamburger Menu */}
@@ -248,29 +252,44 @@ export default function Header() {
           {/* Dropdown Menu */}
           {menuOpen && (
             <div className="absolute right-0 mt-2 w-56 bg-black rounded-md shadow-lg border border-gray-700 z-50">
-              <div className="py-2">
-                <Link
-                  href="/"
-                  className="block px-4 py-3 text-sm text-white hover:bg-gray-700 transition-colors"
-                  onClick={() => setMenuOpen(false)}
+              <div>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    // Navigate to visualization page and ensure it shows the map, not introduction
+                    if (pathname !== '/') {
+                      // If not on home page, navigate there and show visualization
+                      router.push('/?showVisualization=true');
+                    } else {
+                      // If already on home page, dispatch event to hide introduction and show visualization
+                      window.dispatchEvent(new CustomEvent('showLandingPage', { 
+                        detail: { explicit: false } 
+                      }));
+                    }
+                  }}
+                  className="block w-full text-left px-4 py-3 text-sm text-white hover:bg-gray-700 transition-colors m-0 border-0 rounded-none"
                 >
-                  <div className="flex items-center space-x-3">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                    <span>Home</span>
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-4 h-4 flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                      </svg>
+                    </div>
+                    <span>Knowledge Map</span>
                   </div>
-                </Link>
+                </button>
                 
                 <Link
                   href="/glossary"
                   className="block px-4 py-3 text-sm text-white hover:bg-gray-700 transition-colors"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <div className="flex items-center space-x-3">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-4 h-4 flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
                     <span>Glossary</span>
                   </div>
                 </Link>
@@ -280,30 +299,40 @@ export default function Header() {
                   className="block px-4 py-3 text-sm text-white hover:bg-gray-700 transition-colors"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <div className="flex items-center space-x-3">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-4 h-4 flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
                     <span>About</span>
                   </div>
                 </Link>
                 
-                <div className="border-t border-gray-700 my-2"></div>
+                <div className="border-t border-gray-700 my-0"></div>
                 
                 <button
                   onClick={() => {
                     setMenuOpen(false);
-                    // Dispatch event to show introduction page explicitly
-                    window.dispatchEvent(new CustomEvent('showLandingPage', { 
-                      detail: { explicit: true } 
-                    }));
+                    // Always navigate to home page and ensure introduction shows
+                    if (pathname !== '/') {
+                      // If not on home page, navigate there (introduction will show by default)
+                      router.push('/');
+                    } else {
+                      // If already on home page, dispatch event to show introduction
+                      window.dispatchEvent(new CustomEvent('showLandingPage', { 
+                        detail: { explicit: true } 
+                      }));
+                    }
                   }}
                   className="block w-full text-left px-4 py-3 text-sm text-blue-300 hover:bg-gray-700 transition-colors"
                 >
-                  <div className="flex items-center space-x-3">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-10-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-4 h-4 flex items-center justify-center">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-10-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
                     <span>View Introduction</span>
                   </div>
                 </button>
