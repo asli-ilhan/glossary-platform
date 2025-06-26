@@ -56,9 +56,6 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
 
               <p>
                 This Toolkit brings those fields together. Through interactive maps, glossary contributions, short videos, and hands-on resources, it shows how technologies are built, how inequality is encoded through them, and how alternative approaches can be imagined.
-              </p>
-
-              <p>
                 It is designed to evolve through student-led content, collaborative teaching, and critical engagement with the digital systems shaping our world.
               </p>
             </div>
