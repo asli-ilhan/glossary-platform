@@ -1,6 +1,6 @@
-# Glossary App
+# Digital Literacy Toolkit
 
-A Next.js glossary application with MongoDB backend and NextAuth.js authentication, featuring role-based permissions for users and admins.
+A Next.js platform for critically engaging with digital systems and power structures, featuring interactive visualizations, collaborative glossary, and role-based permissions for users and admins.
 
 ## Features
 
@@ -30,7 +30,7 @@ A Next.js glossary application with MongoDB backend and NextAuth.js authenticati
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd glossary-app-main
+   cd digital-literacy-kit
    ```
 
 2. **Install dependencies**
