@@ -45,10 +45,6 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
         {/* Content */}
         <div className="flex-1 p-8 pt-4 flex flex-col justify-start">
           <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-white leading-tight">
-              Digital Literacy Toolkit
-            </h1>
-            
             <div className="text-gray-300 space-y-4 text-sm leading-relaxed">
               <p>
                 The Digital Literacy Toolkit is a public-facing, interdisciplinary platform developed by the MA Internet Equalities course at the Creative Computing Institute, University of the Arts London. It brings together technical knowledge, critical theory, and real-world examples to help students, educators, and the wider public understand and challenge the structural inequalities embedded in digital systems and infrastructures.
