@@ -48,7 +48,7 @@ export default function TutorialOverlay({ steps, isVisible, onComplete, onSkip }
   const calculateArrowPosition = (element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
     const popupX = 20;
-    const popupY = window.innerHeight - 380; // Adjusted for new popup height
+    const popupY = window.innerHeight - 440; // Adjusted for new popup height
     
     // Determine the best side to place arrow based on element position relative to popup
     let arrowX, arrowY, direction;
@@ -60,7 +60,7 @@ export default function TutorialOverlay({ steps, isVisible, onComplete, onSkip }
     const toBottom = window.innerHeight - rect.bottom;
     
     // Choose the side with most space, but prefer visible sides
-    if (toRight > 50 && rect.left > popupX + 400) {
+    if (toRight > 50 && rect.left > popupX + 440) {
       // Arrow on right side of element
       arrowX = rect.right + 12;
       arrowY = rect.top + rect.height / 2;
@@ -178,8 +178,8 @@ export default function TutorialOverlay({ steps, isVisible, onComplete, onSkip }
         style={{
           left: '20px',
           bottom: '20px',
-          width: '400px',
-          height: '400px',
+          width: '440px',
+          height: '420px',
         }}
       >
         <div className="flex flex-col h-full">

@@ -63,15 +63,7 @@ export default function Home() {
 
   const handleEnterPlatform = () => {
     setShowLanding(false);
-    
-    // Check if user wants to see tutorial
-    const hasSeenTutorial = localStorage.getItem('hasSeenVisualizationTutorial');
-    if (hasSeenTutorial !== 'true') {
-      // Show tutorial after a short delay to let the page load
-      setTimeout(() => {
-        setShowTutorial(true);
-      }, 1000);
-    }
+    // Removed automatic tutorial display - tutorial now only shows when explicitly requested via Help button
   };
 
   const handleTutorialComplete = () => {
@@ -100,7 +92,7 @@ export default function Home() {
       ) : (
         <>
           {/* Full Screen Visualization */}
-          <div className="w-full">
+          <div className="w-full min-h-[800px]">
             <SunburstVisualization />
           </div>
 

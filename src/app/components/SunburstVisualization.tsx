@@ -132,10 +132,9 @@ const SunburstVisualization: React.FC = () => {
     };
   }, []);
 
-  // Show instructions only on initial page load
+  // Track initial load completion (removed automatic instructions display)
   useEffect(() => {
     if (isInitialLoad && !loading && data.length > 0) {
-      setShowInstructions(true);
       setIsInitialLoad(false);
     }
   }, [isInitialLoad, loading, data]);
@@ -769,7 +768,7 @@ const SunburstVisualization: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-[1000px]">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-500"></div>
       </div>
     );
@@ -777,7 +776,7 @@ const SunburstVisualization: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-[1000px]">
         <div className="text-red-500 text-center">
           <p className="text-xl font-bold mb-2">Error Loading Visualization</p>
           <p>{error}</p>

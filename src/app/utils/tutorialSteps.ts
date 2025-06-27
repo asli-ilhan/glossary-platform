@@ -12,14 +12,14 @@ export const visualizationTutorial: TutorialStep[] = [
   {
     id: 'step-1',
     title: 'Explore the System Map',
-    content: 'Use the interactive visual map to navigate connections between disciplines, knowledge areas, practices, and tools. Hovering reveals links; clicking opens the full content structure: from videos to glossary entries and project modules.',
+    content: 'Use the interactive visual map to navigate connections between disciplines, knowledge areas, practices, and tools. Hovering reveals links; clicking opens the full content structure: from videos to glossary entries and content modules.',
     position: 'center',
     action: 'none'
   },
   {
     id: 'step-2',
     title: 'Engage with Toolkit Content',
-    content: 'Each node opens a side panel with layered content: visual explainers, technical demonstrations, key terms, and contextual references. These materials are designed to connect conceptual inquiry with hands-on exploration.',
+    content: 'Each node opens a side panel with layered content: visual explainers, technical demonstrations, key terms, and contextual references. These materials are designed to bridge conceptual inquiry with practical understanding through accessible video content, detailed definitions, and technical deep dive modules.',
     target: 'svg g.nodes',
     position: 'right',
     action: 'click'
@@ -36,7 +36,7 @@ export const visualizationTutorial: TutorialStep[] = [
     id: 'step-4',
     title: 'Access Your Account',
     content: 'Sign in to contribute to the glossary, access administrative features, or view your profile. Account holders can submit terms and participate in the collaborative knowledge building process.',
-    target: 'header div:last-child button',
+    target: 'header button:has(svg path[d*="M16 7a4 4 0 11-8 0 4 4 0 018 0"]), header button:has(.w-8.h-8.bg-gray-700)',
     position: 'bottom',
     action: 'click'
   }
