@@ -1486,9 +1486,7 @@ export default function AdminDashboard() {
                                           {formatDate(term.createdAt)}
                                         </span>
                                         <a
-                                          href={`/glossary?search=${encodeURIComponent(term.title)}`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
+                                          href={`/contribute?tab=glossary&search=${encodeURIComponent(term.title)}`}
                                           className="text-blue-400 hover:text-blue-300 text-xs underline"
                                         >
                                           View in Glossary →
@@ -1572,9 +1570,7 @@ export default function AdminDashboard() {
                                           {formatDate(entry.createdAt)}
                                         </span>
                                         <a
-                                          href="/sunburst"
-                                          target="_blank"
-                                          rel="noopener noreferrer"
+                                          href="/"
                                           className="text-purple-400 hover:text-purple-300 text-xs underline"
                                         >
                                           View Knowledge Map →

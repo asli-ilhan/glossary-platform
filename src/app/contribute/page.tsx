@@ -33,6 +33,14 @@ export default function Contribute() {
       setActiveTab('glossary');
     }
   }, []);
+
+  // Show sign-in modal for non-authenticated users on first visit
+  useEffect(() => {
+    if (status === 'loading') return; // Wait for session to load
+    if (!session) {
+      setShowSignInModal(true);
+    }
+  }, [session, status]);
   
   // Glossary-related state
   const [terms, setTerms] = useState<Term[]>([]);
@@ -73,6 +81,9 @@ export default function Contribute() {
     recentSubmissions: 0,
     approvedProjects: 0
   });
+
+  // Sign-in prompt modal state
+  const [showSignInModal, setShowSignInModal] = useState(false);
 
   const fetchContentAnalytics = async () => {
     try {
@@ -165,8 +176,8 @@ export default function Contribute() {
 
   const handleAddTermClick = () => {
     if (!session) {
-      // Redirect to sign in if user wants to add a term
-      router.push('/auth/signin?callbackUrl=/contribute');
+      // Show sign-in modal instead of redirecting
+      setShowSignInModal(true);
       return;
     }
     // Clear any previous messages and reset modal state when opening
@@ -389,17 +400,7 @@ export default function Contribute() {
                 Approved terms are credited and interlinked across the Toolkit, allowing users to trace how concepts shift across disciplines, tools, and real-world examples.
               </p>
             </div>
-            {!session && (
-              <p className="text-center mb-3 text-gray-400">
-                Browse our comprehensive glossary of terms. 
-                <button 
-                  onClick={() => router.push('/auth/signin?callbackUrl=/contribute')} 
-                  className="text-green-400 hover:text-green-300 underline ml-1"
-                >
-                  Sign in
-                </button> to add new terms.
-              </p>
-            )}
+
 
             {error && (
               <div className="bg-red-500 text-white p-3 rounded mb-4 text-center">
@@ -431,12 +432,14 @@ export default function Contribute() {
               </div>
             </div>
 
+
+
             <div className="mb-4">
               <button 
                 className="primary px-6 py-2 add-term-form" 
                 onClick={handleAddTermClick}
               >
-                {session ? 'Propose a New Entry' : 'Sign In to Add Terms'}
+                Propose a New Entry
               </button>
             </div>
 
@@ -715,6 +718,15 @@ export default function Contribute() {
               </div>
             </div>
 
+            <div className="mb-6">
+              <button 
+                className="primary px-6 py-2" 
+                onClick={handleAddTermClick}
+              >
+                Submit Your Work
+              </button>
+            </div>
+
             <p className="mb-6">
               Contact{' '}
               <a 
@@ -734,6 +746,49 @@ export default function Contribute() {
           </div>
         )}
       </div>
+
+      {/* Sign-in Modal */}
+      {showSignInModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-gray-900 rounded-lg shadow-2xl max-w-md w-full mx-4 p-6 border border-gray-700">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-white">To Contribute;</h2>
+              <button
+                onClick={() => setShowSignInModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-300">
+                <span className="text-green-400 font-semibold">Sign in</span> to propose new entries and submit your own work.
+              </p>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowSignInModal(false);
+                  router.push('/auth/signin?callbackUrl=/contribute');
+                }}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={() => setShowSignInModal(false)}
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors"
+              >
+                Browse Only
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
