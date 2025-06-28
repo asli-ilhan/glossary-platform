@@ -5,7 +5,6 @@ import Providers from "./components/Providers";
 
 export const metadata = {
   title: "Digital Literacy Toolkit",
-  description: "An interactive platform for critically engaging with digital systems and power structures",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
