@@ -12,55 +12,39 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
         <div className="text-center space-y-12">
           
           {/* Title Section */}
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold text-white mb-2">Digital Literacy Toolkit</h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              An interdisciplinary platform for understanding digital inequalities
-            </p>
+          <div className="space-y-6 mb-24">
+            <h1 className="text-4xl font-bold text-white mb-4">The Digital Literacy Toolkit</h1>
+            <div className="text-lg text-gray-400 max-w-3xl mx-auto space-y-2">
+              <p>MA Internet Equalities</p>
+              <p>Creative Computing Institute I University of the Arts London</p>
+            </div>
           </div>
 
           {/* Main Content */}
-          <div className="text-gray-300 space-y-8 text-lg leading-relaxed max-w-4xl mx-auto text-left">
+          <div className="text-gray-300 text-lg leading-relaxed max-w-4xl mx-auto text-left space-y-6">
             <p>
-              The Digital Literacy Toolkit is a public-facing, interdisciplinary platform developed by the MA Internet Equalities course at the Creative Computing Institute, University of the Arts London. It brings together technical knowledge, critical theory, and real-world examples to help students, educators, and the wider public understand and challenge the structural inequalities embedded in digital systems and infrastructures.
+              The internet is not just what we see on digital interfaces. It is a stack of technologies cables, protocols, code, algorithms, and databases that work together through abstraction. It means we don't need to understand the layered complexity beneath when we open an app, interact on social media, or consume data. But that same abstraction makes it harder to ask: Who holds power through access to finances, technical resources, organising capacity, and skills? Whose knowledge is stored, surfaced, or silenced from infrastructure to interface, from offline to online, as people who are data subjects become subjects of data. Inequality lands hardest on those already pushed to the margins through race, class, gender, nationality, migration status, or disability. The technical layers of the internet have evolved, but they have not replaced these long-standing issues of power and control. They simply continue to operate within them.
             </p>
-            
             <p>
-              The internet is not just what we see on screens. It is a layered stack of code, interfaces, infrastructures, and decisions shaped by power, abstraction, and omission. As digital technologies grow more complex, the knowledge needed to make sense of them becomes increasingly fragmented across fields like coding, ethics, design, and social theory.
+              This toolkit is a visual glossary that connects disciplines, knowledge areas, and technologies for students, educators, practitioners, artists, and anyone interested in understanding how digital systems work and how they reproduce inequality. It creates a shared knowledge space to explore the layers of technology and power and supports those working to question and change these systems.
             </p>
-
-            <p>
-              This Toolkit brings those fields together. Through interactive maps, glossary contributions, short videos, and hands-on resources, it shows how technologies are built, how inequality is encoded through them, and how alternative approaches can be imagined.
-              It is designed to evolve through student-led content, collaborative teaching, and critical engagement with the digital systems shaping our world.
-            </p>
-          </div>
-
-          {/* Enter Button - Centered */}
-          <div className="pt-4">
-            <button
-              onClick={onEnter}
-              className="flex items-center gap-3 px-8 py-3 text-white bg-gray-700 hover:bg-gray-600 border border-gray-600 hover:border-gray-500 rounded-md transition-colors duration-200 font-medium text-lg mx-auto"
-            >
-              Enter Platform
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Credits Section - Centered at bottom */}
+                </div>
+                
+          {/* Authorship Section - Bottom with updated content */}
           <div className="pt-16 border-t border-gray-700 max-w-3xl mx-auto">
-            <h4 className="text-sm font-medium text-gray-400 mb-6 text-left">Created by:</h4>
+            <h4 className="text-sm font-medium text-gray-400 mb-6 text-left">Created by</h4>
             <div className="grid md:grid-cols-2 gap-6 text-sm text-gray-500 leading-relaxed">
-              <div className="text-center md:text-left">
-                <span className="font-medium text-gray-400 block mb-1">Ceren Yuksel</span>
-                <p>Concept and System Design</p>
-                <p className="text-xs mt-1">Senior Lecturer and Course Leader at MA Internet Equalities, Creative Computing Institute, UAL</p>
+              <div className="text-left">
+                <span className="font-medium text-gray-400 block mb-1">Dr. Ceren Yüksel</span>
+                <p className="mb-1">Concept I System Design I Editor</p>
+                <p className="text-xs mt-1">Senior Lecturer and Course Leader, MA Internet Equalities</p>
+                <p className="text-xs">Creative Computing Institute, University of the Arts London</p>
               </div>
-              <div className="text-center md:text-left">
-                <span className="font-medium text-gray-400 block mb-1">Ayse Asli Ilhan</span>
-                <p>Interactive Development and Technical Lead</p>
-                <p className="text-xs mt-1">Associate Lecturer at MA Internet Equalities, Creative Computing Institute, UAL</p>
+              <div className="text-left">
+                <span className="font-medium text-gray-400 block mb-1">Ayşe Aslı Ilhan</span>
+                <p className="mb-1">Interactive Development I Technical Lead</p>
+                <p className="text-xs mt-1">Associate Lecturer, MA Internet Equalities</p>
+                <p className="text-xs">Creative Computing Institute, University of the Arts London</p>
               </div>
             </div>
           </div>

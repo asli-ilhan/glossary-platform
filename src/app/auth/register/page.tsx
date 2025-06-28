@@ -50,51 +50,84 @@ export default function RegisterPage() {
   };
 
   return (
-            <div className="container max-w-md mx-auto mt-16 p-8 bg-black border border-gray-700 rounded shadow">
-      <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+    <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 140px)' }}>
+      <div className="max-w-md w-full p-8 bg-black border border-gray-700 rounded shadow">
+        <h1 className="text-2xl font-bold mb-6 text-left text-white">Register</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          disabled={loading}
-          className="w-full p-3 border rounded bg-gray-800 text-white border-gray-600 disabled:opacity-50"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-          minLength={6}
-          disabled={loading}
-          className="w-full p-3 border rounded bg-gray-800 text-white border-gray-600 disabled:opacity-50"
-        />
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            disabled={loading}
+            className="auth-input w-full p-3 border rounded placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+            style={{ 
+              backgroundColor: '#1f2937 !important', 
+              color: 'white !important', 
+              borderColor: '#4b5563 !important',
+              boxShadow: 'none !important'
+            }}
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Enter your password (min. 6 characters)"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            minLength={6}
+            disabled={loading}
+            className="auth-input w-full p-3 border rounded placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+            style={{ 
+              backgroundColor: '#1f2937 !important', 
+              color: 'white !important', 
+              borderColor: '#4b5563 !important',
+              boxShadow: 'none !important'
+            }}
+          />
+        </div>
         
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-300">Account Type</label>
+          <label htmlFor="role" className="block text-sm font-medium text-gray-300">Account Type</label>
           <select 
+            id="role"
             value={role} 
             onChange={e => setRole(e.target.value)} 
-            className="w-full p-3 border rounded text-black bg-white disabled:opacity-50"
+            className="auth-input w-full p-3 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+            style={{ 
+              backgroundColor: '#1f2937 !important', 
+              color: 'white !important', 
+              borderColor: '#4b5563 !important',
+              boxShadow: 'none !important'
+            }}
             disabled={loading}
           >
-            <option value="student">Student - Explore and learn from critical digital literacy content</option>
-            <option value="contributor">Contributor - Add and share knowledge about digital systems</option>
-            <option value="admin">Admin - Manage platform and moderate contributions</option>
+            <option value="student">Student</option>
+            <option value="contributor">Contributor</option>
+            <option value="admin">Administrator</option>
           </select>
           
           <div className="text-xs text-gray-400 mt-2">
             {role === 'student' && (
-              <p>📚 Students can explore all content and bookmark resources. Approval required to submit content.</p>
+              <p>Explore, learn, and contribute to the digital literacy toolkit. Account requires admin approval.</p>
             )}
             {role === 'contributor' && (
-              <p>✍️ Contributors can submit new terms and content modules. Account requires admin approval.</p>
+              <p>Explore, reflect, and contribute to the digital literacy toolkit. Account requires admin approval.</p>
             )}
             {role === 'admin' && (
-              <p>🔧 Administrators can manage users, approve content, and access admin dashboard. Restricted to authorised emails only.</p>
+              <p>Manage users, approve content, and access admin dashboard. Restricted to authorised emails only.</p>
             )}
           </div>
         </div>
@@ -114,14 +147,15 @@ export default function RegisterPage() {
           </div>
         )}
         
-        <button 
-          type="submit" 
-          className="primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-          disabled={loading}
-        >
+        <div className="flex justify-center">
+          <button 
+            type="submit" 
+            className="py-1.5 px-4 bg-white hover:bg-gray-100 text-black text-sm font-medium rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            disabled={loading}
+          >
           {loading ? (
             <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -130,12 +164,14 @@ export default function RegisterPage() {
           ) : (
             'Register'
           )}
-        </button>
+          </button>
+        </div>
       </form>
       
-      <p className="mt-4 text-center text-gray-400 text-sm">
-        Already have an account? <a href="/auth/signin" className="text-blue-400 underline hover:text-blue-300">Sign In</a>
-      </p>
+        <p className="mt-4 text-center text-gray-400 text-sm">
+          Already have an account? <a href="/auth/signin" className="text-blue-400 underline hover:text-blue-300">Sign In</a>
+        </p>
+      </div>
     </div>
   );
 } 

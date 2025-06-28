@@ -11,7 +11,7 @@ function PendingApprovalContent() {
   const role = searchParams.get('role');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center px-8">
+          <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center px-8">
       <div className="max-w-md w-full bg-black rounded-lg shadow-xl p-8 text-center border border-gray-700">
         {/* Waiting Icon */}
         <div className="mb-6">

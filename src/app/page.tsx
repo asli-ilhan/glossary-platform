@@ -4,15 +4,12 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import SunburstVisualization from '@/app/components/SunburstVisualization';
 import LandingPage from '@/app/components/LandingPage';
-import TutorialOverlay from '@/app/components/TutorialOverlay';
-import { visualizationTutorial } from '@/app/utils/tutorialSteps';
 import { useState, useEffect } from 'react';
 
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [showLanding, setShowLanding] = useState(true); // Always start with introduction
-  const [showTutorial, setShowTutorial] = useState(false);
 
   // Handle URL parameters for specific navigation requests
   useEffect(() => {
@@ -38,18 +35,10 @@ export default function Home() {
         setShowLanding(false);
       }
     };
-
-    const handleShowTutorial = (event: CustomEvent) => {
-      if (event.detail === 'visualization') {
-        setShowTutorial(true);
-      }
-    };
     
     window.addEventListener('showLandingPage', handleShowLanding as EventListener);
-    window.addEventListener('showTutorial', handleShowTutorial as EventListener);
     return () => {
       window.removeEventListener('showLandingPage', handleShowLanding as EventListener);
-      window.removeEventListener('showTutorial', handleShowTutorial as EventListener);
     };
   }, []);
 
@@ -63,17 +52,6 @@ export default function Home() {
 
   const handleEnterPlatform = () => {
     setShowLanding(false);
-    // Removed automatic tutorial display - tutorial now only shows when explicitly requested via Help button
-  };
-
-  const handleTutorialComplete = () => {
-    localStorage.setItem('hasSeenVisualizationTutorial', 'true');
-    setShowTutorial(false);
-  };
-
-  const handleTutorialSkip = () => {
-    localStorage.setItem('hasSeenVisualizationTutorial', 'true');
-    setShowTutorial(false);
   };
 
   if (status === 'loading') {
@@ -104,7 +82,7 @@ export default function Home() {
                   This toolkit evolves through collaborative contributions. Contributors can add new terms, expand existing descriptions, propose alternative interpretations, and actively make connections between disciplines, knowledge areas, and technologies.
                 </p>
                 <button 
-                  onClick={() => router.push('/glossary')} 
+                  onClick={() => router.push('/contribute')} 
                   className="primary text-base px-4 py-2"
                 >
                   Contribute to the Toolkit
@@ -115,13 +93,6 @@ export default function Home() {
         </>
       )}
 
-      {/* Tutorial Overlay */}
-      <TutorialOverlay
-        steps={visualizationTutorial}
-        isVisible={showTutorial}
-        onComplete={handleTutorialComplete}
-        onSkip={handleTutorialSkip}
-      />
     </div>
   );
 }

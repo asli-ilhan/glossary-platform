@@ -19,16 +19,26 @@ export async function GET(req: Request) {
     // Check if user is admin to show unapproved terms
     const session = await getServerSession(authOptions);
     let isAdmin = false;
+    let currentUserId = null;
     if (session?.user?.email) {
       const user = await User.findOne({ email: session.user.email });
       isAdmin = user?.role === 'admin';
+      currentUserId = user?._id;
     }
     
     // Build query
     let query: any = {};
     
     if (!showAll || !isAdmin) {
-      query.approved = true;
+      // Show approved terms OR user's own unapproved terms
+      if (currentUserId) {
+        query.$or = [
+          { approved: true },
+          { userId: currentUserId, approved: false }
+        ];
+      } else {
+        query.approved = true;
+      }
     }
     
     if (category) {
@@ -82,7 +92,7 @@ export async function POST(req: Request) {
       }, { status: 403 });
     }
     
-    const { title, description, tags, category, difficulty, relatedTerms } = await req.json();
+    const { title, description, tags, category, difficulty, relatedTerms, tag, isExpansion } = await req.json();
     
     if (!title || !description) {
       return NextResponse.json({ error: 'Please complete all required fields.' }, { status: 400 });
@@ -92,22 +102,13 @@ export async function POST(req: Request) {
     const existingTerms = await GlossaryTerm.find({ title: lowerTitle });
     const hasExisting = existingTerms.length > 0;
     
-    // Check if user already submitted this term
-    const userAlreadySubmitted = existingTerms.some(term => 
-      term.userId.toString() === (user as any)._id.toString()
-    );
-    
-    if (userAlreadySubmitted) {
-      return NextResponse.json({ 
-        error: 'This term already exists, consider adding an alternative definition instead.' 
-      }, { status: 400 });
-    }
+    // Allow multiple definitions from the same user (removed restriction)
 
     const term = new GlossaryTerm({
       title: lowerTitle,
       description: description.trim(),
-      tags: tags ? tags.map((tag: string) => tag.trim()).filter(Boolean) : [],
-      category: category?.trim() || undefined,
+      tags: tags ? tags.map((tag: string) => tag.trim()).filter(Boolean) : (tag ? [tag] : []),
+      category: category?.trim() || tag?.replace('-', ' ') || undefined,
       difficulty: difficulty || undefined,
       relatedTerms: relatedTerms || [],
       approved: false,
@@ -243,6 +244,51 @@ export async function PATCH(req: Request) {
     console.error('PATCH glossary error:', error);
     return NextResponse.json({ error: 'Failed to update term' }, { status: 500 });
 }
+}
+
+// PUT — Update a term (same as PATCH for consistency)
+export async function PUT(req: Request) {
+  try {
+    await dbConnect();
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    }
+    
+    const user = await User.findOne({ email: session.user.email });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const url = new URL(req.url);
+    const id = url.searchParams.get('id');
+    if (!id) {
+      return NextResponse.json({ error: 'Missing term ID' }, { status: 400 });
+    }
+
+    const payload = await req.json();
+    const term = await GlossaryTerm.findById(id).populate('userId', 'email');
+    if (!term) {
+      return NextResponse.json({ error: 'Term not found' }, { status: 404 });
+    }
+    
+    // Only admin or owner can edit
+    if (user.role !== 'admin' && term.userId._id.toString() !== (user as any)._id.toString()) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    
+    // Update basic fields
+    if (payload.title) term.title = payload.title.toLowerCase().trim();
+    if (payload.description) term.description = payload.description.trim();
+    
+    await term.save();
+    
+    return NextResponse.json({ message: 'Updated successfully', term }, { status: 200 });
+  } catch (error) {
+    console.error('PUT glossary error:', error);
+    return NextResponse.json({ error: 'Failed to update term' }, { status: 500 });
+  }
 }
 
 // DELETE — Only admin or owner can delete

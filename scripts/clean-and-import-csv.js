@@ -108,7 +108,6 @@ function transformCSVToSunburstData(headers, rows) {
       roleSystemOrientation: roleSystemOrientation || 'General',
       themeCluster,
       description: `${toolTechnology} is a ${knowledgeArea.toLowerCase()} tool used in ${discipline} for ${themeCluster.toLowerCase()}.`,
-      voiceHook: `Explore ${toolTechnology} in the context of ${knowledgeArea}`,
       position: {
         level: 5, // Tool/Technology is the leaf level
         order: index + 1
@@ -143,7 +142,7 @@ const SunburstMapSchema = new mongoose.Schema({
   roleSystemOrientation: { type: String, required: true },
   themeCluster: { type: String, required: true },
   description: { type: String, required: true },
-  voiceHook: String,
+  voiceHook: { type: String, required: false },
   position: {
     level: { type: Number, required: true },
     order: { type: Number, required: true }

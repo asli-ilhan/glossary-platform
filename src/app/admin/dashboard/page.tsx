@@ -292,6 +292,8 @@ export default function AdminDashboard() {
       body: JSON.stringify({ approved: true }),
     });
     fetchTerms();
+    // Dispatch event to update visualization
+    window.dispatchEvent(new CustomEvent('glossaryUpdated'));
   };
 
   const handleDelete = async (id: string, type: 'term' | 'content' | 'sunburst') => {
@@ -312,6 +314,14 @@ export default function AdminDashboard() {
     
     await fetch(endpoint, { method: "DELETE" });
     fetchAllData();
+    // Dispatch appropriate event based on type
+    if (type === 'term') {
+      window.dispatchEvent(new CustomEvent('glossaryUpdated'));
+    } else if (type === 'content') {
+      window.dispatchEvent(new CustomEvent('contentUpdated'));
+    } else if (type === 'sunburst') {
+      window.dispatchEvent(new CustomEvent('sunburstUpdated'));
+    }
   };
 
   const handleEdit = (term: Term) => {
@@ -329,6 +339,8 @@ export default function AdminDashboard() {
     });
     setEditing(null);
     fetchTerms();
+    // Dispatch event to update visualization
+    window.dispatchEvent(new CustomEvent('glossaryUpdated'));
   };
 
   // User management functions
@@ -420,9 +432,15 @@ export default function AdminDashboard() {
         // Refresh data based on import type
         if (result.type === 'sunburst') {
           fetchSunburstData();
+          // Dispatch event to update visualization
+          window.dispatchEvent(new CustomEvent('sunburstUpdated'));
         } else if (result.type === 'content') {
           fetchContent();
+          // Dispatch event to update visualization
+          window.dispatchEvent(new CustomEvent('contentUpdated'));
         }
+        // Dispatch general CSV import event
+        window.dispatchEvent(new CustomEvent('csvImported'));
         setCsvFile(null);
         // Reset file input
         const fileInput = document.getElementById('csvFile') as HTMLInputElement;

@@ -18,6 +18,13 @@ input {
   @apply w-full p-3 border border-gray-500 bg-black text-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 mb-4; /* Added mb-4 */
 }
 
+/* Auth page inputs - override global input styles */
+.auth-input {
+  background-color: #1f2937 !important;
+  color: white !important;
+  border-color: #4b5563 !important;
+}
+
 /* Buttons */
 button {
   @apply px-4 py-2 rounded-md text-white font-medium transition-all mb-4 mx-1;
@@ -46,7 +53,7 @@ nav a {
 
 /* Letter Tabs - Horizontal & Smaller */
 .tab-container {
-  @apply flex flex-wrap justify-center gap-2 mt-4;
+  @apply flex flex-wrap justify-start gap-2 mt-4;
 }
 
 .tab {
@@ -76,7 +83,7 @@ nav a {
 }
 
 .modal-content {
-  @apply bg-black p-6 rounded-lg shadow-lg w-96 text-center relative border border-gray-700;
+  @apply bg-black p-6 rounded-lg shadow-lg text-center relative border border-gray-700;
   z-index: 70;
 }
 

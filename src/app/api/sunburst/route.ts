@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     
     // Fetch data from MongoDB with populated related content
     const sunburstData = await SunburstMap.find(query)
-      .populate('relatedContent', 'title contentType moderationStatus description youtubeUrl mediaUrl fileUrl tags')
+      .populate('relatedContent', 'title contentType moderationStatus description voiceHook youtubeUrl mediaUrl fileUrl tags')
       .populate('createdBy', 'email profile.firstName profile.lastName')
       .sort({ 'position.level': 1, 'position.order': 1 });
     

@@ -23,6 +23,7 @@ interface SunburstNode {
     contentType: 'video' | 'audio' | 'document' | 'link' | 'interactive';
     moderationStatus: 'pending' | 'approved' | 'rejected';
     description?: string;
+    voiceHook?: string;
     youtubeUrl?: string;
     mediaUrl?: string;
     fileUrl?: string;
@@ -113,6 +114,12 @@ const SunburstVisualization: React.FC = () => {
   const [transform, setTransform] = useState({ x: 0, y: 0, k: 1 });
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const [isNearTop, setIsNearTop] = useState(true);
+  const [visualizationStats, setVisualizationStats] = useState({
+    totalDataPoints: 0,
+    totalConnections: 0,
+    relatedContentCount: 0,
+    glossaryTermsCount: 0
+  });
 
   // Listen for help button click from parent
   useEffect(() => {
@@ -168,39 +175,128 @@ const SunburstVisualization: React.FC = () => {
   }, []);
 
   // Fetch both sunburst data and glossary terms
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch sunburst data
-        const sunburstResponse = await fetch('/api/sunburst');
-        if (!sunburstResponse.ok) {
-          throw new Error('Failed to fetch sunburst data');
-        }
-        const sunburstData = await sunburstResponse.json();
-        console.log('Fetched sunburst data from database:', sunburstData.length, 'items');
-        
-        // Fetch glossary terms
-        const glossaryResponse = await fetch('/api/glossary');
-        if (!glossaryResponse.ok) {
-          throw new Error('Failed to fetch glossary data');
-        }
-        const glossaryData = await glossaryResponse.json();
-        console.log('Fetched glossary terms:', glossaryData.length, 'terms');
-        
-        setData(sunburstData);
-        setGlossaryTerms(glossaryData || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
-        console.error('Error fetching data:', err);
-      } finally {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch sunburst data
+      const sunburstResponse = await fetch('/api/sunburst');
+      if (!sunburstResponse.ok) {
+        throw new Error('Failed to fetch sunburst data');
       }
+      const sunburstData = await sunburstResponse.json();
+      console.log('Fetched sunburst data from database:', sunburstData.length, 'items');
+      
+      // Fetch glossary terms
+      const glossaryResponse = await fetch('/api/glossary');
+      if (!glossaryResponse.ok) {
+        throw new Error('Failed to fetch glossary data');
+      }
+      const glossaryData = await glossaryResponse.json();
+      console.log('Fetched glossary terms:', glossaryData.length, 'terms');
+      
+      setData(sunburstData);
+      setGlossaryTerms(glossaryData || []);
+      
+      // Calculate visualization statistics from actual database data
+      const totalDataPoints = sunburstData.length;
+      
+      // Count related content linked to data points
+      const relatedContentCount = sunburstData.reduce((count: number, item: SunburstNode) => {
+        return count + (item.relatedContent?.filter(content => content.moderationStatus === 'approved').length || 0);
+      }, 0);
+      
+      // Count glossary terms that match data points using the same logic as findMatchingGlossaryTerms
+      let linkedGlossaryCount = 0;
+      if (glossaryData && Array.isArray(glossaryData)) {
+        const approvedTerms = glossaryData.filter((term: GlossaryTerm) => term.approved !== false);
+        
+        // Debug logging
+        console.log('Total glossary terms:', glossaryData.length);
+        console.log('Approved glossary terms:', approvedTerms.length);
+        console.log('Sample approved terms:', approvedTerms.slice(0, 5).map(t => t.title));
+                  console.log('Sample sunburst data:', sunburstData.slice(0, 3).map((item: SunburstNode) => ({
+          toolTechnology: item.toolTechnology,
+          themeCluster: item.themeCluster,
+          knowledgeArea: item.knowledgeArea,
+          discipline: item.discipline
+        })));
+        
+        // Create a set to avoid counting the same term multiple times
+        const matchedTermIds = new Set<string>();
+        
+        sunburstData.forEach((item: SunburstNode) => {
+          // Check each field of the sunburst item
+          const fieldsToCheck = [
+            item.toolTechnology,
+            item.themeCluster, 
+            item.knowledgeArea,
+            item.discipline,
+            item.roleSystemOrientation
+          ].filter(Boolean);
+          
+          fieldsToCheck.forEach(fieldValue => {
+            const normalizedFieldValue = fieldValue?.toLowerCase().trim();
+            if (!normalizedFieldValue) return;
+            
+            approvedTerms.forEach(term => {
+              const termTitle = term.title.toLowerCase().trim();
+              
+              // Exact match or partial match (same logic as findMatchingGlossaryTerms)
+              if (termTitle === normalizedFieldValue || 
+                  termTitle.includes(normalizedFieldValue) || 
+                  normalizedFieldValue.includes(termTitle)) {
+                matchedTermIds.add(term._id);
+                console.log('Match found:', termTitle, '<->', normalizedFieldValue);
+              }
+            });
+          });
+        });
+        
+        linkedGlossaryCount = matchedTermIds.size;
+        console.log('Total linked glossary count:', linkedGlossaryCount);
+      }
+      
+      setVisualizationStats({
+        totalDataPoints,
+        totalConnections: 0, // Will be calculated when radial nodes are created
+        relatedContentCount,
+        glossaryTermsCount: linkedGlossaryCount
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Listen for data updates from other parts of the application
+  useEffect(() => {
+    const handleDataUpdate = () => {
+      console.log('Data update detected, refreshing visualization...');
+      fetchData();
     };
 
-    fetchData();
-  }, []);
+    // Listen for various data update events
+    window.addEventListener('glossaryUpdated', handleDataUpdate);
+    window.addEventListener('contentUpdated', handleDataUpdate);
+    window.addEventListener('csvImported', handleDataUpdate);
+    window.addEventListener('sunburstUpdated', handleDataUpdate);
+
+    return () => {
+      window.removeEventListener('glossaryUpdated', handleDataUpdate);
+      window.removeEventListener('contentUpdated', handleDataUpdate);
+      window.removeEventListener('csvImported', handleDataUpdate);
+      window.removeEventListener('sunburstUpdated', handleDataUpdate);
+    };
+  }, [fetchData]);
+
+
 
   // Function to match glossary terms with sunburst data
   const findMatchingGlossaryTerms = useCallback((sunburstName: string): GlossaryTerm[] => {
@@ -224,6 +320,43 @@ const SunburstVisualization: React.FC = () => {
     
     return partialMatches;
   }, [glossaryTerms]);
+
+  // Check for URL parameter to open specific entry
+  useEffect(() => {
+    if (!loading && data.length > 0 && radialNodes.length > 0) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const openEntry = urlParams.get('openEntry');
+      
+      if (openEntry) {
+        // Find the matching node in radialNodes
+        const matchingNode = radialNodes.find(node => 
+          node.name.toLowerCase() === decodeURIComponent(openEntry).toLowerCase()
+        );
+        
+        if (matchingNode) {
+          // Open the side panel for this entry
+          const matchingTerms = findMatchingGlossaryTerms(matchingNode.name);
+          
+          setSidePanelContent({
+            name: matchingNode.name,
+            description: matchingNode.description || matchingNode.data?.description || 'No description available',
+            voiceHook: matchingNode.voiceHook || matchingNode.data?.voiceHook,
+            relatedContent: matchingNode.relatedContent || matchingNode.data?.relatedContent || [],
+            guestSpeaker: matchingNode.guestSpeaker || matchingNode.data?.guestSpeaker,
+            glossaryTerms: matchingTerms
+          });
+          setShowSidePanel(true);
+          
+          // Clean up the URL parameter
+          const newUrl = new URL(window.location.href);
+          newUrl.searchParams.delete('openEntry');
+          window.history.replaceState({}, '', newUrl.toString());
+          
+          console.log('Auto-opened side panel for:', matchingNode.name);
+        }
+      }
+    }
+  }, [loading, data, radialNodes, findMatchingGlossaryTerms]);
 
   // Transform data into radial nodes structure
   const transformDataToRadialNodes = useCallback((rawData: SunburstNode[]): RadialNode[] => {
@@ -301,6 +434,22 @@ const SunburstVisualization: React.FC = () => {
     if (data.length > 0) {
       const nodes = transformDataToRadialNodes(data);
       setRadialNodes(nodes);
+      
+      // Calculate total connections between data points
+      // Count unique connections in the hierarchical structure
+      const connectionSet = new Set<string>();
+      nodes.forEach(node => {
+        node.connections.forEach(connectedNodeId => {
+          // Create a consistent connection ID regardless of direction
+          const connectionId = [node.id, connectedNodeId].sort().join('-');
+          connectionSet.add(connectionId);
+        });
+      });
+      
+      setVisualizationStats(prev => ({
+        ...prev,
+        totalConnections: connectionSet.size
+      }));
     }
   }, [data, transformDataToRadialNodes]);
 
@@ -797,21 +946,52 @@ const SunburstVisualization: React.FC = () => {
           style={{ display: 'block' }}
         />
         
-        {/* Visual Legend - Top Left */}
-        <div className="absolute top-8 left-8 bg-black bg-opacity-80 backdrop-blur-sm rounded-lg p-8 z-30 border border-gray-700">
-          <h4 className="text-xs font-semibold text-gray-300 mb-2">Visual Legend</h4>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-teal-400 border border-teal-400" style={{ backgroundColor: '#28afb0', borderColor: '#5eead4' }}></div>
-              <span className="text-xs" style={{ color: '#28afb0' }}>Knowledge Areas</span>
+        {/* Visualization Statistics & Legend - Top Left */}
+        <div className="absolute top-8 left-8 bg-black bg-opacity-80 backdrop-blur-sm rounded-lg p-6 z-30 border border-gray-700">
+          {/* Statistics */}
+          <div className="mb-4 border-b border-gray-600 pb-6 mr-2">
+            <button 
+              onClick={fetchData}
+              className="absolute top-0 -right-3 text-gray-400 hover:text-white transition-colors"
+              title="Refresh data"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+            <h4 className="text-xs font-semibold text-gray-300 mb-2">Statistics</h4>
+            <div className="text-gray-300 text-xs space-y-1">
+              <p>
+                <span className="text-cyan-400 font-semibold">{visualizationStats.totalDataPoints}</span> data points with
+              </p>
+              <p>
+                <span className="text-green-400 font-semibold">{visualizationStats.totalConnections}</span> connections.
+              </p>
+              <p>
+                <span className="text-orange-400 font-semibold">{visualizationStats.relatedContentCount}</span> linked content and
+              </p>
+              <p>
+                <span className="text-purple-400 font-semibold">{visualizationStats.glossaryTermsCount}</span> linked glossary entries.
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-orange-400 border border-orange-400" style={{ backgroundColor: '#f9a03f', borderColor: '#fbbf24' }}></div>
-              <span className="text-xs" style={{ color: '#f9a03f' }}>Disciplines</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-purple-400 border border-purple-400" style={{ backgroundColor: '#9b5de5', borderColor: '#b794f6' }}></div>
-              <span className="text-xs" style={{ color: '#9b5de5' }}>Tools & Tech</span>
+          </div>
+          
+          {/* Visual Legend */}
+          <div>
+            <h4 className="text-xs font-semibold text-gray-300 mb-2">Visual Legend</h4>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-teal-400 border border-teal-400" style={{ backgroundColor: '#28afb0', borderColor: '#5eead4' }}></div>
+                <span className="text-xs" style={{ color: '#28afb0' }}>Knowledge Areas</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-orange-400 border border-orange-400" style={{ backgroundColor: '#f9a03f', borderColor: '#fbbf24' }}></div>
+                <span className="text-xs" style={{ color: '#f9a03f' }}>Disciplines</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-purple-400 border border-purple-400" style={{ backgroundColor: '#9b5de5', borderColor: '#b794f6' }}></div>
+                <span className="text-xs" style={{ color: '#9b5de5' }}>Tools & Tech</span>
+              </div>
             </div>
           </div>
         </div>
@@ -907,8 +1087,22 @@ const SunburstVisualization: React.FC = () => {
         <div
           className="absolute z-50 bg-gray-900 text-white p-3 rounded-lg shadow-xl border border-blue-500 max-w-xs pointer-events-none"
           style={{
-            left: Math.min(tooltipPosition.x + 10 - (containerRef.current?.getBoundingClientRect().left || 0), dimensions.width - 300),
-            top: Math.max(tooltipPosition.y - 50 - (containerRef.current?.getBoundingClientRect().top || 0), 10),
+            left: Math.min(
+              Math.max(tooltipPosition.x + 10 - (containerRef.current?.getBoundingClientRect().left || 0), 10),
+              dimensions.width - 320
+            ),
+            top: (() => {
+              const containerTop = containerRef.current?.getBoundingClientRect().top || 0;
+              const relativeY = tooltipPosition.y - containerTop;
+              const tooltipHeight = 200; // Approximate tooltip height
+              
+              // If tooltip would go below bottom, position it above the cursor
+              if (relativeY + tooltipHeight > dimensions.height - 20) {
+                return Math.max(relativeY - tooltipHeight - 10, 10);
+              }
+              // Otherwise position it below the cursor
+              return Math.max(relativeY - 50, 10);
+            })(),
             boxShadow: '0 0 20px rgba(14, 165, 233, 0.5)',
           }}
         >
@@ -923,18 +1117,24 @@ const SunburstVisualization: React.FC = () => {
           )}
           {tooltip.relatedContent && tooltip.relatedContent.length > 0 && (
             <div className="text-xs text-blue-400">
-              📚 {tooltip.relatedContent.filter(c => c.moderationStatus === 'approved').length} content modules
+              📚 {tooltip.relatedContent.filter(c => c.moderationStatus === 'approved').length} contents linked
               </div>
           )}
           {tooltip.glossaryTerms && tooltip.glossaryTerms.length > 0 && (
             <div className="text-xs text-blue-400">
-              📖 {tooltip.glossaryTerms.length} glossary definitions
+              📖 {tooltip.glossaryTerms.length} glossary entries linked
                 </div>
           )}
           <div className="text-xs text-gray-500 mt-2">
             {tooltip.level === 3 ? 'Knowledge Area' : 
              tooltip.level === 2 ? 'Discipline' : 
              'Tool/Technology'}
+                </div>
+          <div className="text-xs text-gray-400 mt-2 italic flex items-center gap-1">
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M6.672 1.911a1 1 0 10-1.932.518l.259.966a1 1 0 001.932-.518l-.26-.966zM2.429 4.74a1 1 0 10-.517 1.932l.966.259a1 1 0 00.517-1.932l-.966-.26zm8.814-.569a1 1 0 00-1.415-1.414l-.707.707a1 1 0 101.415 1.415l.707-.708zm-7.071 7.072l.707-.707A1 1 0 003.465 9.12l-.708.707a1 1 0 001.415 1.415zm3.2-5.171a1 1 0 00-1.3 1.3l4 10a1 1 0 001.823.075l1.38-2.759 3.018 3.02a1 1 0 001.414-1.415l-3.019-3.02 2.76-1.379a1 1 0 00-.076-1.822l-10-4z" clipRule="evenodd" />
+            </svg>
+            Click to see the content and connected data points
                 </div>
                 </div>
       )}
@@ -945,7 +1145,7 @@ const SunburstVisualization: React.FC = () => {
           <div className="bg-gray-900 text-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90%] overflow-y-auto border border-blue-500">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-blue-300">Knowledge Map</h2>
+                <h2 className="text-2xl font-bold text-blue-300">Getting Started</h2>
                 <button
                   onClick={() => setShowInstructions(false)}
                   className="text-gray-400 hover:text-white text-2xl p-2 rounded hover:bg-gray-700 transition-colors"
@@ -954,54 +1154,70 @@ const SunburstVisualization: React.FC = () => {
                 </button>
               </div>
               
-              <div className="space-y-4 text-gray-300">
+              <div className="space-y-6 text-gray-300">
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-300 mb-2">How to Navigate</h3>
-                  <ul className="space-y-2 text-sm list-disc list-inside">
-                    <li><span className="text-blue-300 font-medium">Hover to preview content and see related entries</span></li>
-                    <li><span className="text-blue-300 font-medium">Click a node to explore full content and resources</span></li>
-                    <li><span className="text-blue-300 font-medium">Ring titles are always visible</span> for context</li>
-                    <li><span className="text-blue-300 font-medium">Nodes glow</span> when hovered and stay glowing when clicked</li>
+                  <h3 className="text-lg font-semibold text-blue-300 mb-3">What is in the Toolkit</h3>
+                  <p className="text-sm mb-2 leading-relaxed">
+                    The Toolkit is built around a glossary that explains disciplines, knowledge areas, and technologies using accessible language.
+                  </p>
+                  <ul className="space-y-1 text-sm">
+                    <li>• Glossary entries may include short videos, examples, and contextual explanations.</li>
+                    <li>• Each entry is represented as a node in an interactive map.</li>
+                </ul>
+              </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-300 mb-3">How the Toolkit is Organised</h3>
+                  <p className="text-sm mb-2 leading-relaxed">
+                    The glossary entries are connected through an interactive map structured across three layers:
+                  </p>
+                  <ul className="space-y-1 text-sm">
+                    <li>• <span style={{ color: '#9b5de5' }}>Inner circle</span>: tools and technologies</li>
+                    <li>• <span style={{ color: '#f9a03f' }}>Middle circle</span>: disciplines</li>
+                    <li>• <span style={{ color: '#28afb0' }}>Outer circle</span>: knowledge areas</li>
+                  </ul>
+            </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-300 mb-3">How to Navigate the Toolkit</h3>
+                  <ul className="space-y-1 text-sm">
+                    <li>• Use the search tab to look up terms in the Toolkit.</li>
+                    <li>• Hover over a circle on the interactive map to see how that entry connects to others.</li>
+                    <li>• Click to open a circle and view related concepts on the side.</li>
                   </ul>
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold text-blue-300 mb-2">Visualisation Structure</h3>
-                  <ul className="space-y-2 text-sm list-disc list-inside">
-                    <li><span style={{ color: '#28afb0' }} className="font-medium">Outer Ring</span>: Knowledge Areas (teal circles)</li>
-                    <li><span style={{ color: '#f9a03f' }} className="font-medium">Middle Ring</span>: Disciplines (orange circles)</li>
-                    <li><span style={{ color: '#9b5de5' }} className="font-medium">Inner Ring</span>: Tools & Technologies (purple circles)</li>
-                    <li><span style={{ color: '#9b5de5' }} className="font-medium">Bright purple nodes</span> contain rich explainer content and technical guides</li>
-                  </ul>
-                </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-300 mb-2">Toolkit Features</h3>
-                  <ul className="space-y-2 text-sm list-disc list-inside">
-                    <li>Interactive knowledge mapping revealing power dynamics in digital systems</li>
-                    <li>Glossary integration with collaborative definitions</li>
-                    <li>Content modules including videos, code examples, and case studies</li>
-                    <li>Guest speaker insights and critical analysis materials</li>
-                  </ul>
+                  <h3 className="text-lg font-semibold text-blue-300 mb-3">How to Contribute to the Toolkit</h3>
+                  <p className="text-sm leading-relaxed">
+                    You can edit glossary entries or submit your own work to the toolkit. 
+                    <a 
+                      href="/about#how-can-you-contribute" 
+                      className="text-white hover:text-gray-300 underline inline-flex items-center gap-1 transition-colors ml-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.open('/about#how-can-you-contribute', '_blank');
+                      }}
+                    >
+                      Learn how to contribute
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </a>
+                  </p>
                 </div>
               </div>
               
               <div className="mt-6 flex justify-end">
                 <button
-                  onClick={() => {
-                    setShowInstructions(false);
-                    // Trigger the tutorial
-                    setTimeout(() => {
-                      window.dispatchEvent(new CustomEvent('showTutorial', { detail: 'visualization' }));
-                    }, 100);
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors text-sm"
+                  onClick={() => setShowInstructions(false)}
+                  className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 inline-flex items-center gap-2"
                 >
-                  Instructions
+                  Continue to Map
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </button>
+            </button>
               </div>
             </div>
           </div>
@@ -1104,7 +1320,7 @@ const SunburstVisualization: React.FC = () => {
             </div>
 
             {/* Content */}
-            <div className="h-full overflow-y-auto pb-16">
+            <div className="h-full overflow-y-auto pb-24">
               <div className="p-4 space-y-6">
                 
                 {/* Connected Data Points */}
@@ -1116,7 +1332,7 @@ const SunburstVisualization: React.FC = () => {
                     .map(node => node!.name) : [];
                   
                   return connectedNodes.length > 0 && (
-                    <div>
+                  <div>
                       <h3 className="text-sm font-semibold text-cyan-300 mb-2 uppercase tracking-wide">Connected Data Points</h3>
                       <div className="flex flex-wrap gap-1">
                         {connectedNodes.map((nodeName, index) => (
@@ -1127,18 +1343,10 @@ const SunburstVisualization: React.FC = () => {
                             {nodeName}
                           </span>
                         ))}
-                      </div>
+                  </div>
                     </div>
                   );
                 })()}
-
-                {/* Description */}
-                {sidePanelContent.description && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Description</h3>
-                    <p className="text-sm text-gray-100 leading-relaxed">{sidePanelContent.description}</p>
-                  </div>
-                )}
 
                 {/* Voice Hook */}
                 {sidePanelContent.voiceHook && (
@@ -1149,6 +1357,14 @@ const SunburstVisualization: React.FC = () => {
                     </div>
             </div>
           )}
+
+                {/* Description */}
+                {sidePanelContent.description && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Description</h3>
+                    <p className="text-sm text-gray-100 leading-relaxed">{sidePanelContent.description}</p>
+                  </div>
+                )}
           
                 {/* Related Content */}
                 {sidePanelContent.relatedContent && sidePanelContent.relatedContent.length > 0 && (
@@ -1176,6 +1392,12 @@ const SunburstVisualization: React.FC = () => {
                              content.contentType === 'document' ? '📄' : '🔗'} {content.contentType}
                           </span>
                         </div>
+
+                          {content.voiceHook && (
+                            <div className="bg-gray-700 rounded-lg p-2 mb-2 border-l-4 border-blue-400">
+                              <p className="text-xs italic text-blue-200">&quot;{content.voiceHook}&quot;</p>
+                            </div>
+                          )}
                           
                         {content.description && (
                             <p className="text-xs text-gray-300 mb-2 leading-relaxed">{content.description}</p>
@@ -1208,7 +1430,7 @@ const SunburstVisualization: React.FC = () => {
                 {sidePanelContent.glossaryTerms && sidePanelContent.glossaryTerms.length > 0 && (
                   <div>
                     <h3 className="text-sm font-semibold text-blue-300 mb-3 uppercase tracking-wide">
-                      📖 Glossary Definitions ({sidePanelContent.glossaryTerms.length})
+                      📖 Glossary Entries ({sidePanelContent.glossaryTerms.length})
                     </h3>
                     <div className="space-y-3">
                       {sidePanelContent.glossaryTerms.map((term, index) => (
@@ -1250,23 +1472,17 @@ const SunburstVisualization: React.FC = () => {
             </div>
           )}
 
-                {/* Action Buttons */}
+                {/* Action Buttons - Only show if there are glossary terms */}
+                {sidePanelContent.glossaryTerms && sidePanelContent.glossaryTerms.length > 0 && (
                 <div className="pt-4 border-t border-gray-700">
-                  <div className="flex gap-2">
                     <button
                       onClick={() => window.open('/glossary', '_blank')}
-                      className="flex-1 text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded transition-colors"
+                      className="w-full text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded transition-colors"
                     >
                       View Full Glossary →
                     </button>
-                    <button
-                      onClick={() => setShowSidePanel(false)}
-                      className="text-xs bg-gray-600 hover:bg-gray-500 text-white px-3 py-2 rounded transition-colors"
-                    >
-                      Close
-                    </button>
         </div>
-                </div>
+                )}
 
               </div>
             </div>
