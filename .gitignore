@@ -64,6 +64,3 @@ temp/
 # Build outputs
 *.tar.gz
 .vercel
-
-# Local Netlify folder
-.netlify
