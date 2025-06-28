@@ -1273,7 +1273,7 @@ const SunburstVisualization: React.FC = () => {
                 </p>
                 <div className="flex gap-3">
                   <button
-                    onClick={() => window.open('/glossary', '_blank')}
+                    onClick={() => window.open('/contribute?tab=glossary', '_blank')}
                     className="text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded transition-colors"
                   >
                     View Full Glossary →
@@ -1476,7 +1476,7 @@ const SunburstVisualization: React.FC = () => {
                 {sidePanelContent.glossaryTerms && sidePanelContent.glossaryTerms.length > 0 && (
                 <div className="pt-4 border-t border-gray-700">
                     <button
-                      onClick={() => window.open('/glossary', '_blank')}
+                      onClick={() => window.open('/contribute?tab=glossary', '_blank')}
                       className="w-full text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded transition-colors"
                     >
                       View Full Glossary →
