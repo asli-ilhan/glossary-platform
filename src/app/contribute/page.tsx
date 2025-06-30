@@ -370,7 +370,7 @@ export default function Contribute() {
           onClick={() => setActiveTab('glossary')}
           className={`pb-4 px-2 text-xl font-semibold transition-colors duration-200 ${
             activeTab === 'glossary'
-              ? 'text-yellow-300 border-b-2 border-yellow-300'
+              ? 'text-white border-b-2 border-white'
               : 'text-gray-400 hover:text-gray-300'
           }`}
         >
@@ -380,7 +380,7 @@ export default function Contribute() {
           onClick={() => setActiveTab('submit')}
           className={`pb-4 px-2 text-xl font-semibold transition-colors duration-200 ${
             activeTab === 'submit'
-              ? 'text-yellow-300 border-b-2 border-yellow-300'
+              ? 'text-white border-b-2 border-white'
               : 'text-gray-400 hover:text-gray-300'
           }`}
         >
@@ -412,7 +412,7 @@ export default function Contribute() {
 
             <div className="mb-4">
               <button 
-                className="primary px-6 py-2 add-term-form" 
+                className="py-3 px-4 border border-gray-600 font-medium text-base text-white hover:bg-gray-900 hover:border-gray-400 rounded transition-all duration-200" 
                 onClick={handleAddTermClick}
               >
                 Propose a New Entry
@@ -684,7 +684,7 @@ export default function Contribute() {
           <div>
             <div className="mb-6">
               <button 
-                className="primary px-6 py-2" 
+                className="py-3 px-4 border border-gray-600 font-medium text-base text-white hover:bg-gray-900 hover:border-gray-400 rounded transition-all duration-200" 
                 onClick={handleAddTermClick}
               >
                 Submit Your Work
@@ -696,18 +696,18 @@ export default function Contribute() {
 
       {/* Contact Information - appears at bottom for both tabs */}
       <div>
-        <p className="text-sm text-left mt-48">
+        <p className="text-gray-600 text-sm text-left mt-[450px]">
           For further inquiries contact{' '}
           <a 
             href="mailto:a.ilhan@arts.ac.uk" 
-            className="text-gray-300 underline underline-offset-2"
+            className="text-gray-500 underline underline-offset-2"
           >
             a.ilhan@arts.ac.uk
           </a>
           {' '}and/or{' '}
           <a 
             href="mailto:c.yuksel@arts.ac.uk" 
-            className="text-gray-300 underline underline-offset-2"
+            className="text-gray-500 underline underline-offset-2"
           >
             c.yuksel@arts.ac.uk.
           </a>
@@ -717,7 +717,7 @@ export default function Contribute() {
       {/* Sign-in Modal */}
       {showSignInModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-black rounded-lg shadow-2xl max-w-md w-full mx-4 p-6 border border-white">
+          <div className="bg-black rounded-lg shadow-2xl max-w-lg w-full mx-4 p-6 border border-white">
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => setShowSignInModal(false)}
