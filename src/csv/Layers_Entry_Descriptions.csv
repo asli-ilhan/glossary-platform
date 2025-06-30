@@ -1,0 +1,151 @@
+Layer,Entry,Description
+Discipline,Human–Computer Interaction (HCI),"The study of how people interact with computers and digital systems. It focuses on interface logic, feedback loops, and system usability, often using experimental and analytical methods."
+Discipline,User Experience (UX),"The design field focused on how users feel when interacting with a product or system. It involves research, usability testing, and interface design aimed at creating intuitive, inclusive, and satisfying digital experiences."
+Discipline,Human-Centred Design,"A creative approach to problem-solving that begins with the people you’re designing for and ends with solutions tailored to their needs. It prioritises empathy, iteration, and participation throughout the design process."
+Discipline,Design Studies,"Theories and histories of design, and how design choices shape society."
+Discipline,Digital Humanities,Using digital tools to analyse and interpret cultural and historical data.
+Discipline,Internet Studies,"Exploring how digital platforms, protocols, and politics shape daily life."
+Discipline,Critical Data Studies,"Understanding the social, political, and ethical dimensions of data."
+Discipline,Data Science,"The interdisciplinary field combining statistics, computer science, and data analysis to derive insights and patterns from structured and unstructured data."
+Discipline,Media and Platform Studies,"How platforms organise content, labour, attention, and visibility."
+Discipline,Science and Technology Studies (STS),Studying how technologies and sciences are shaped by power and culture.
+Discipline,Political Economy of Technology,"Investigating who funds, owns, and profits from technological systems."
+Discipline,Surveillance Studies,"How digital systems are used to monitor, track, and influence people."
+Discipline,Law and Policy,"Understanding digital rights, data protection laws, and governance."
+Discipline,Archival Studies,"How memory and records are created, maintained, and contested."
+Discipline,Artificial Intelligence (AI) Ethics,"Exploring fairness, bias, and responsibility in automated systems."
+Discipline,Disability and Access Studies,"Designing systems that work across sensory, cognitive, and physical differences."
+Discipline,Participatory Design and Design Justice,"Co-creating technologies with communities, not just for them."
+Discipline,Anthropology and Ethnography,Studying communities and systems through deep observation and engagement.
+Discipline,Communication and Narrative Studies,Understanding how stories shape systems and how systems shape stories.
+Discipline,Critical / Creative Coding,"Using code as a critical and/or artistic medium of expression. This discipline explores how software can be used to produce cultural critique, aesthetic experimentation, and interactive systems that expose or challenge technological norms. It includes forms such as web-based artworks, generative visuals, computational poetry, data sonification, and interactive installations. Emphasises code as a tool for storytelling, resistance, and speculative design."
+Discipline,Infrastructure Studies,"The study of underlying physical and digital systems such as servers, fibre optics, and data centers, focusing on how these infrastructures shape access, power, and global inequality."
+Discipline,Embodied Interaction,"Explores the ways digital systems engage with body movement, gesture, or touch. Often used in speculative or creative technology, this approach intersects hardware, UX, and design justice."
+Discipline,Media Archaeology,"A critical discipline that analyses the historical development of digital and analogue technologies, exposing forgotten infrastructures and ideas beneath today’s platforms."
+Discipline,Platform Labour Studies,"Examines the often-invisible labour that powers digital platforms, including moderation, labelling, and microwork, offering key insights into how inequality is embedded in platform operations."
+Discipline,Environmental Humanities,"A transdisciplinary field linking environmental concerns with digital and infrastructural analysis—particularly important for considering sustainability, cloud infrastructure, and materiality of data."
+Discipline,Communication Systems and Protocols,"Studies the technical and social dynamics of systems such as OSC, DMX, and MIDI that enable communication between digital devices and environments."
+Knowledge Area,Full-Stack Systems,How platforms are built across layers—from what users see (front-end) to how data is stored and processed (back-end).
+Knowledge Area,Application Programming Interfaces (APIs),Tools that let different software systems communicate by exchanging data.
+Knowledge Area,Servers and Hosting,The infrastructure that stores digital content and responds to user requests.
+Knowledge Area,Data Architecture,"How data is organised, stored, and accessed in a system."
+Knowledge Area,Open Data and Open Data Sources,"Publicly available data provided by institutions, governments, or organisations that anyone can use, often with restrictions on commercial use or licensing. Students explore how this data can be reused for storytelling, transparency, or critique."
+Knowledge Area,Platform Governance,"The rules and policies that determine what is visible, moderated, or suppressed on platforms."
+Knowledge Area,Artificial Intelligence (AI),"Systems that simulate human intelligence in decision-making, image recognition, language processing, and more."
+Knowledge Area,Machine Learning (ML),A subset of AI focused on building models that can learn from data and make predictions without being explicitly programmed.
+Knowledge Area,Algorithmic Bias,How automated systems reflect or amplify existing inequalities.
+Knowledge Area,Data Visualisation and Storytelling,Communicating complex information through visuals and narratives.
+Knowledge Area,User Experience (UX) Design and Accessibility,"Creating digital systems that are usable, ethical, and inclusive."
+Knowledge Area,Participatory System Design,"Designing with communities to ensure relevance, consent, and accountability."
+Knowledge Area,Digital Archiving and Memory Systems,Preserving digital records and surfacing forgotten or erased histories.
+Knowledge Area,Cybersecurity and Privacy by Design,Building systems that protect user data and minimise harm.
+Knowledge Area,Digital Rights and Regulation,"Understanding data protection laws like the General Data Protection Regulation (GDPR), freedom of expression, and platform accountability."
+Knowledge Area,Speculative and Critical Prototyping,Using design fiction or mockups to explore alternatives and critique the status quo.
+Knowledge Area,Extended Reality (XR),"The umbrella term for immersive technologies, including Virtual Reality (VR), Augmented Reality (AR), and Mixed Reality (MR)."
+Knowledge Area,Augmented Reality (AR),Overlaying digital content on top of the physical world (e.g. through a smartphone camera).
+Knowledge Area,Virtual Reality (VR),Creating fully immersive environments that users can explore via headsets.
+Knowledge Area,Mixed Reality (MR),Blending physical and digital spaces where users can interact with both at the same time.
+Knowledge Area,Natural Language Processing (NLP),"Teaching machines to interpret, generate, or classify human language."
+Knowledge Area,Sentiment Analysis,"Using computational tools to detect emotion, tone, or opinion in text, often used for content moderation or marketing."
+Knowledge Area,Infrastructure Geopolitics,How the location of servers and cloud providers intersects with global inequality and power.
+Knowledge Area,Signals and Behavioural Inference,"The tiny, often unconscious actions—like pausing, hovering, scrolling—that are collected by platforms to infer user preferences, attention, or emotion. These signals are harvested and interpreted by algorithms as behavioural data."
+Knowledge Area,Data Extractivism,"The process of turning human activity into data that can be owned, sold, or profited from—usually without clear consent or understanding."
+Knowledge Area,Data Surveillance,"The continuous monitoring, tracking, and analysis of user behaviours, movements, and communications—often by platforms or third parties."
+Knowledge Area,Multilingual and Localised Systems,"Designing for different languages, cultures, and accessibility contexts."
+Knowledge Area,Ethical Deployment and Maintenance,Making responsible decisions about launching and maintaining digital projects.
+Knowledge Area,Sustainable and Degrowth Approaches to Tech,Designing systems that are environmentally responsible and don’t depend on infinite growth.
+Knowledge Area,Generative Systems and Algorithmic Expression,"Designing interactive and visual systems that respond to data, randomness, or user input."
+Knowledge Area,Code as Narrative / Code as Protest,Understanding code not only as a technical language but as a communicative and cultural tool.
+Knowledge Area,Computational Embodiment and Real-Time Interaction,"Building interfaces that respond to body movement, touch, time, or sound. Often used in speculative or participatory contexts to challenge conventional input/output relationships."
+Knowledge Area,Live Coding and Performance Systems,"Real-time creative coding as an expressive practice, used for audiovisual performances, algorithmic music, or collaborative expression."
+Knowledge Area,Latent Space & Representation Learning,"Understanding how features are encoded and compressed in machine learning models, particularly in generative and classification systems."
+Knowledge Area,Prompt Engineering,"The skill of crafting precise, modular, or expressive text inputs to shape responses from generative AI systems."
+Knowledge Area,Dataset Genealogy & Dataset Politics,"Critical analysis of how datasets are sourced, labelled, maintained, and politicised, with implications for inclusion and bias."
+Knowledge Area,Synthetic Data & Anonymisation,"Exploration of ethical, legal, and technical challenges in creating and using artificial datasets for AI training or privacy preservation."
+Knowledge Area,Database Schemas & Classification Logics,"Understanding how database design reflects and reinforces systems of value, control, and access."
+Knowledge Area,Embodied & Sensory Systems,"Interfaces and installations that use sensors, movement, and physical feedback for interactive and inclusive data engagement."
+Knowledge Area,Data Physicalisation & Autographic Visualisation,"Techniques for transforming abstract data into tangible, visible, or performative outputs."
+Knowledge Area,Iterative System Development,"A prototyping method that uses cycles of refinement to enhance system logic, responsiveness, or inclusivity."
+Knowledge Area,Public Transparency & Consent Numbness,"Critical awareness of UX fatigue, overconsent, and design patterns that diminish user agency."
+Knowledge Area,Citizen Sensing & Participatory Sensing,"Grassroots methods for communities to collect, interpret, and act upon environmental or infrastructural data."
+Tool / Technology,HTML / CSS / JavaScript,Core languages used to build websites and interfaces.
+Tool / Technology,Figma,A collaborative tool for interface design and wireframing.
+Tool / Technology,Accessibility Tools,Tools like WAVE or screen readers to test usability for all users.
+Tool / Technology,Browser Developer Tools,Built-in tools for inspecting and modifying web elements in real time.
+Tool / Technology,Node.js / Express,JavaScript frameworks for building the logic of applications.
+Tool / Technology,MongoDB / Firebase,Databases used to store user data and content.
+Tool / Technology,APIs (Application Programming Interfaces),Services for pulling in or sending out structured data.
+Tool / Technology,Glitch / Render,"Platforms for publishing and sharing interactive, full-stack web apps."
+Tool / Technology,Git / GitHub,"Version control tools for managing code, collaboration, and publishing."
+Tool / Technology,CSV / JSON,File formats for storing structured data.
+Tool / Technology,D3.js / Chart.js,JavaScript libraries for building custom data visualisations.
+Tool / Technology,ObservableHQ,"A platform for building live, interactive visual notebooks."
+Tool / Technology,Python (intro),A beginner-friendly language often used for data analysis.
+Tool / Technology,Open Data Portals,"Sources like data.gov, World Bank Open Data, UNHCR data portal, etc."
+Tool / Technology,"R (ggplot2, dplyr, tidyverse)",A statistical computing environment for creating reproducible data visualisations and conducting exploratory data analysis.
+Tool / Technology,Tableau (Public/Desktop),Interactive data dashboarding and relational data modelling for platform governance and equity analysis.
+Tool / Technology,ML5.js / TensorFlow.js,JavaScript tools for learning about and experimenting with machine learning.
+Tool / Technology,Hugging Face APIs,Open-source access to powerful pre-trained AI models.
+Tool / Technology,Sentiment.js,A basic tool to run sentiment analysis in browser-based applications.
+Tool / Technology,Teachable Machine,"A visual, no-code tool for training image, audio, and pose models."
+Tool / Technology,Comfy UI / Stable Diffusion,"A modular, visual interface for running and customizing Stable Diffusion workflows."
+Tool / Technology,Diffusion Bee / mage.space,User-friendly GUIs for generating images using pretrained diffusion models.
+Tool / Technology,CLIP Interrogator / VQGAN+CLIP / StyleGAN / Pix2Pix,Advanced generative tools for vision + aesthetics studies.
+Tool / Technology,LangChain,"Framework for connecting multiple LLM-powered tasks via modular chains (e.g., prompt refinement, question answering)."
+Tool / Technology,MediaPipe / PoseNet,Google-based models for real-time motion tracking and camera-based interaction systems.
+Tool / Technology,RAVE / Torchaudio,"AI-powered, low-latency audio synthesis environments."
+Tool / Technology,GDPR Templates and Data Protection Impact Assessments (DPIAs),Frameworks for evaluating how user data is handled.
+Tool / Technology,TOS;DR (Terms of Service; Didn’t Read),A public tool that explains what’s buried in terms of service.
+Tool / Technology,Blacklight (by The Markup),A tracker auditing tool for websites.
+Tool / Technology,Security Headers / HTTPS,Tools and protocols for encrypting web traffic and improving security.
+Tool / Technology,EULAlyzer / StopBadware Reports,Tools for analysing software licensing and tracking user risk.
+Tool / Technology,"Static Site Generators (Jekyll, Hugo)","Tools for building fast, minimal digital archives."
+Tool / Technology,Git-based Publishing,Creating and managing content using version control systems.
+Tool / Technology,Web Annotation Tools,Platforms for collaborative commentary on digital content.
+Tool / Technology,Consent-Based Survey Tools,Ethical survey platforms that foreground user autonomy.
+Tool / Technology,Data-walking / Field Logging Tools,"Tools for collecting sensory, positional, or situated data during participatory research."
+Tool / Technology,Extended Reality (XR),"Combines AR, VR, and MR technologies to create immersive systems."
+Tool / Technology,Augmented Reality (AR),"Digital overlays on the physical world (e.g. AR filters, navigation apps)."
+Tool / Technology,Virtual Reality (VR),Fully immersive environments accessed through headsets.
+Tool / Technology,Mixed Reality (MR),"A hybrid of AR and VR, where digital and physical objects co-exist and interact."
+Tool / Technology,WebXR / A-Frame / Three.js / Unity / Snap,Tools for building immersive experiences directly in web browsers.
+Tool / Technology,Mad Mapper,Visual software for projection mapping and light interaction.
+Tool / Technology,p5.js / Processing,Creative coding environments for interactive visuals and generative systems.
+Tool / Technology,Hydra,A live-coding video synthesis environment for creating real-time visuals using JavaScript.
+Tool / Technology,TidalCycles / Sonic Pi,Live-coded music platforms.
+Tool / Technology,RiTa.js / PoetJS,"JavaScript libraries for computational literature, used in building narrative systems, language experiments, and poetic bots."
+Tool / Technology,OpenFrameworks / Cinder,"C++ libraries for high-performance generative art and interaction design. Useful for spatial systems, installations, and sensor-based applications."
+Tool / Technology,"Tangible Interfaces (Makey Makey, Bare Conductive)",Platforms for embodied interaction through conductive materials.
+Tool / Technology,Arduino IDE / TinkerCAD / Capacitive Sensors / Servo / DC Motor Libraries,Embedded programming environments and components for real-world interaction prototyping.
+Tool / Technology,WebSerial / Serial Parsing with p5.js,Enables real-time communication between frontend apps and microcontrollers.
+Tool / Technology,TinyML / TensorFlow Lite,Machine learning tools optimized for microcontrollers and low-power environments.
+Tool / Technology,OSC / MIDI / DMX Protocols,"Communication systems for real-time, multi-device creative interaction setups."
+Role / System Orientation,System Architect,Understands how different layers of digital systems fit together and how to redesign them for justice.
+Role / System Orientation,User Experience (UX) Designer,"Creates systems that are usable, intuitive, and inclusive."
+Role / System Orientation,Data Steward / Architect,"Structures and manages data responsibly, ensuring transparency and protection."
+Role / System Orientation,AI Ethicist / Algorithm Analyst,"Investigates how automation affects fairness, agency, and social outcomes."
+Role / System Orientation,Digital Archivist,Designs platforms that preserve memory and surface erased or hidden histories.
+Role / System Orientation,Platform Critic,"Exposes how platforms shape visibility, speech, participation, and control."
+Role / System Orientation,Participatory Technologist,Builds systems collaboratively with users and communities.
+Role / System Orientation,Privacy-Focused Designer,"Designs for safety, consent, and anonymity from the ground up."
+Role / System Orientation,Narrative Systems Builder,"Uses data, interaction, and storytelling to reshape how experiences are communicated."
+Role / System Orientation,Policy Hacker,Navigates and critiques the legal frameworks that structure the digital world.
+Role / System Orientation,Speculative Prototyper,Uses design to imagine other possible futures and critique present realities.
+Role / System Orientation,Access Strategist,"Ensures systems are responsive to diverse languages, bodies, geographies, and needs."
+Role / System Orientation,Public Technologist,"Creates digital tools and infrastructures that are open, accountable, and civic-minded."
+Role / System Orientation,Creative Coder / Generative Systems Designer,"Uses algorithmic processes to create expressive systems: visual, sonic, or interactive. Challenges how aesthetics and system logic intersect with inequality and perception."
+Role / System Orientation,Code-Based Storyteller,"Builds narrative systems using text, visuals, or real-time input. Uses language models, sentiment systems, or computational poetics to question digital norms and platform narratives."
+Role / System Orientation,Critical Technologist,"Designs interventions, speculative tools, or data experiments that expose hidden power structures, algorithmic harm, or exclusions through artistic code-based practices."
+Role / System Orientation,Live Systems Performer,"Uses code as an ephemeral, performative medium to create real-time interactions, music, or visuals that communicate or critique cultural systems"
+Role / System Orientation,Data Communicator,"Translates complex data into accessible visual, narrative, or embodied formats for specific communities, ensuring relevance and critical framing."
+Role / System Orientation,Infrastructure Mapper,"Identifies, visualises, and critiques the physical and virtual infrastructures that underpin digital systems—from data centers to content delivery networks."
+Role / System Orientation,Dataset Forensics Analyst,"Investigates the provenance, composition, and power relations embedded in datasets used for AI training or platform governance."
+Role / System Orientation,Synthetic Data Designer,"Develops, tests, or critiques artificially generated datasets for fairness, privacy, and transparency in machine learning applications."
+Role / System Orientation,Sensorial Systems Builder,"Constructs installations or interactions that use physical sensors (motion, touch, light, sound) to rethink interface logic and platform feedback loops."
+Role / System Orientation,Prompt Architect,"Strategically designs language-based inputs to generative models in order to test or provoke algorithmic response, bias, or possibility."
+Role / System Orientation,Consent Interface Tester,"Prototypes and evaluates user flows that foreground ethical data collection, transparency, and refusal."
+Role / System Orientation,Speculative Dataset Curator,Gathers and creates counter- or fictional datasets to critique dominant narratives in platform governance and algorithmic training.
+Role / System Orientation,Embodied Algorithm Explorer,"Uses body movement, wearable sensors, or gesture-based tools to explore how interaction data is interpreted, tracked, or monetised by systems."
+Role / System Orientation,Generative Culture Practitioner,"Applies AI tools to visual, sonic, or textual culture production while interrogating authorship, aesthetics, and labour in algorithmically mediated media."
+Role / System Orientation,Civic Infrastructure Designer,"Builds or critiques public-facing digital tools (dashboards, maps, feedback systems) that support social justice, mutual aid, or participatory governance."
+Role / System Orientation,Visualisation Ethicist,"Designs, reviews, and critiques data visualisations for legibility, power, distortion, and representation, especially in public interest contexts."

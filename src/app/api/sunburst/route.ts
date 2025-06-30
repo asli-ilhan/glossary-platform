@@ -1,40 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/lib/auth';
+import { dbConnect, SunburstMap, ContentModule } from '@/app/utils/models';
 
 export async function GET(req: NextRequest) {
   try {
-    // Connect to MongoDB and fetch real CSV data
-    const { dbConnect, SunburstMap } = await import('@/app/utils/models');
     await dbConnect();
     
-    const url = new URL(req.url);
-    const level = url.searchParams.get('level');
-    const includeInactive = url.searchParams.get('includeInactive') === 'true';
-    
-    let query: any = {};
-    
-    if (!includeInactive) {
-      query.isActive = true;
-    }
-    
-    if (level) {
-      query['position.level'] = parseInt(level);
-    }
-    
-    // Fetch data from MongoDB with populated related content
-    const sunburstData = await SunburstMap.find(query)
-      .populate('relatedContent', 'title contentType moderationStatus description voiceHook youtubeUrl mediaUrl fileUrl tags')
-      .populate('createdBy', 'email profile.firstName profile.lastName')
-      .sort({ 'position.level': 1, 'position.order': 1 });
-    
-    console.log('Fetched sunburst data from database:', sunburstData.length, 'items');
-    console.log('Sample item with content:', sunburstData.find(item => item.relatedContent?.length > 0));
-    
-    return NextResponse.json(sunburstData);
+    // Fetch sunburst data with populated related content
+    const sunburstData = await SunburstMap.find({ isActive: true })
+      .populate({
+        path: 'relatedContent',
+        model: ContentModule,
+        match: { moderationStatus: 'approved' },
+        select: 'title description contentType youtubeUrl mediaUrl fileUrl voiceHook tags moderationStatus'
+      })
+      .sort({ 'position.level': 1, 'position.order': 1 })
+      .lean();
+
+    // Transform the data to include inequality information
+    const transformedData = sunburstData.map(item => ({
+      _id: item._id,
+      themeCluster: item.themeCluster,
+      knowledgeArea: item.knowledgeArea,
+      discipline: item.discipline,
+      roleSystemOrientation: item.roleSystemOrientation,
+      toolTechnology: item.toolTechnology,
+      inequality: item.inequality, // Include inequality data
+      description: item.description,
+      voiceHook: item.voiceHook,
+      position: item.position,
+      isActive: item.isActive,
+      relatedContent: item.relatedContent || [],
+      guestSpeaker: item.guestSpeaker
+    }));
+
+    return NextResponse.json(transformedData);
   } catch (error) {
-    console.error('Database connection failed:', error);
-    return NextResponse.json({ error: 'Failed to fetch sunburst data from database' }, { status: 500 });
+    console.error('Error fetching sunburst data:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch sunburst data' }, 
+      { status: 500 }
+    );
   }
 }
 

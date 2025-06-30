@@ -29,7 +29,7 @@ export default function Home() {
     const handleShowLanding = (event: CustomEvent) => {
       // Only show landing page if explicitly requested (e.g., from Introduction menu item)
       if (event.detail && event.detail.explicit) {
-        setShowLanding(true);
+      setShowLanding(true);
       } else {
         // Regular home navigation goes to visualization
         setShowLanding(false);
@@ -68,31 +68,10 @@ export default function Home() {
       {showLanding ? (
         <LandingPage onEnter={handleEnterPlatform} />
       ) : (
-        <>
-          {/* Full Screen Visualization */}
-          <div className="w-full min-h-[800px]">
-            <SunburstVisualization />
-          </div>
-
-          {/* Contribution Section - Better Layout */}
-          <div className="bg-black mt-1">
-            <div className="w-full px-8 py-12">
-              <div className="max-w-2xl">
-                <p className="text-gray-400 text-lg leading-relaxed mb-6">
-                  This toolkit evolves through collaborative contributions. Contributors can add new terms, expand existing descriptions, propose alternative interpretations, and actively make connections between disciplines, knowledge areas, and technologies.
-                </p>
-                <button 
-                  onClick={() => router.push('/contribute')} 
-                  className="primary text-base px-4 py-2"
-                >
-                  Contribute to the Toolkit
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
+        <div className="w-full">
+          <SunburstVisualization />
+        </div>
       )}
-
     </div>
   );
 }

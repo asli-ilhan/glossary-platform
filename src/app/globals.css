@@ -74,7 +74,7 @@ nav a {
 }
 
 .term-item {
-  @apply p-3 border-b border-gray-700 cursor-pointer bg-gray-800 hover:bg-gray-700 mb-2 rounded;
+  @apply p-3 border border-white cursor-pointer bg-black hover:bg-gray-900 mb-2 rounded;
 }
 
 .modal {
@@ -83,7 +83,7 @@ nav a {
 }
 
 .modal-content {
-  @apply bg-black p-6 rounded-lg shadow-lg text-center relative border border-gray-700;
+  @apply bg-black p-6 rounded-lg shadow-lg text-center relative border border-white;
   z-index: 70;
 }
 

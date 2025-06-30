@@ -361,7 +361,7 @@ export default function Contribute() {
   }
 
   return (
-    <div className="px-8 py-8">
+    <div className="px-8 pt-8 pb-2">
       <h1 className="text-3xl font-bold text-white mb-8">CONTRIBUTE</h1>
       
       {/* Tab Navigation */}
@@ -380,7 +380,7 @@ export default function Contribute() {
           onClick={() => setActiveTab('submit')}
           className={`pb-4 px-2 text-xl font-semibold transition-colors duration-200 ${
             activeTab === 'submit'
-              ? 'text-orange-300 border-b-2 border-orange-300'
+              ? 'text-yellow-300 border-b-2 border-yellow-300'
               : 'text-gray-400 hover:text-gray-300'
           }`}
         >
@@ -392,16 +392,6 @@ export default function Contribute() {
       <div className="text-lg text-gray-300 leading-relaxed">
         {activeTab === 'glossary' && (
           <div className="w-full">
-            <div className="mb-6">
-              <p className="text-left text-gray-300">
-                All submissions are reviewed before publication to ensure clarity and relevance.
-              </p>
-              <p className="text-left text-gray-300 mt-2">
-                Approved terms are credited and interlinked across the Toolkit, allowing users to trace how concepts shift across disciplines, tools, and real-world examples.
-              </p>
-            </div>
-
-
             {error && (
               <div className="bg-red-500 text-white p-3 rounded mb-4 text-center">
                 {error}
@@ -419,20 +409,6 @@ export default function Contribute() {
                 <strong>Note:</strong> {warning}
               </div>
             )}
-
-            {/* Community Analytics */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-300 mb-2">So far;</h3>
-              <div className="text-gray-300 text-sm">
-                <p>
-                  <span className="text-cyan-400 font-semibold">{analytics.totalEntries}</span> entries are published by{' '}
-                  <span className="text-green-400 font-semibold">{analytics.totalContributors}</span> contributors, and{' '}
-                  <span className="text-purple-400 font-semibold">{analytics.pendingEntries}</span> awaiting for approval.
-                </p>
-              </div>
-            </div>
-
-
 
             <div className="mb-4">
               <button 
@@ -464,7 +440,7 @@ export default function Contribute() {
                   <button key={groupedTerm.title} className={`term-item glossary-term-box ${index === 0 ? 'first-term' : ''}`} onClick={() => setSelectedTerm(groupedTerm)}>
                     {groupedTerm.title}
                     {groupedTerm.definitions.length > 1 && (
-                      <span className="ml-2 text-xs bg-green-600 text-white px-2 py-1 rounded-full definition-count-badge">
+                      <span className="ml-2 text-xs bg-black text-gray-400 px-2 py-1 rounded-md border border-gray-700 definition-count-badge">
                         {groupedTerm.definitions.length} definitions
                       </span>
                     )}
@@ -480,7 +456,7 @@ export default function Contribute() {
                   {modalStep === 1 && (
                     <>
                       <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold">Propose a New Entry</h2>
+                        <h2 className="text-xl font-bold text-white">Propose a New Entry</h2>
                         <button 
                           onClick={handleModalClose}
                           className="text-gray-400 hover:text-white transition-colors"
@@ -521,7 +497,7 @@ export default function Contribute() {
 
                   {modalStep === 2 && (
                     <>
-                      <h2 className="text-xl font-bold mb-4">
+                      <h2 className="text-xl font-bold text-white mb-4">
                         {isExpandingEntry ? `Expand: ${title}` : `New Entry: ${title}`}
                       </h2>
                       {isExpandingEntry && existingTerm && (
@@ -553,7 +529,7 @@ export default function Contribute() {
 
                   {modalStep === 3 && (
                     <>
-                      <h2 className="text-xl font-bold mb-4">Entry Submitted!</h2>
+                      <h2 className="text-xl font-bold text-white mb-4">Entry Submitted!</h2>
                       <div className="bg-green-900/30 border border-green-600 rounded p-4 mb-4">
                         <p className="text-green-300">
                           Thank you! Your contribution has been submitted. This entry is awaiting moderation.
@@ -615,7 +591,7 @@ export default function Contribute() {
                     
                     {/* Title row */}
                     <div className="mb-8">
-                      <h2 className="text-3xl font-bold text-left">{selectedTerm.title}</h2>
+                      <h2 className="text-3xl font-bold text-white text-left">{selectedTerm.title}</h2>
                     </div>
                   
                   {isEditing && editingDefinition ? (
@@ -669,7 +645,7 @@ export default function Contribute() {
                   ) : (
                     <div className={`grid gap-6 ${selectedTerm.definitions.length === 1 ? 'grid-cols-1' : selectedTerm.definitions.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                       {selectedTerm.definitions.map((definition, index) => (
-                        <div key={definition._id} className={`p-6 bg-gray-800 border border-gray-700 rounded-lg ${selectedTerm.definitions.length === 1 ? 'w-full' : 'min-w-[300px] max-w-[400px]'}`}>
+                        <div key={definition._id} className={`p-6 bg-black border border-white rounded-lg ${selectedTerm.definitions.length === 1 ? 'w-full' : 'min-w-[300px] max-w-[400px]'}`}>
                           {/* Show pending review message for user's own unapproved entries */}
                           {definition.approved === false && definition.userId?._id === user?.id && (
                             <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-600 rounded">
@@ -678,12 +654,12 @@ export default function Contribute() {
                           )}
                           
                           <div className="mb-4">
-                            <h3 className="text-xl font-semibold text-green-400 text-left">
+                            <h3 className="text-xl font-semibold text-white text-left">
                               Definition
                             </h3>
                           </div>
                           
-                          <p className="text-gray-300 text-base leading-relaxed mb-4 text-left">{definition.description}</p>
+                          <p className="text-gray-400 text-base leading-relaxed mb-4 text-left">{definition.description}</p>
                           
                           {definition.userId?.email && (
                             <div className="flex justify-end">
@@ -706,18 +682,6 @@ export default function Contribute() {
 
         {activeTab === 'submit' && (
           <div>
-            {/* Project Collaboration Analytics */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-300 mb-2">So far;</h3>
-              <div className="text-gray-300 text-sm">
-                <p>
-                  <span className="text-cyan-400 font-semibold">{contentAnalytics.totalProjects}</span> works are submitted by{' '}
-                  <span className="text-green-400 font-semibold">{contentAnalytics.totalCollaborators}</span> contributors and{' '}
-                  <span className="text-purple-400 font-semibold">{contentAnalytics.approvedProjects}</span> projects are being featured.
-                </p>
-              </div>
-            </div>
-
             <div className="mb-6">
               <button 
                 className="primary px-6 py-2" 
@@ -726,33 +690,35 @@ export default function Contribute() {
                 Submit Your Work
               </button>
             </div>
-
-            <p className="mb-6">
-              Contact{' '}
-              <a 
-                href="mailto:a.ilhan@arts.ac.uk" 
-                className="text-cyan-400 hover:text-cyan-300 underline underline-offset-4"
-              >
-                a.ilhan@arts.ac.uk
-              </a>
-              {' '}and/or{' '}
-              <a 
-                href="mailto:c.yuksel@arts.ac.uk" 
-                className="text-cyan-400 hover:text-cyan-300 underline underline-offset-4"
-              >
-                c.yuksel@arts.ac.uk.
-              </a>
-            </p>
           </div>
         )}
+      </div>
+
+      {/* Contact Information - appears at bottom for both tabs */}
+      <div>
+        <p className="text-sm text-left mt-48">
+          For further inquiries contact{' '}
+          <a 
+            href="mailto:a.ilhan@arts.ac.uk" 
+            className="text-gray-300 underline underline-offset-2"
+          >
+            a.ilhan@arts.ac.uk
+          </a>
+          {' '}and/or{' '}
+          <a 
+            href="mailto:c.yuksel@arts.ac.uk" 
+            className="text-gray-300 underline underline-offset-2"
+          >
+            c.yuksel@arts.ac.uk.
+          </a>
+        </p>
       </div>
 
       {/* Sign-in Modal */}
       {showSignInModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-gray-900 rounded-lg shadow-2xl max-w-md w-full mx-4 p-6 border border-gray-700">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-white">To Contribute;</h2>
+          <div className="bg-black rounded-lg shadow-2xl max-w-md w-full mx-4 p-6 border border-white">
+            <div className="flex justify-end mb-4">
               <button
                 onClick={() => setShowSignInModal(false)}
                 className="text-gray-400 hover:text-white transition-colors"
@@ -764,8 +730,8 @@ export default function Contribute() {
             </div>
             
             <div className="mb-6">
-              <p className="text-gray-300">
-                <span className="text-green-400 font-semibold">Sign in</span> to propose new entries and submit your own work.
+              <p className="text-gray-400">
+                <span className="text-white font-semibold">Sign in</span> to propose new entries and submit your own work.
               </p>
             </div>
 
@@ -775,13 +741,13 @@ export default function Contribute() {
                   setShowSignInModal(false);
                   router.push('/auth/signin?callbackUrl=/contribute');
                 }}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors"
+                className="flex-1 py-2 px-3 border-b-2 border-transparent font-medium text-sm transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
               >
                 Sign In
               </button>
               <button
                 onClick={() => setShowSignInModal(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded transition-colors"
+                className="flex-1 py-2 px-3 border-b-2 border-transparent font-medium text-sm transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
               >
                 Browse Only
               </button>

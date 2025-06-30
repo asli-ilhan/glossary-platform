@@ -1,0 +1,231 @@
+Discipline,Knowledge Area,Tool / Technology,Role / System Orientation,Theme Cluster,Inequality
+Human–Computer Interaction (HCI),UX & Accessibility,WAVE,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+User Experience (UX),Multilingual Systems,WebXR,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Human-Centred Design,Ethical Deployment,Consent-Based Survey Tools,Privacy-Focused Designer,Governance & Ethics,AI and Algorithmic Bias
+Design Studies,Speculative and Critical Prototyping,p5.js,Speculative Prototyper,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Digital Humanities,Open Data and Open Data Sources,Open Data Portals,Policy Hacker,Data & Visualization,Data Surveillance and Extractivism
+Internet Studies,Data Extractivism,Blacklight (by The Markup),Platform Critic,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Data Surveillance,Blacklight (by The Markup),Privacy-Focused Designer,Data Justice & Surveillance,Data Surveillance and Extractivism
+Data Science,Data Architecture,MongoDB,Data Steward / Architect,Data & Visualization,AI and Algorithmic Bias
+Media and Platform Studies,Moderation Systems,APIs,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Platform Governance,TOS;DR,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Surveillance Studies,Signals and Behavioural Inference,Custom Tool,Technologist,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Law and Policy,Digital Rights and Regulation,TOS;DR,Policy Hacker,Platform Governance,Industry-Specific Inclusion and Exclusion
+Archival Studies,Memory Systems,Jekyll,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Disability & Access Studies,UX & Accessibility,Figma,UX Designer,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Ethical Deployment and Maintenance,Custom Tool,Technologist,Digital Participation & Inclusion,AI and Algorithmic Bias
+Anthropology & Ethnography,Localisation,Figma,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Sentiment Interpretation,RiTa.js,Narrative Systems Builder,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Live Coding and Performance Systems,Hydra,Live Systems Performer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),Full-Stack Systems,HTML / CSS / JavaScript,System Architect,System Infrastructure,Community Marginalisation |  Offline to Online
+User Experience (UX),Sentiment Analysis,Hugging Face APIs,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Human-Centred Design,Ethical Deployment,Consent-Based Survey Tools,Policy Hacker,Governance & Ethics,AI and Algorithmic Bias
+Design Studies,UX & Accessibility,Figma,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Digital Humanities,Open Data and Open Data Sources,Open Data Portals,Public Technologist,Data & Visualization,Data Surveillance and Extractivism
+Internet Studies,Platform Governance,TOS;DR,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Data Surveillance,Blacklight (by The Markup),Privacy-Focused Designer,Data Justice & Surveillance,Data Surveillance and Extractivism
+Data Science,Machine Learning (ML),TensorFlow.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Media and Platform Studies,Platform Governance,TOS;DR,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Artificial Intelligence (AI),Hugging Face APIs,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Open Data and Open Data Sources,Open Data Portals,Public Technologist,Data & Visualization,Data Surveillance and Extractivism
+Surveillance Studies,Behavioural Inference,Custom Tool,Technologist,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Law and Policy,GDPR,Custom Tool,Technologist,Governance & Ethics,Community Marginalisation |  Offline to Online
+Archival Studies,Metadata Structuring,Markdown + YAML,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Disability & Access Studies,UX & Accessibility,Figma,UX Designer,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Participatory System Design,Figma,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Anthropology & Ethnography,Localisation,Multilingual Design Toolkits,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Sentiment Interpretation,RiTa.js,Narrative Systems Builder,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Live Coding and Performance Systems,Sonic Pi,Live Systems Performer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),Full-Stack Systems,Node.js / Express,System Architect,System Infrastructure,Community Marginalisation |  Offline to Online
+User Experience (UX),Sentiment Analysis,Sentiment.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Human-Centred Design,Ethical Deployment,DPIAs,Policy Hacker,Governance & Ethics,AI and Algorithmic Bias
+Design Studies,UX & Accessibility,WAVE,UX Designer,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Digital Humanities,Digital Archiving and Memory Systems,GitHub Pages,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+Internet Studies,Platform Governance,TOS;DR,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Data Science,Machine Learning (ML),ML5.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Media and Platform Studies,Moderation Systems,APIs,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Algorithmic Bias,ML5.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Open Data and Open Data Sources,Open Data Portals,Policy Hacker,Data & Visualization,Data Surveillance and Extractivism
+Surveillance Studies,Data Extractivism,Blacklight (by The Markup),Platform Critic,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Law and Policy,GDPR,Custom Tool,Technologist,Governance & Ethics,Community Marginalisation |  Offline to Online
+Archival Studies,Digital Archiving and Memory Systems,GitHub Pages,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Policy Frameworks,TOS;DR,Policy Hacker,Platform Governance,Industry-Specific Inclusion and Exclusion
+Disability & Access Studies,Inclusive Infrastructure,Accessibility Tools,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Ethical Deployment and Maintenance,Custom Tool,Technologist,Digital Participation & Inclusion,AI and Algorithmic Bias
+Anthropology & Ethnography,Participatory System Design,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Narrative & Storytelling,p5.js,Code-Based Storyteller,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Live Coding and Performance Systems,Sonic Pi,Live Systems Performer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),Feedback Systems,ObservableHQ,Participatory Technologist,System Infrastructure,Community Marginalisation |  Offline to Online
+User Experience (UX),UX & Accessibility,Figma,UX Designer,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Human-Centred Design,Participatory System Design,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Design Studies,Data Visualisation and Storytelling,D3.js,Narrative Systems Builder,Data & Visualization,AI and Algorithmic Bias
+Digital Humanities,Narrative & Storytelling,p5.js,Code-Based Storyteller,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Internet Studies,Data Extractivism,Blacklight (by The Markup),Platform Critic,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Algorithmic Bias,ML5.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Data Science,Natural Language Processing (NLP),Hugging Face APIs,Code-Based Storyteller,AI & Automation,Community Marginalisation |  Offline to Online
+Media and Platform Studies,Sentiment Analysis,Hugging Face APIs,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Open Data and Open Data Sources,Open Data Portals,Public Technologist,Data & Visualization,Data Surveillance and Extractivism
+Surveillance Studies,Signals and Behavioural Inference,Custom Tool,Technologist,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Law and Policy,GDPR,Custom Tool,Technologist,Governance & Ethics,Community Marginalisation |  Offline to Online
+Archival Studies,Digital Archiving and Memory Systems,Static Site Generators (Jekyll),Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Artificial Intelligence (AI),Hugging Face APIs,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Disability & Access Studies,Multilingual Systems,WebXR,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Ethical Deployment and Maintenance,Custom Tool,Technologist,Digital Participation & Inclusion,AI and Algorithmic Bias
+Anthropology & Ethnography,Participatory System Design,Figma,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Interface Design,HTML / CSS / JavaScript,UX Designer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Code as Narrative / Code as Protest,PoetJS,Code-Based Storyteller,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),UX & Accessibility,WAVE,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+User Experience (UX),UX & Accessibility,Accessibility Tools,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Human-Centred Design,Participatory System Design,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Design Studies,UX & Accessibility,Figma,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Digital Humanities,Narrative & Storytelling,PoetJS,Code-Based Storyteller,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Internet Studies,Platform Governance,TOS;DR,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Open Data and Open Data Sources,Open Data Portals,Public Technologist,Data & Visualization,Data Surveillance and Extractivism
+Data Science,Data Visualisation and Storytelling,ObservableHQ,Narrative Systems Builder,Data & Visualization,AI and Algorithmic Bias
+Media and Platform Studies,Sentiment Analysis,Hugging Face APIs,Narrative Systems Builder,AI & Automation,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Speculative and Critical Prototyping,p5.js,Speculative Prototyper,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Infrastructure Geopolitics,Cloudflare,System Architect,Platform Governance,Community Marginalisation |  Offline to Online
+Surveillance Studies,Data Surveillance,Comfy UI / Stable Diffusion,Privacy-Focused Designer,Data Justice & Surveillance,Data Surveillance and Extractivism
+Law and Policy,Ethical Deployment and Maintenance,Custom Tool,Technologist,Digital Participation & Inclusion,AI and Algorithmic Bias
+Archival Studies,Metadata Structuring,Markdown + YAML,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Sentiment Analysis,Hugging Face APIs,Narrative Systems Builder,AI & Automation,Community Marginalisation |  Offline to Online
+Disability & Access Studies,Multilingual Systems,Figma,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Ethical Deployment and Maintenance,Custom Tool,Technologist,Digital Participation & Inclusion,AI and Algorithmic Bias
+Anthropology & Ethnography,Feedback Systems,Browser Developer Tools,Participatory Technologist,System Infrastructure,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Natural Language Processing (NLP),RiTa.js,Code-Based Storyteller,AI & Automation,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Code as Narrative / Code as Protest,RiTa.js,Code-Based Storyteller,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),UX & Accessibility,Accessibility Tools,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+User Experience (UX),UX & Accessibility,WAVE,UX Designer,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Human-Centred Design,Participatory System Design,Figma,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Design Studies,UX & Accessibility,Figma,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Digital Humanities,Digital Archiving and Memory Systems,Static Site Generators (Jekyll),Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+Internet Studies,Data Extractivism,Blacklight (by The Markup),Platform Critic,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Algorithmic Bias,ML5.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Data Science,Data Visualisation and Storytelling,D3.js,Narrative Systems Builder,Data & Visualization,AI and Algorithmic Bias
+Media and Platform Studies,Moderation Systems,Glitch,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Algorithmic Bias,ML5.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Platform Governance,TOS;DR,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Surveillance Studies,Behavioural Inference,Custom Tool,Technologist,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Law and Policy,GDPR,Custom Tool,Technologist,Governance & Ethics,Community Marginalisation |  Offline to Online
+Archival Studies,Metadata Structuring,Git-based Publishing,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Sentiment Analysis,Hugging Face APIs,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Disability & Access Studies,Multilingual Systems,WebXR,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Ethical Deployment and Maintenance,Custom Tool,Technologist,Digital Participation & Inclusion,AI and Algorithmic Bias
+Anthropology & Ethnography,Participatory System Design,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Sentiment Interpretation,Sentiment.js,Narrative Systems Builder,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Computational Embodiment and Real-Time Interaction,Bare Conductive,Access Strategist,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),UX & Accessibility,Accessibility Tools,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+User Experience (UX),Sentiment Analysis,Sentiment.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Human-Centred Design,Consent Frameworks,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Design Studies,Data Visualisation and Storytelling,D3.js,Narrative Systems Builder,Data & Visualization,AI and Algorithmic Bias
+Digital Humanities,Narrative & Storytelling,PoetJS,Narrative Systems Builder,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Internet Studies,Platform Governance,TOS;DR,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Data Surveillance,Blacklight (by The Markup),Privacy-Focused Designer,Data Justice & Surveillance,Data Surveillance and Extractivism
+Data Science,Data Visualisation and Storytelling,D3.js,Narrative Systems Builder,Data & Visualization,AI and Algorithmic Bias
+Media and Platform Studies,Sentiment Analysis,Hugging Face APIs,Narrative Systems Builder,AI & Automation,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Infrastructure Geopolitics,Render,System Architect,Platform Governance,Community Marginalisation |  Offline to Online
+Surveillance Studies,Signals and Behavioural Inference,Custom Tool,Technologist,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Law and Policy,GDPR,Custom Tool,Technologist,Governance & Ethics,Community Marginalisation |  Offline to Online
+Archival Studies,Memory Systems,GitHub Pages,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Disability & Access Studies,UX & Accessibility,Figma,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Participatory System Design,Figma,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Anthropology & Ethnography,Participatory System Design,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Natural Language Processing (NLP),Hugging Face APIs,Narrative Systems Builder,AI & Automation,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Computational Embodiment and Real-Time Interaction,Makey Makey,Critical Technologist,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),Full-Stack Systems,HTML / CSS / JavaScript,System Architect,System Infrastructure,Community Marginalisation |  Offline to Online
+User Experience (UX),Sentiment Analysis,Hugging Face APIs,Narrative Systems Builder,AI & Automation,Community Marginalisation |  Offline to Online
+Human-Centred Design,Consent Frameworks,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Design Studies,Data Visualisation and Storytelling,ObservableHQ,Narrative Systems Builder,Data & Visualization,AI and Algorithmic Bias
+Digital Humanities,Open Data and Open Data Sources,Open Data Portals,Policy Hacker,Data & Visualization,Data Surveillance and Extractivism
+Internet Studies,Data Extractivism,Blacklight (by The Markup),Platform Critic,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Open Data and Open Data Sources,Open Data Portals,Policy Hacker,Data & Visualization,Data Surveillance and Extractivism
+Data Science,Data Architecture,MongoDB,Data Steward / Architect,Data & Visualization,AI and Algorithmic Bias
+Media and Platform Studies,Moderation Systems,APIs,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Algorithmic Bias,ML5.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Platform Governance,Blacklight (by The Markup),Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Surveillance Studies,Data Extractivism,Blacklight (by The Markup),Platform Critic,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Law and Policy,Digital Rights and Regulation,TOS;DR,Policy Hacker,Platform Governance,Industry-Specific Inclusion and Exclusion
+Archival Studies,Digital Archiving and Memory Systems,Static Site Generators (Jekyll),Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Artificial Intelligence (AI),Hugging Face APIs,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Disability & Access Studies,UX & Accessibility,WAVE,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Participatory System Design,Figma,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Anthropology & Ethnography,Localisation,Figma,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Interface Design,Figma,UX Designer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Generative Systems and Algorithmic Expression,OpenFrameworks,Creative Coder / Generative Systems Designer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),Full-Stack Systems,Node.js / Express,System Architect,System Infrastructure,Community Marginalisation |  Offline to Online
+User Experience (UX),Sentiment Analysis,Hugging Face APIs,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Human-Centred Design,Consent Frameworks,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Design Studies,UX & Accessibility,Figma,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Digital Humanities,Open Data and Open Data Sources,World Bank Open Data,Public Technologist,Data & Visualization,Data Surveillance and Extractivism
+Internet Studies,Infrastructure Geopolitics,Render,System Architect,Platform Governance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Data Science,Data Architecture,MongoDB,Data Steward / Architect,Data & Visualization,AI and Algorithmic Bias
+Media and Platform Studies,Sentiment Analysis,Hugging Face APIs,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Platform Governance,Blacklight (by The Markup),Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Surveillance Studies,Signals and Behavioural Inference,Custom Tool,Technologist,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Law and Policy,GDPR,Custom Tool,Technologist,Governance & Ethics,Community Marginalisation |  Offline to Online
+Archival Studies,Memory Systems,GitHub Pages,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Sentiment Analysis,Sentiment.js,Narrative Systems Builder,AI & Automation,Community Marginalisation |  Offline to Online
+Disability & Access Studies,UX & Accessibility,Accessibility Tools,UX Designer,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Participatory System Design,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Anthropology & Ethnography,Localisation,Multilingual Design Toolkits,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Interface Design,HTML / CSS / JavaScript,UX Designer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Generative Systems and Algorithmic Expression,OpenFrameworks,Creative Coder / Generative Systems Designer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),Feedback Systems,Browser Developer Tools,Participatory Technologist,System Infrastructure,Community Marginalisation |  Offline to Online
+User Experience (UX),Sentiment Analysis,Sentiment.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Human-Centred Design,Participatory System Design,Figma,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Design Studies,Speculative and Critical Prototyping,Comfy UI / Stable Diffusion,Speculative Prototyper,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Digital Humanities,Open Data and Open Data Sources,Open Data Portals,Public Technologist,Data & Visualization,Data Surveillance and Extractivism
+Internet Studies,Platform Governance,TOS;DR,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Critical Data Studies,Algorithmic Bias,Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Data Science,Machine Learning (ML),TensorFlow.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Media and Platform Studies,Platform Governance,TOS;DR,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Science and Technology Studies (STS),Artificial Intelligence (AI),Hugging Face APIs,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Political Economy of Technology,Platform Governance,Blacklight (by The Markup),Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Surveillance Studies,Data Surveillance,Blacklight (by The Markup),Platform Critic,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Law and Policy,Ethical Deployment and Maintenance,Custom Tool,Technologist,Digital Participation & Inclusion,AI and Algorithmic Bias
+Archival Studies,Metadata Structuring,Markdown + YAML,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+AI Ethics,Artificial Intelligence (AI),Teachable Machine,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Disability & Access Studies,Multilingual Systems,Figma,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Participatory Design & Design Justice,Participatory System Design,Consent-Based Survey Tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Anthropology & Ethnography,Participatory System Design,Figma,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Natural Language Processing (NLP),RiTa.js,Code-Based Storyteller,AI & Automation,Community Marginalisation |  Offline to Online
+Critical / Creative Coding,Live Coding and Performance Systems,Hydra,Live Systems Performer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Platform Labour Studies,Citizen Sensing & Participatory Sensing,Data-walking / Field Logging Tools,Public Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Design Studies,Data Physicalisation & Autographic Visualisation,Arduino + p5.js,Visualisation Ethicist,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Anthropology & Ethnography,Data-walking / Field Logging Tools,Data-walking tools,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Critical Data Studies,Dataset Genealogy & Dataset Politics,Data provenance dashboards,Dataset Forensics Analyst,Data Justice & Surveillance,Community Marginalisation |  Offline to Online
+Embodied Interaction,Embodied & Sensory Systems,Makey Makey,Sensorial Systems Builder,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Human-Centred Design,Iterative System Development,Figma,Participatory Technologist,System Infrastructure,Community Marginalisation |  Offline to Online
+Communication Systems and Protocols,OSC / MIDI / DMX Protocols,WebSerial / Serial Parsing,Live Systems Performer,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Data Science,Prompt Engineering,LangChain,Prompt Architect,AI & Automation,Community Marginalisation |  Offline to Online
+Law and Policy,Public Transparency & Consent Numbness,GDPR Templates,Consent Interface Tester,Governance & Ethics,Community Marginalisation |  Offline to Online
+Infrastructure Studies,Servers and Hosting,Glitch / Render,Infrastructure Mapper,System Infrastructure,Community Marginalisation |  Offline to Online
+Environmental Humanities,Sustainable and Degrowth Approaches to Tech,Energy usage visualisation tools,Civic Infrastructure Designer,Governance & Ethics,Community Marginalisation |  Offline to Online
+AI Ethics,Synthetic Data & Anonymisation,Synthetic dataset libraries,Synthetic Data Designer,AI & Automation,Community Marginalisation |  Offline to Online
+Media and Platform Studies,Moderation Systems,Glitch,Platform Critic,Platform Governance,Community Marginalisation |  Offline to Online
+Digital Humanities,Narrative & Storytelling,RiTa.js,Code-Based Storyteller,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Surveillance Studies,Signals and Behavioural Inference,Tracker Auditing Tools,Privacy-Focused Designer,Data Justice & Surveillance,Data Surveillance and Extractivism
+Political Economy of Technology,Infrastructure Geopolitics,Render,Policy Hacker,Platform Governance,Industry-Specific Inclusion and Exclusion
+Archival Studies,Metadata Structuring,Git-based Publishing,Digital Archivist,Archiving & Memory,Community Marginalisation |  Offline to Online
+Disability & Access Studies,Inclusive Infrastructure,Makey Makey,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Communication & Narrative Studies,Sentiment Interpretation,Sentiment.js,Narrative Systems Builder,AI & Automation,Community Marginalisation |  Offline to Online
+Human–Computer Interaction (HCI),Feedback Systems,ObservableHQ,System Architect,System Infrastructure,Community Marginalisation |  Offline to Online
+Digital Humanities,Open Data and Open Data Sources,Open Data Portals,Policy Hacker,Data & Visualization,Data Surveillance and Extractivism
+Science and Technology Studies (STS),Speculative and Critical Prototyping,Comfy UI / Stable Diffusion,Speculative Prototyper,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+User Experience (UX),Multilingual Systems,WebXR,Access Strategist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Law and Policy,Digital Rights and Regulation,TOS;DR,Policy Hacker,Governance & Ethics,Industry-Specific Inclusion and Exclusion
+AI Ethics,Algorithmic Bias,ML5.js,AI Ethicist / Algorithm Analyst,AI & Automation,Community Marginalisation |  Offline to Online
+Data Science,Data Architecture,MongoDB,Data Steward / Architect,Data & Visualization,AI and Algorithmic Bias
+Design Studies,UX & Accessibility,Accessibility Tools,UX Designer,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online
+Environmental Humanities,Sustainable and Degrowth Approaches to Tech,Energy benchmarking tools,Public Technologist,Governance & Ethics,Community Marginalisation |  Offline to Online
+Embodied Interaction,Embodied & Sensory Systems,Bare Conductive,Critical Technologist,Creative & Critical Expression,Community Marginalisation |  Offline to Online
+Platform Labour Studies,Citizen Sensing & Participatory Sensing,Custom sensor kits,Participatory Technologist,Digital Participation & Inclusion,Community Marginalisation |  Offline to Online

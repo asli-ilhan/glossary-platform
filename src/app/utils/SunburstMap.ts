@@ -6,6 +6,7 @@ export interface ISunburstMap extends Document {
   discipline: string;
   roleSystemOrientation: string;
   toolTechnology: string;
+  inequality: string;
   description: string;
   voiceHook?: string;
   audioUrl?: string;
@@ -34,6 +35,7 @@ const SunburstMapSchema: Schema<ISunburstMap> = new Schema({
   discipline: { type: String, required: true },
   roleSystemOrientation: { type: String, required: true },
   toolTechnology: { type: String, required: true },
+  inequality: { type: String, required: true },
   description: { type: String, required: true },
   voiceHook: { type: String },
   audioUrl: { type: String },
@@ -62,6 +64,7 @@ SunburstMapSchema.index({ 'position.level': 1, 'position.order': 1 });
 SunburstMapSchema.index({ 'position.parentId': 1 });
 SunburstMapSchema.index({ isActive: 1 });
 SunburstMapSchema.index({ toolTechnology: 1 });
+SunburstMapSchema.index({ inequality: 1 });
 
 const SunburstMap: Model<ISunburstMap> = mongoose.models.SunburstMap || mongoose.model<ISunburstMap>('SunburstMap', SunburstMapSchema);
 

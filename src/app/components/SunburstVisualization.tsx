@@ -15,6 +15,7 @@ interface SunburstNode {
   discipline: string;
   roleSystemOrientation: string;
   toolTechnology: string;
+  inequality: string; // Add inequality field
   description: string;
   voiceHook?: string;
   relatedContent?: {
@@ -51,6 +52,7 @@ interface RadialNode {
   fx?: number;
   fy?: number;
   connections: string[];
+  connectionInequalities: Map<string, string>; // Map connection to inequality
   data?: SunburstNode;
   description?: string;
   voiceHook?: string;
@@ -84,10 +86,18 @@ interface TooltipData {
   y: number;
 }
 
+interface LayerDescription {
+  _id: string;
+  layer: string;
+  entry: string;
+  description: string;
+}
+
 const SunburstVisualization: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<SunburstNode[]>([]);
+  const [layerDescriptions, setLayerDescriptions] = useState<LayerDescription[]>([]);
   const [glossaryTerms, setGlossaryTerms] = useState<GlossaryTerm[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,23 +122,37 @@ const SunburstVisualization: React.FC = () => {
   const [radialNodes, setRadialNodes] = useState<RadialNode[]>([]);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, k: 1 });
-  const [showScrollIndicator, setShowScrollIndicator] = useState(false);
-  const [isNearTop, setIsNearTop] = useState(true);
+  const [inequalityTypes, setInequalityTypes] = useState<string[]>([]);
+  const [isStatsPanelCollapsed, setIsStatsPanelCollapsed] = useState(false);
+  const [isInequalityPanelCollapsed, setIsInequalityPanelCollapsed] = useState(false);
+
   const [visualizationStats, setVisualizationStats] = useState({
     totalDataPoints: 0,
     totalConnections: 0,
     relatedContentCount: 0,
-    glossaryTermsCount: 0
+    glossaryTermsCount: 0,
+    disciplineCount: 0,
+    knowledgeAreaCount: 0,
+    toolCount: 0,
+    contributorSubmissions: 0,
+    activeContributors: 0
   });
+
+  // Handle side panel close with animation
+  const handleCloseSidePanel = useCallback(() => {
+    setShowSidePanel(false);
+    // Clear content after animation completes (500ms duration)
+    if (sidePanelContent) {
+      setTimeout(() => {
+        setSidePanelContent(null);
+      }, 500);
+    }
+  }, [sidePanelContent]);
 
   // Listen for help button click from parent
   useEffect(() => {
     const handleShowInstructions = () => {
       setShowInstructions(true);
-    };
-
-    const handleCloseSidePanel = () => {
-      setShowSidePanel(false);
     };
     
     window.addEventListener('showInstructions', handleShowInstructions);
@@ -137,7 +161,7 @@ const SunburstVisualization: React.FC = () => {
       window.removeEventListener('showInstructions', handleShowInstructions);
       window.removeEventListener('closeSidePanel', handleCloseSidePanel);
     };
-  }, []);
+  }, [handleCloseSidePanel]);
 
   // Track initial load completion (removed automatic instructions display)
   useEffect(() => {
@@ -146,10 +170,10 @@ const SunburstVisualization: React.FC = () => {
     }
   }, [isInitialLoad, loading, data]);
 
-  // Responsive resize handler for fullscreen width
+  // Responsive resize handler - full width since panels are collapsible
   const handleResize = useCallback(() => {
     setDimensions({ 
-      width: window.innerWidth - 20, // Nearly fullscreen width
+      width: window.innerWidth - 40, // Account for padding only
       height: Math.min(window.innerHeight - 100, 1000) // Expanded height for better visualization containment
     });
   }, []);
@@ -160,43 +184,70 @@ const SunburstVisualization: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
 
-  // Track scroll position to show/hide scroll indicator
+  // Disable body scrolling when side panel is open
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const threshold = 200; // Show indicator only when within 200px of top
-      setIsNearTop(scrollTop < threshold);
+    if (showSidePanel) {
+      // Disable scrolling on the body
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Re-enable scrolling on the body
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup function to restore scrolling when component unmounts
+    return () => {
+      document.body.style.overflow = 'unset';
     };
+  }, [showSidePanel]);
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Check initial position
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
-  // Fetch both sunburst data and glossary terms
+  // Fetch sunburst data, glossary terms, and layer descriptions
   const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch sunburst data
-      const sunburstResponse = await fetch('/api/sunburst');
-      if (!sunburstResponse.ok) {
-        throw new Error('Failed to fetch sunburst data');
-      }
-      const sunburstData = await sunburstResponse.json();
-      console.log('Fetched sunburst data from database:', sunburstData.length, 'items');
-      
-      // Fetch glossary terms
-      const glossaryResponse = await fetch('/api/glossary');
-      if (!glossaryResponse.ok) {
-        throw new Error('Failed to fetch glossary data');
-      }
-      const glossaryData = await glossaryResponse.json();
-      console.log('Fetched glossary terms:', glossaryData.length, 'terms');
-      
-      setData(sunburstData);
-      setGlossaryTerms(glossaryData || []);
+      try {
+        setLoading(true);
+        
+        // Fetch sunburst data
+        const sunburstResponse = await fetch('/api/sunburst');
+        if (!sunburstResponse.ok) {
+          throw new Error('Failed to fetch sunburst data');
+        }
+        const sunburstData = await sunburstResponse.json();
+        console.log('Fetched sunburst data from database:', sunburstData.length, 'items');
+        // Log sample data to verify inequality field is present
+        if (sunburstData.length > 0) {
+          console.log('Inequality data available:', !!sunburstData[0].inequality);
+        }
+        
+        // Fetch glossary terms
+        const glossaryResponse = await fetch('/api/glossary');
+        if (!glossaryResponse.ok) {
+          throw new Error('Failed to fetch glossary data');
+        }
+        const glossaryData = await glossaryResponse.json();
+        console.log('Fetched glossary terms:', glossaryData.length, 'terms');
+        
+        // Fetch layer descriptions
+        const descriptionsResponse = await fetch('/api/layer-descriptions');
+        if (!descriptionsResponse.ok) {
+          throw new Error('Failed to fetch layer descriptions');
+        }
+        const descriptionsData = await descriptionsResponse.json();
+        console.log('Fetched layer descriptions:', descriptionsData.length, 'descriptions');
+        
+        // Fetch real statistics
+        const statisticsResponse = await fetch('/api/statistics');
+        let realStats = null;
+        if (statisticsResponse.ok) {
+          realStats = await statisticsResponse.json();
+          console.log('Fetched real statistics:', realStats);
+        } else {
+          console.warn('Failed to fetch real statistics, using fallback calculations');
+        }
+        
+        setData(sunburstData);
+        setGlossaryTerms(glossaryData || []);
+        setLayerDescriptions(descriptionsData || []);
       
       // Calculate visualization statistics from actual database data
       const totalDataPoints = sunburstData.length;
@@ -257,18 +308,32 @@ const SunburstVisualization: React.FC = () => {
         console.log('Total linked glossary count:', linkedGlossaryCount);
       }
       
+      // Count by categories
+      const uniqueDisciplines = new Set(sunburstData.map((item: SunburstNode) => item.discipline).filter(Boolean));
+      const uniqueKnowledgeAreas = new Set(sunburstData.map((item: SunburstNode) => item.knowledgeArea).filter(Boolean));
+      const uniqueTools = new Set(sunburstData.map((item: SunburstNode) => item.toolTechnology).filter(Boolean));
+      
+      // Use real statistics if available, otherwise fall back to estimates
+      const contributorSubmissions = realStats?.totalGlossaryEntries || linkedGlossaryCount;
+      const activeContributors = realStats?.activeContributors || Math.max(1, Math.floor(contributorSubmissions / 3));
+      
       setVisualizationStats({
         totalDataPoints,
         totalConnections: 0, // Will be calculated when radial nodes are created
         relatedContentCount,
-        glossaryTermsCount: linkedGlossaryCount
+        glossaryTermsCount: linkedGlossaryCount,
+        disciplineCount: uniqueDisciplines.size,
+        knowledgeAreaCount: uniqueKnowledgeAreas.size,
+        toolCount: uniqueTools.size,
+        contributorSubmissions,
+        activeContributors
       });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-      console.error('Error fetching data:', err);
-    } finally {
-      setLoading(false);
-    }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        console.error('Error fetching data:', err);
+      } finally {
+        setLoading(false);
+      }
   }, []);
 
   useEffect(() => {
@@ -321,6 +386,27 @@ const SunburstVisualization: React.FC = () => {
     return partialMatches;
   }, [glossaryTerms]);
 
+  // Function to get layer description for an entry
+  const getLayerDescription = useCallback((entryName: string, nodeType: string): string => {
+    if (!layerDescriptions.length) return '';
+    
+    // Map node type to layer name
+    const layerMap: Record<string, string> = {
+      'knowledgeArea': 'Knowledge Area',
+      'discipline': 'Discipline', 
+      'tool': 'Tool / Technology'
+    };
+    
+    const layerName = layerMap[nodeType];
+    if (!layerName) return '';
+    
+    const description = layerDescriptions.find(desc => 
+      desc.layer === layerName && desc.entry === entryName
+    );
+    
+    return description?.description || '';
+  }, [layerDescriptions]);
+
   // Check for URL parameter to open specific entry
   useEffect(() => {
     if (!loading && data.length > 0 && radialNodes.length > 0) {
@@ -336,10 +422,11 @@ const SunburstVisualization: React.FC = () => {
         if (matchingNode) {
           // Open the side panel for this entry
           const matchingTerms = findMatchingGlossaryTerms(matchingNode.name);
+          const layerDescription = getLayerDescription(matchingNode.name, matchingNode.type);
           
           setSidePanelContent({
             name: matchingNode.name,
-            description: matchingNode.description || matchingNode.data?.description || 'No description available',
+            description: layerDescription || matchingNode.description || matchingNode.data?.description || 'No description available',
             voiceHook: matchingNode.voiceHook || matchingNode.data?.voiceHook,
             relatedContent: matchingNode.relatedContent || matchingNode.data?.relatedContent || [],
             guestSpeaker: matchingNode.guestSpeaker || matchingNode.data?.guestSpeaker,
@@ -362,8 +449,9 @@ const SunburstVisualization: React.FC = () => {
   const transformDataToRadialNodes = useCallback((rawData: SunburstNode[]): RadialNode[] => {
     const nodeMap = new Map<string, RadialNode>();
     const connections = new Map<string, Set<string>>();
+    const connectionToInequality = new Map<string, string>(); // Map specific connections to inequalities
 
-    // Create nodes for each level
+    // Create nodes for each level and track inequalities for specific data combinations
     rawData.forEach(item => {
       // Knowledge Area (outer ring)
       const kaId = `ka-${item.knowledgeArea}`;
@@ -374,6 +462,7 @@ const SunburstVisualization: React.FC = () => {
           type: 'knowledgeArea',
           level: 3,
           connections: [],
+          connectionInequalities: new Map(),
           data: item
         });
         connections.set(kaId, new Set());
@@ -388,27 +477,29 @@ const SunburstVisualization: React.FC = () => {
           type: 'discipline',
           level: 2,
           connections: [],
+          connectionInequalities: new Map(),
           data: item
         });
         connections.set(discId, new Set());
       }
 
-      // Tool/Technology (inner ring)
-      const toolId = `tool-${item.toolTechnology}`;
+      // Tool/Technology (inner ring) - Each tool instance can have its own inequality
+      const toolId = `tool-${item.toolTechnology}-${item.discipline}-${item.knowledgeArea}`;
       if (!nodeMap.has(toolId)) {
         const hasContent = item.relatedContent && item.relatedContent.length > 0;
         nodeMap.set(toolId, {
           id: toolId,
-        name: item.toolTechnology,
+          name: item.toolTechnology,
           type: 'tool',
           level: 1,
           connections: [],
-        data: item,
-        description: item.description,
-        voiceHook: item.voiceHook,
-        relatedContent: item.relatedContent,
+          data: item,
+          description: item.description,
+          voiceHook: item.voiceHook,
+          relatedContent: item.relatedContent,
           guestSpeaker: item.guestSpeaker,
-          hasContent
+          hasContent,
+          connectionInequalities: new Map()
         });
         connections.set(toolId, new Set());
       }
@@ -418,13 +509,39 @@ const SunburstVisualization: React.FC = () => {
       connections.get(discId)?.add(kaId);
       connections.get(discId)?.add(toolId);
       connections.get(toolId)?.add(discId);
+      
+      // Map this specific tool's inequality to its connections
+      const toolToDiscConnection = [toolId, discId].sort().join('-');
+      const discToKaConnection = [discId, kaId].sort().join('-');
+      
+      if (item.inequality) {
+        connectionToInequality.set(toolToDiscConnection, item.inequality);
+        connectionToInequality.set(discToKaConnection, item.inequality);
+      }
+      
+      // Map inequality to connections for this specific tool instance
+      if (item.inequality) {
+        console.log('DEBUG: Mapping inequality', item.inequality, 'for tool', item.toolTechnology, 'connections:', toolToDiscConnection, discToKaConnection);
+      }
     });
 
-    // Convert connections to arrays
+    // Convert connections to arrays and set inequality mappings
     const nodes = Array.from(nodeMap.values());
     nodes.forEach(node => {
       node.connections = Array.from(connections.get(node.id) || []);
+      
+      // Set inequality mappings for this node's connections
+      node.connections.forEach(connectedId => {
+        const connectionKey = [node.id, connectedId].sort().join('-');
+        const inequality = connectionToInequality.get(connectionKey);
+        if (inequality) {
+          node.connectionInequalities.set(connectedId, inequality);
+        }
+      });
     });
+
+    // Node transformation complete with inequality mappings
+    console.log('Nodes with inequality mappings created:', nodes.filter(n => n.connectionInequalities.size > 0).length);
 
     return nodes;
   }, []);
@@ -434,6 +551,17 @@ const SunburstVisualization: React.FC = () => {
     if (data.length > 0) {
       const nodes = transformDataToRadialNodes(data);
       setRadialNodes(nodes);
+      
+      // Extract unique inequality types
+      const inequalitySet = new Set<string>();
+      nodes.forEach(node => {
+        node.connectionInequalities.forEach(inequality => {
+          if (inequality.trim()) {
+            inequalitySet.add(inequality);
+          }
+        });
+      });
+      setInequalityTypes(Array.from(inequalitySet).sort());
       
       // Calculate total connections between data points
       // Count unique connections in the hierarchical structure
@@ -609,13 +737,14 @@ const SunburstVisualization: React.FC = () => {
           ...node,
           x: x || 0,
           y: y || 0,
-          // Ensure all original data is preserved
+          // Ensure all original data is preserved INCLUDING INEQUALITY MAPPINGS
           data: node.data,
           description: node.description || node.data?.description,
           voiceHook: node.voiceHook || node.data?.voiceHook,
           relatedContent: node.relatedContent || node.data?.relatedContent,
           guestSpeaker: node.guestSpeaker || node.data?.guestSpeaker,
-          hasContent: node.hasContent || (node.data?.relatedContent && node.data.relatedContent.length > 0)
+          hasContent: node.hasContent || (node.data?.relatedContent && node.data.relatedContent.length > 0),
+          connectionInequalities: node.connectionInequalities // PRESERVE the inequality mappings!
         };
 
         nodePositions.set(node.id, { x: x || 0, y: y || 0, radius: config.nodeRadius });
@@ -641,7 +770,7 @@ const SunburstVisualization: React.FC = () => {
     // Create connections group and draw all connections
     const connectionsGroup = g.append('g').attr('class', 'connections');
     
-    connectionsGroup.selectAll('.connection-line')
+    const connectionElements = connectionsGroup.selectAll('.connection-line')
       .data(allConnections)
       .enter()
       .append('line')
@@ -653,6 +782,109 @@ const SunburstVisualization: React.FC = () => {
       .attr('stroke', '#1e40af')
       .attr('stroke-width', 0.3) // Thinner lines for cleaner look
       .attr('opacity', 0.4); // Reduced opacity for cleaner appearance
+
+    // Create inequality labels group AFTER nodes to ensure they appear on top
+    const inequalityLabelsGroup = g.append('g').attr('class', 'inequality-labels');
+    
+    // Add inequality labels for connections that have inequality data
+    const connectionsWithInequalities = allConnections.filter((conn: any) => {
+      // Find the inequality for this connection
+      const sourceNode = positionedNodes.find(n => n.x === conn.source.x && n.y === conn.source.y);
+      const targetNode = positionedNodes.find(n => n.x === conn.target.x && n.y === conn.target.y);
+      return sourceNode && targetNode && sourceNode.connectionInequalities.has(targetNode.id);
+    });
+    
+    // DEBUG: Check if inequality mappings are preserved
+    const nodesWithInequalityMappings = positionedNodes.filter(n => n.connectionInequalities.size > 0).length;
+    console.log('Positioned nodes with inequality mappings:', nodesWithInequalityMappings);
+    console.log('Connections with inequalities found:', connectionsWithInequalities.length);
+    
+    const inequalityLabels = inequalityLabelsGroup.selectAll('.inequality-label')
+      .data(connectionsWithInequalities)
+      .enter()
+      .append('g')
+      .attr('class', 'inequality-label')
+      .attr('transform', (conn: any) => {
+        // Position at midpoint of connection
+        const midX = (conn.source.x + conn.target.x) / 2;
+        const midY = (conn.source.y + conn.target.y) / 2;
+        return `translate(${midX}, ${midY})`;
+      })
+      .style('opacity', 0) // Initially hidden, only visible on hover
+      .style('pointer-events', 'none');
+
+    // Add background rectangle for inequality labels
+    inequalityLabels.append('rect')
+      .attr('class', 'inequality-bg')
+      .attr('fill', '#000000')
+      .attr('stroke', '#ffffff')
+      .attr('stroke-width', 1)
+      .attr('rx', 4)
+      .attr('ry', 4)
+      .style('filter', 'drop-shadow(0 0 4px rgba(255,255,255,0.5))');
+
+    // Add inequality text
+    inequalityLabels.append('text')
+      .attr('class', 'inequality-text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '0.35em')
+      .attr('fill', '#ffffff')
+      .attr('font-family', 'ui-sans-serif, system-ui, sans-serif')
+      .attr('font-size', '10px')
+      .attr('font-weight', 'bold')
+      .style('text-shadow', '0 0 3px rgba(0,0,0,0.8)')
+      .each(function(conn: any) {
+        const sourceNode = positionedNodes.find(n => n.x === conn.source.x && n.y === conn.source.y);
+        const targetNode = positionedNodes.find(n => n.x === conn.target.x && n.y === conn.target.y);
+        if (sourceNode && targetNode) {
+          const inequalityText = sourceNode.connectionInequalities.get(targetNode.id) || '';
+          
+          // Format the inequality text based on specific rules
+          if (inequalityText.includes('Community Marginalisation')) {
+            // "Community Marginalisation | Offline to Online" → "Community Marginalisation"
+            select(this).text('Community Marginalisation');
+          } else if (inequalityText.includes('Data Surveillance and Extractivism')) {
+            // "Data Surveillance and Extractivism" → two lines
+            select(this).selectAll('*').remove(); // Clear any existing content
+            
+            const textElement = select(this);
+            textElement.append('tspan')
+              .attr('x', 0)
+              .attr('dy', '-0.3em')
+              .text('Data Surveillance');
+            
+            textElement.append('tspan')
+              .attr('x', 0)
+              .attr('dy', '1.2em')
+              .text('& Extractivism');
+          } else if (inequalityText.includes('Industry-Specific Inclusion and Exclusion')) {
+            // "Industry-Specific Inclusion and Exclusion" → "Industry-Specific Inclusion & Exclusion"
+            select(this).text('Industry-Specific Inclusion & Exclusion');
+          } else {
+            // For other inequalities, use the full text
+            select(this).text(inequalityText);
+          }
+        }
+      });
+
+    // Adjust background rectangle size based on text
+    inequalityLabels.each(function(this: SVGGElement) {
+      const text = select(this).select('.inequality-text').node() as SVGTextElement;
+      const bg = select(this).select('.inequality-bg');
+      if (text) {
+        const bbox = text.getBBox();
+        // Add extra padding for multi-line text
+        const extraPadding = text.children.length > 1 ? 2 : 0;
+        bg.attr('x', bbox.x - 3)
+          .attr('y', bbox.y - 1 - extraPadding)
+          .attr('width', bbox.width + 6)
+          .attr('height', bbox.height + 2 + (extraPadding * 2));
+      }
+    });
+
+    // IMPORTANT: Ensure ALL labels are hidden on initial load
+    inequalityLabelsGroup.selectAll('.inequality-label')
+      .style('opacity', 0);
 
     // Create nodes group
     const nodesGroup = g.append('g').attr('class', 'nodes');
@@ -670,15 +902,11 @@ const SunburstVisualization: React.FC = () => {
     nodeSelection.filter((d: any) => d.type === 'tool')
       .append('circle')
       .attr('r', 10) // Same size as all others
-      .attr('fill', (d: any) => d.hasContent ? '#9b5de5' : '#6b7280')
-      .attr('stroke', (d: any) => d.hasContent ? '#b794f6' : '#9ca3af')
+      .attr('fill', '#9b5de5') // Always purple for tools
+      .attr('stroke', '#b794f6')
       .attr('stroke-width', 1.5)
       .attr('opacity', 0.9)
-      .style('filter', (d: any) => 
-        d.hasContent ? 
-        'drop-shadow(0 0 8px rgba(155, 93, 229, 0.4))' : 
-        'drop-shadow(0 0 8px rgba(107, 114, 128, 0.3))'
-      );
+      .style('filter', 'drop-shadow(0 0 8px rgba(155, 93, 229, 0.4))');
 
     // Disciplines (uniform circles) - Orange
     nodeSelection.filter((d: any) => d.type === 'discipline')
@@ -715,9 +943,7 @@ const SunburstVisualization: React.FC = () => {
             } else if (d.type === 'discipline') {
               return 'drop-shadow(0 0 15px rgba(249, 160, 63, 0.7))';
             } else {
-              return d.hasContent ? 
-                'drop-shadow(0 0 15px rgba(155, 93, 229, 0.8))' : 
-                'drop-shadow(0 0 10px rgba(107, 114, 128, 0.6))';
+              return 'drop-shadow(0 0 15px rgba(155, 93, 229, 0.8))'; // Always purple for tools
             }
           });
         
@@ -771,6 +997,23 @@ const SunburstVisualization: React.FC = () => {
             return 0.5; // Default thickness
           });
 
+        // Show inequality labels ONLY for highlighted connections of the hovered node
+        inequalityLabelsGroup.selectAll('.inequality-label')
+          .transition()
+          .duration(200)
+          .style('opacity', function() {
+            const labelData = select(this).datum() as any;
+            const sourceConnected = positionedNodes.find(n => 
+              n.x === labelData.source.x && n.y === labelData.source.y && connectedNodeIds.has(n.id)
+            );
+            const targetConnected = positionedNodes.find(n => 
+              n.x === labelData.target.x && n.y === labelData.target.y && connectedNodeIds.has(n.id)
+            );
+            
+            // Only show if BOTH nodes are connected to the hovered node
+            return (sourceConnected && targetConnected) ? 1 : 0;
+          });
+
         // Highlight connected nodes
         nodesGroup.selectAll('.node')
           .transition()
@@ -785,6 +1028,7 @@ const SunburstVisualization: React.FC = () => {
           .attr('text-anchor', 'middle')
           .attr('dy', (node: any) => node.type === 'knowledgeArea' ? -30 : node.type === 'discipline' ? -22 : -15)
           .attr('fill', '#e2e8f0')
+          .attr('font-family', 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"')
           .attr('font-size', (node: any) => node.type === 'knowledgeArea' ? '14px' : '12px')
           .attr('font-weight', (node: any) => node.type === 'knowledgeArea' ? 'bold' : 'normal')
           .style('text-shadow', '0 0 8px rgba(14, 165, 233, 0.6)')
@@ -807,17 +1051,21 @@ const SunburstVisualization: React.FC = () => {
         setTooltipPosition({ x: absoluteX, y: absoluteY });
         
         const matchingTerms = findMatchingGlossaryTerms(d.name);
+        const layerDescription = getLayerDescription(d.name, d.type);
         setTooltip({
           name: d.name,
           level: d.level,
-          description: d.description,
+          description: layerDescription || d.description || d.data?.description || 'No description available',
           voiceHook: d.voiceHook,
-          relatedContent: d.relatedContent,
+          relatedContent: d.relatedContent || d.data?.relatedContent || [],
           guestSpeaker: d.guestSpeaker,
           glossaryTerms: matchingTerms,
           x: absoluteX,
           y: absoluteY
         });
+        
+        // DEBUG: Log what content is available
+        console.log('Tooltip for:', d.name, 'type:', d.type, 'relatedContent:', d.relatedContent || d.data?.relatedContent || []);
       })
       .on('mouseleave', function() {
         setHoveredNode(null);
@@ -837,17 +1085,23 @@ const SunburstVisualization: React.FC = () => {
             } else if (d.type === 'discipline') {
               return 'drop-shadow(0 0 8px rgba(249, 160, 63, 0.4))';
             } else {
-              return d.hasContent ? 
-                'drop-shadow(0 0 6px rgba(155, 93, 229, 0.4))' : 
-                'drop-shadow(0 0 3px rgba(107, 114, 128, 0.3))';
+              return 'drop-shadow(0 0 6px rgba(155, 93, 229, 0.4))'; // Always purple for tools
             }
           });
         
-        // Reset connection lines to 70% transparency default
+        // Reset connection lines to 40% transparency default
         connectionsGroup.selectAll('.connection-line')
           .transition()
           .duration(300)
-          .attr('opacity', 0.4); // Back to 40% transparency
+          .attr('opacity', 0.4) // Back to 40% transparency
+          .attr('stroke', '#1e40af') // Reset stroke color
+          .attr('stroke-width', 0.3); // Reset stroke width
+
+        // Hide ALL inequality labels when not hovering
+        inequalityLabelsGroup.selectAll('.inequality-label')
+          .transition()
+          .duration(300)
+          .style('opacity', 0);
 
         // Reset node opacity
         nodesGroup.selectAll('.node')
@@ -879,9 +1133,7 @@ const SunburstVisualization: React.FC = () => {
               } else if (nodeData.type === 'discipline') {
                 return 'drop-shadow(0 0 25px rgba(249, 160, 63, 1))';
               } else {
-                return nodeData.hasContent ? 
-                  'drop-shadow(0 0 25px rgba(155, 93, 229, 1))' : 
-                  'drop-shadow(0 0 20px rgba(107, 114, 128, 0.8))';
+                return 'drop-shadow(0 0 25px rgba(155, 93, 229, 1))'; // Always purple for tools
               }
             } else {
               // Reset others to default
@@ -890,19 +1142,18 @@ const SunburstVisualization: React.FC = () => {
               } else if (nodeData.type === 'discipline') {
                 return 'drop-shadow(0 0 8px rgba(249, 160, 63, 0.4))';
               } else {
-                return nodeData.hasContent ? 
-                  'drop-shadow(0 0 6px rgba(155, 93, 229, 0.4))' : 
-                  'drop-shadow(0 0 3px rgba(107, 114, 128, 0.3))';
+                return 'drop-shadow(0 0 6px rgba(155, 93, 229, 0.4))'; // Always purple for tools
               }
             }
           });
 
         // Show side panel for ALL nodes (not just those with content) - PRESERVE ALL DATA
         const matchingTerms = findMatchingGlossaryTerms(d.name);
+        const layerDescription = getLayerDescription(d.name, d.type);
         
         setSidePanelContent({
           name: d.name,
-          description: d.description || d.data?.description || 'No description available',
+          description: layerDescription || d.description || d.data?.description || 'No description available',
           voiceHook: d.voiceHook || d.data?.voiceHook,
           relatedContent: d.relatedContent || d.data?.relatedContent || [],
           guestSpeaker: d.guestSpeaker || d.data?.guestSpeaker,
@@ -910,14 +1161,18 @@ const SunburstVisualization: React.FC = () => {
         });
         setShowSidePanel(true);
         
+        // DEBUG: Log what content is available for side panel
+        console.log('Side panel for:', d.name, 'type:', d.type, 'relatedContent:', d.relatedContent || d.data?.relatedContent || []);
         console.log('Clicked node:', d.name, 'Side panel should show:', true);
       });
+
+    // Inequality labels are now properly working with the fixed positioning
 
   }, [radialNodes, dimensions, findMatchingGlossaryTerms]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[1000px]">
+      <div className="flex items-center justify-center" style={{ height: dimensions.height }}>
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-cyan-500"></div>
       </div>
     );
@@ -925,7 +1180,7 @@ const SunburstVisualization: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-[1000px]">
+      <div className="flex items-center justify-center" style={{ height: dimensions.height }}>
         <div className="text-red-500 text-center">
           <p className="text-xl font-bold mb-2">Error Loading Visualization</p>
           <p>{error}</p>
@@ -935,9 +1190,10 @@ const SunburstVisualization: React.FC = () => {
   }
 
   return (
-    <div className="w-full bg-gray-900 rounded-lg overflow-hidden relative">
-      {/* Main Visualization Container - Fullscreen Width */}
-      <div ref={containerRef} className="relative w-full h-[1000px] flex flex-col items-center justify-center">
+    <div className="w-full bg-black rounded-lg overflow-hidden relative pb-20 flex">
+      {/* Main Visualization Container - Left Side */}
+      <div className="flex-1 relative">
+        <div ref={containerRef} className="relative w-full flex flex-col items-center justify-center" style={{ height: dimensions.height }}>
         <svg
           ref={svgRef}
           width={dimensions.width}
@@ -946,58 +1202,88 @@ const SunburstVisualization: React.FC = () => {
           style={{ display: 'block' }}
         />
         
-        {/* Visualization Statistics & Legend - Top Left */}
-        <div className="absolute top-8 left-8 bg-black bg-opacity-80 backdrop-blur-sm rounded-lg p-6 z-30 border border-gray-700">
-          {/* Statistics */}
-          <div className="mb-4 border-b border-gray-600 pb-6 mr-2">
+        {/* Collapsible Visualization Statistics - Left Side */}
+        <div className={`absolute top-8 left-0 z-30 flex transition-transform duration-300 ${
+          isStatsPanelCollapsed ? '-translate-x-[calc(100%-24px)]' : 'translate-x-0'
+        }`}>
+          {/* Main panel content */}
+          <div className="bg-black bg-opacity-80 backdrop-blur-sm border-t border-b border-gray-700 p-6 relative">
+            {/* Custom right border with cutout for button */}
+            
+            <div className="absolute bottom-0 right-0 w-px bg-gray-700 h-[231px]"></div>
             <button 
               onClick={fetchData}
-              className="absolute top-0 -right-3 text-gray-400 hover:text-white transition-colors"
+              className="absolute top-2 right-2 text-gray-400 hover:text-white transition-colors"
               title="Refresh data"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
-            <h4 className="text-xs font-semibold text-gray-300 mb-2">Statistics</h4>
-            <div className="text-gray-300 text-xs space-y-1">
+            
+            <h3 className="text-sm font-semibold text-white mb-4 tracking-wide">
+              Statistics:
+            </h3>
+            
+            <div className="text-gray-300 text-xs space-y-1.5">
               <p>
-                <span className="text-cyan-400 font-semibold">{visualizationStats.totalDataPoints}</span> data points with
+                <span className="text-white font-semibold">Glossary entries (total):</span> <span className="text-gray-400 font-semibold">{visualizationStats.totalDataPoints}</span>
+              </p>
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3 h-3" fill="none" stroke="#f9a03f" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="text-white font-semibold">Disciplines:</span> <span className="text-gray-400 font-semibold">{visualizationStats.disciplineCount}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3 h-3" fill="none" stroke="#28afb0" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="text-white font-semibold">Knowledge areas:</span> <span className="text-gray-400 font-semibold">{visualizationStats.knowledgeAreaCount}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <svg className="w-3 h-3" fill="none" stroke="#9b5de5" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="text-white font-semibold">Tools and technologies:</span> <span className="text-gray-400 font-semibold">{visualizationStats.toolCount}</span>
+              </div>
+              <p>
+                <span className="text-white font-semibold">Digital Inequalities:</span> <span className="text-gray-400 font-semibold">{visualizationStats.totalConnections}</span>
               </p>
               <p>
-                <span className="text-green-400 font-semibold">{visualizationStats.totalConnections}</span> connections.
+                <span className="text-white font-semibold">Glossary entries submitted by contributors:</span> <span className="text-gray-400 font-semibold">{visualizationStats.contributorSubmissions}</span>
               </p>
               <p>
-                <span className="text-orange-400 font-semibold">{visualizationStats.relatedContentCount}</span> linked content and
+                <span className="text-white font-semibold">Active contributors:</span> <span className="text-gray-400 font-semibold">{visualizationStats.activeContributors}</span>
               </p>
-              <p>
-                <span className="text-purple-400 font-semibold">{visualizationStats.glossaryTermsCount}</span> linked glossary entries.
-              </p>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-gray-600">
+              <p className="text-xs text-gray-500">Last updated: {new Date().toLocaleDateString()}</p>
             </div>
           </div>
           
-          {/* Visual Legend */}
-          <div>
-            <h4 className="text-xs font-semibold text-gray-300 mb-2">Visual Legend</h4>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-teal-400 border border-teal-400" style={{ backgroundColor: '#28afb0', borderColor: '#5eead4' }}></div>
-                <span className="text-xs" style={{ color: '#28afb0' }}>Knowledge Areas</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-orange-400 border border-orange-400" style={{ backgroundColor: '#f9a03f', borderColor: '#fbbf24' }}></div>
-                <span className="text-xs" style={{ color: '#f9a03f' }}>Disciplines</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-purple-400 border border-purple-400" style={{ backgroundColor: '#9b5de5', borderColor: '#b794f6' }}></div>
-                <span className="text-xs" style={{ color: '#9b5de5' }}>Tools & Tech</span>
-              </div>
-            </div>
-          </div>
+          {/* Toggle button/tab - attached and moves with panel */}
+          <button
+            onClick={() => setIsStatsPanelCollapsed(!isStatsPanelCollapsed)}
+            className="bg-black bg-opacity-80 backdrop-blur-sm border border-gray-700 border-l-0 hover:bg-gray-800 transition-colors flex items-center justify-center w-6 h-12 !rounded-none !m-0 !p-0 mt-3"
+            title={isStatsPanelCollapsed ? "Show Statistics" : "Hide Statistics"}
+          >
+            <svg 
+              className={`w-3 h-3 text-white transition-transform duration-300 ${
+                isStatsPanelCollapsed ? 'rotate-180' : ''
+              }`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
         </div>
 
         {/* Ring Titles - Positioned directly ON the ring frames */}
-        <svg className="absolute inset-0 pointer-events-none z-20" width="100%" height="100%">
+        <svg className="absolute inset-0 pointer-events-none z-30" width="100%" height="100%">
           {radialNodes.length > 0 && (
             <>
               {/* Knowledge Areas - Text directly on teal ring frame */}
@@ -1006,10 +1292,9 @@ const SunburstVisualization: React.FC = () => {
                 y={dimensions.height / 2}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                className="font-bold text-sm"
-                fill="#28afb0"
+                className="text-sm"
+                fill="#888888"
                 style={{
-                  textShadow: '0 0 8px rgba(40, 175, 176, 0.8)',
                   fontSize: '14px'
                 }}
               >
@@ -1022,10 +1307,9 @@ const SunburstVisualization: React.FC = () => {
                 y={dimensions.height / 2}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                className="font-bold text-sm"
-                fill="#f9a03f"
+                className="text-sm"
+                fill="#888888"
                 style={{
-                  textShadow: '0 0 8px rgba(249, 160, 63, 0.8)',
                   fontSize: '14px'
                 }}
               >
@@ -1038,10 +1322,9 @@ const SunburstVisualization: React.FC = () => {
                 y={dimensions.height / 2}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                className="font-bold text-sm"
-                fill="#9b5de5"
+                className="text-sm"
+                fill="#888888"
                 style={{
-                  textShadow: '0 0 8px rgba(155, 93, 229, 0.8)',
                   fontSize: '14px'
                 }}
               >
@@ -1051,41 +1334,13 @@ const SunburstVisualization: React.FC = () => {
           )}
         </svg>
 
-        {/* Scroll Down Indicator - Bottom Hover Area */}
-        <div 
-          className="absolute bottom-0 left-0 right-0 h-20 z-20"
-          onMouseEnter={() => setShowScrollIndicator(true)}
-          onMouseLeave={() => setShowScrollIndicator(false)}
-        >
-          <div 
-            className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 transition-all duration-300 ${
-              showScrollIndicator && isNearTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-            }`}
-          >
-            <div className="flex flex-col items-center text-white animate-bounce">
-              <span className="text-sm font-medium mb-2 text-gray-300">Please scroll down</span>
-              <svg 
-                className="w-6 h-6 text-blue-400" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M19 14l-7 7m0 0l-7-7m7 7V3" 
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="absolute z-50 bg-gray-900 text-white p-3 rounded-lg shadow-xl border border-blue-500 max-w-xs pointer-events-none"
+          className="absolute z-50 bg-black text-white p-3 rounded-lg shadow-xl border border-white max-w-xs pointer-events-none"
           style={{
             left: Math.min(
               Math.max(tooltipPosition.x + 10 - (containerRef.current?.getBoundingClientRect().left || 0), 10),
@@ -1103,26 +1358,32 @@ const SunburstVisualization: React.FC = () => {
               // Otherwise position it below the cursor
               return Math.max(relativeY - 50, 10);
             })(),
-            boxShadow: '0 0 20px rgba(14, 165, 233, 0.5)',
+            boxShadow: '0 0 20px rgba(255, 255, 255, 0.2)',
           }}
         >
-          <h3 className="font-bold text-blue-300 mb-2">{tooltip.name}</h3>
+          <h3 className="font-bold text-white mb-2">{tooltip.name}</h3>
           {tooltip.description && (
-            <p className="text-sm text-gray-300 mb-2">{tooltip.description}</p>
+            <p className="text-sm text-gray-400 mb-2">{tooltip.description}</p>
           )}
           {tooltip.voiceHook && (
-            <div className="text-xs text-blue-300 italic mb-2">
+            <div className="text-xs text-gray-400 italic mb-2">
               &quot;{tooltip.voiceHook}&quot;
                 </div>
           )}
           {tooltip.relatedContent && tooltip.relatedContent.length > 0 && (
-            <div className="text-xs text-blue-400">
-              📚 {tooltip.relatedContent.filter(c => c.moderationStatus === 'approved').length} contents linked
+            <div className="text-xs text-gray-400 flex items-center gap-1">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              {tooltip.relatedContent.filter(c => c.moderationStatus === 'approved').length} work{tooltip.relatedContent.filter(c => c.moderationStatus === 'approved').length === 1 ? '' : 's'} linked.
               </div>
           )}
           {tooltip.glossaryTerms && tooltip.glossaryTerms.length > 0 && (
-            <div className="text-xs text-blue-400">
-              📖 {tooltip.glossaryTerms.length} glossary entries linked
+            <div className="text-xs text-gray-400 flex items-center gap-1">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              {tooltip.glossaryTerms.length} glossary entr{tooltip.glossaryTerms.length === 1 ? 'y' : 'ies'} linked.
                 </div>
           )}
           <div className="text-xs text-gray-500 mt-2">
@@ -1141,83 +1402,94 @@ const SunburstVisualization: React.FC = () => {
 
       {/* Instructions Modal */}
       {showInstructions && (
-        <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4 rounded-lg">
-          <div className="bg-gray-900 text-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90%] overflow-y-auto border border-blue-500">
+        <div className="absolute inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 rounded-lg">
+          <div className="bg-black text-gray-400 rounded-lg shadow-2xl max-w-6xl w-full max-h-[90%] overflow-y-auto border border-white">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-blue-300">Getting Started</h2>
+                <h2 className="text-2xl font-bold text-white">Getting Started</h2>
                 <button
                   onClick={() => setShowInstructions(false)}
-                  className="text-gray-400 hover:text-white text-2xl p-2 rounded hover:bg-gray-700 transition-colors"
+                  className="text-gray-400 hover:text-white text-2xl p-2 rounded hover:bg-gray-800 transition-colors"
                 >
                   ×
                 </button>
               </div>
               
-              <div className="space-y-6 text-gray-300">
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-300 mb-3">What is in the Toolkit</h3>
-                  <p className="text-sm mb-2 leading-relaxed">
-                    The Toolkit is built around a glossary that explains disciplines, knowledge areas, and technologies using accessible language.
-                  </p>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Glossary entries may include short videos, examples, and contextual explanations.</li>
-                    <li>• Each entry is represented as a node in an interactive map.</li>
-                </ul>
-              </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-300 mb-3">How the Toolkit is Organised</h3>
-                  <p className="text-sm mb-2 leading-relaxed">
-                    The glossary entries are connected through an interactive map structured across three layers:
-                  </p>
-                  <ul className="space-y-1 text-sm">
-                    <li>• <span style={{ color: '#9b5de5' }}>Inner circle</span>: tools and technologies</li>
-                    <li>• <span style={{ color: '#f9a03f' }}>Middle circle</span>: disciplines</li>
-                    <li>• <span style={{ color: '#28afb0' }}>Outer circle</span>: knowledge areas</li>
-                  </ul>
-            </div>
-                
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-300 mb-3">How to Navigate the Toolkit</h3>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Use the search tab to look up terms in the Toolkit.</li>
-                    <li>• Hover over a circle on the interactive map to see how that entry connects to others.</li>
-                    <li>• Click to open a circle and view related concepts on the side.</li>
-                  </ul>
+              <div className="grid md:grid-cols-2 gap-8 text-gray-400">
+                {/* Left Column */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">What is the Glossary?</h3>
+                    <p className="text-sm mb-3 leading-relaxed">
+                      The glossary is a list of individual entries with 4 components:
+                    </p>
+                    <ul className="space-y-1 text-sm ml-4">
+                      <li>• <strong className="text-white">Disciplines</strong> (e.g. Media Studies, Sociology, Human-Computer Interaction)</li>
+                      <li>• <strong className="text-white">Knowledge Areas</strong> (e.g. Digital Rights and Regulation, Speculative and Critical Prototyping)</li>
+                      <li>• <strong className="text-white">Tools and Technologies</strong> (e.g. Facial Recognition, Blockchain, APIs)</li>
+                      <li>• <strong className="text-white">Terms and Concepts Connected to Digital Inequalities:</strong> A specific digital inequality defined from offline to online through connection made between different disciplines, knowledge areas, and technologies.</li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">What's in a Glossary Entry?</h3>
+                    <p className="text-sm mb-3 leading-relaxed">
+                      Each entry includes:
+                    </p>
+                    <ul className="space-y-1 text-sm ml-4">
+                      <li>• A description using accessible, non-technical language</li>
+                      <li>• Optional context, examples, or visuals contributed by Toolkit users</li>
+                    </ul>
+                  </div>
                 </div>
                 
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-300 mb-3">How to Contribute to the Toolkit</h3>
-                  <p className="text-sm leading-relaxed">
-                    You can edit glossary entries or submit your own work to the toolkit. 
-                    <a 
-                      href="/about#how-can-you-contribute" 
-                      className="text-white hover:text-gray-300 underline inline-flex items-center gap-1 transition-colors ml-1"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        window.location.href = '/about#how-can-you-contribute';
-                      }}
-                    >
-                      Learn how to contribute
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </a>
-                  </p>
+                {/* Right Column */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">What is the Toolkit?</h3>
+                    <p className="text-sm mb-3 leading-relaxed">
+                      The interactive map visualises the connections between different knowledge areas (<span style={{ color: '#28afb0' }}>outer layer</span>), disciplines (<span style={{ color: '#f9a03f' }}>middle layer</span>) and technologies and tools (<span style={{ color: '#9b5de5' }}>inner layer</span>) to define a specific digital inequality indexed on the toolkit (side bar). It shows how different combinations of disciplines, knowledge areas, and tools and technologies come together to define a digital inequality.
+                    </p>
+                    <p className="text-sm leading-relaxed">
+                      These connections are created by contributors based on how the work they submit to the toolkit interact in real-world contexts e.g.; when a technology (like facial recognition) is analysed using a knowledge area (like surveillance studies) within a disciplinary lens (like critical race theory).
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">How Does the Toolkit Work?</h3>
+                    <p className="text-sm mb-2 leading-relaxed">You can:</p>
+                    <ul className="space-y-1 text-sm ml-4">
+                      <li>• Hover over a node that represent a glossary entry to preview its definition.</li>
+                      <li>• Click a node to view how it connects to other nodes and how these connections define a specific digital inequality in the right-hand panel.</li>
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-3">How to Contribute</h3>
+                    <p className="text-sm mb-2 leading-relaxed">You can:</p>
+                    <ul className="space-y-1 text-sm ml-4">
+                      <li>• Propose a new glossary entry text.</li>
+                      <li>• Edit an existing glossary entry text.</li>
+                      <li>• Submit examples, media, or references for a glossary entry.</li>
+                      <li>• Submit your own work related to inequality.</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
               
-              <div className="mt-6 flex justify-end">
+              <div className="mt-10 flex justify-end">
                 <button
-                  onClick={() => setShowInstructions(false)}
-                  className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 inline-flex items-center gap-2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = '/about#how-can-you-contribute';
+                  }}
+                  className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 inline-flex items-center gap-2 rounded-sm"
                 >
-                  Continue to Map
+                  Learn how to contribute
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-            </button>
+                </button>
               </div>
             </div>
           </div>
@@ -1226,12 +1498,15 @@ const SunburstVisualization: React.FC = () => {
 
       {/* Glossary Modal */}
       {showGlossaryModal && (
-        <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4 rounded-lg">
-          <div className="bg-gray-900 text-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90%] overflow-y-auto border border-blue-500">
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 rounded-lg">
+          <div className="bg-black text-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90%] overflow-y-auto border border-white">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-blue-300">
-                  📖 Glossary: {glossaryModalTitle}
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  Glossary: {glossaryModalTitle}
                 </h2>
                 <button
                   onClick={() => setShowGlossaryModal(false)}
@@ -1245,7 +1520,7 @@ const SunburstVisualization: React.FC = () => {
                 {selectedGlossaryTerms.map((term, index) => (
                   <div key={term._id} className="bg-gray-800 rounded-lg p-4 border border-gray-700">
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-lg font-semibold text-blue-300">
+                      <h3 className="text-lg font-semibold text-white">
                         {term.title}
                         {selectedGlossaryTerms.length > 1 && (
                           <span className="text-sm text-gray-400 ml-2">
@@ -1254,7 +1529,7 @@ const SunburstVisualization: React.FC = () => {
                         )}
                       </h3>
           </div>
-                    <p className="text-gray-300 leading-relaxed mb-3">{term.description}</p>
+                    <p className="text-gray-400 leading-relaxed mb-3">{term.description}</p>
                     <div className="text-sm text-gray-500 space-y-1">
                       {term.userId?.email && (
                         <p>👤 Contributed by: {term.userId.email}</p>
@@ -1292,27 +1567,29 @@ const SunburstVisualization: React.FC = () => {
       )}
 
       {/* Side Panel for Content Details - FULL SCREEN OVERLAY */}
-      {showSidePanel && sidePanelContent && (
+      {sidePanelContent && (
         <>
           {/* Full screen backdrop */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-70 z-[90]"
+            className={`fixed inset-0 bg-black transition-opacity duration-300 ease-in-out z-[90] ${
+              showSidePanel ? 'bg-opacity-70' : 'bg-opacity-0 pointer-events-none'
+            }`}
             style={{ top: '80px' }} // Start below header
-            onClick={() => setShowSidePanel(false)}
+            onClick={handleCloseSidePanel}
           />
           
           {/* Full screen side panel */}
-          <div className={`fixed top-20 right-0 h-[calc(100vh-80px)] w-96 bg-gray-900 text-white shadow-2xl z-[100] transform transition-transform duration-300 ease-in-out ${
-            showSidePanel ? 'translate-x-0' : 'translate-x-full'
-          } border-l border-blue-500`}>
+          <div className={`fixed top-20 right-0 h-[calc(100vh-80px)] w-96 bg-black text-white shadow-2xl z-[100] transform transition-all duration-500 ease-out ${
+            showSidePanel ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+          } border-l border-white`}>
             
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800">
-              <h2 className="text-lg font-bold text-blue-300 truncate pr-2">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-black">
+              <h2 className="text-lg font-bold text-white truncate pr-2">
                 {sidePanelContent.name}
               </h2>
               <button
-                onClick={() => setShowSidePanel(false)}
+                onClick={handleCloseSidePanel}
                 className="text-gray-400 hover:text-white text-2xl p-1 rounded hover:bg-gray-700 transition-colors"
               >
                 ×
@@ -1333,12 +1610,12 @@ const SunburstVisualization: React.FC = () => {
                   
                   return connectedNodes.length > 0 && (
                   <div>
-                      <h3 className="text-sm font-semibold text-cyan-300 mb-2 uppercase tracking-wide">Connected Data Points</h3>
+                      <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">Connected Data Points</h3>
                       <div className="flex flex-wrap gap-1">
                         {connectedNodes.map((nodeName, index) => (
                           <span 
                             key={index}
-                            className="inline-block bg-gray-700 text-gray-200 text-xs px-2 py-1 rounded border border-gray-600"
+                            className="inline-block bg-black text-gray-400 text-xs px-2 py-1 rounded border border-gray-700"
                           >
                             {nodeName}
                           </span>
@@ -1351,9 +1628,9 @@ const SunburstVisualization: React.FC = () => {
                 {/* Voice Hook */}
                 {sidePanelContent.voiceHook && (
                   <div>
-                    <h3 className="text-sm font-semibold text-blue-300 mb-2 uppercase tracking-wide">Voice Hook</h3>
-                    <div className="bg-gray-800 rounded-lg p-3 border-l-4 border-blue-400">
-                      <p className="text-sm italic text-gray-100">&quot;{sidePanelContent.voiceHook}&quot;</p>
+                    <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">Voice Hook</h3>
+                    <div className="bg-black rounded-lg p-3 border border-white">
+                      <p className="text-sm italic text-gray-400">&quot;{sidePanelContent.voiceHook}&quot;</p>
                     </div>
             </div>
           )}
@@ -1361,52 +1638,71 @@ const SunburstVisualization: React.FC = () => {
                 {/* Description */}
                 {sidePanelContent.description && (
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-300 mb-2 uppercase tracking-wide">Description</h3>
-                    <p className="text-sm text-gray-100 leading-relaxed">{sidePanelContent.description}</p>
-                  </div>
-                )}
+                    <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">Description</h3>
+                    <p className="text-sm text-gray-400 leading-relaxed">{sidePanelContent.description}</p>
+            </div>
+          )}
           
                 {/* Related Content */}
                 {sidePanelContent.relatedContent && sidePanelContent.relatedContent.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-semibold text-blue-300 mb-3 uppercase tracking-wide">
-                      📚 Related Content ({sidePanelContent.relatedContent.filter(c => c.moderationStatus === 'approved').length})
+                    <h3 className="text-sm font-semibold text-white mb-3 uppercase tracking-wide flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                      Related Work{sidePanelContent.relatedContent.filter(c => c.moderationStatus === 'approved').length === 1 ? '' : 's'} ({sidePanelContent.relatedContent.filter(c => c.moderationStatus === 'approved').length})
                     </h3>
                     <div className="space-y-3">
                       {sidePanelContent.relatedContent
                   .filter(content => content.moderationStatus === 'approved')
                         .map((content) => (
-                        <div key={content._id} className="bg-gray-800 rounded-lg p-3 border border-gray-700 hover:border-blue-500 transition-colors">
+                        <div key={content._id} className="bg-black rounded-lg p-3 border border-white hover:border-gray-300 transition-colors">
                           <div className="flex items-start justify-between mb-2">
                             <h4 className="text-sm font-medium text-white flex-1">{content.title}</h4>
-                            <span className={`text-xs px-2 py-1 rounded ml-2 ${
-                              content.contentType === 'video' ? 'bg-blue-500/20 text-blue-300' :
-                              content.contentType === 'interactive' ? 'bg-blue-600/20 text-blue-300' :
-                              content.contentType === 'audio' ? 'bg-blue-400/20 text-blue-300' :
-                              content.contentType === 'document' ? 'bg-blue-700/20 text-blue-300' :
-                            'bg-gray-500/20 text-gray-300'
-                          }`}>
-                            {content.contentType === 'video' ? '🎥' : 
-                             content.contentType === 'interactive' ? '🔧' :
-                             content.contentType === 'audio' ? '🎵' :
-                             content.contentType === 'document' ? '📄' : '🔗'} {content.contentType}
+                            <span className="text-xs px-2 py-1 rounded ml-2 bg-black border border-gray-700 text-gray-400 flex items-center gap-1">
+                            {content.contentType === 'video' ? (
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            ) : content.contentType === 'interactive' ? (
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            ) : content.contentType === 'audio' ? (
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M9 21V3l7 4v10l-7 4z" />
+                              </svg>
+                            ) : content.contentType === 'document' ? (
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                              </svg>
+                            )}
+                            {content.contentType}
                           </span>
                         </div>
 
                           {content.voiceHook && (
-                            <div className="bg-gray-700 rounded-lg p-2 mb-2 border-l-4 border-blue-400">
-                              <p className="text-xs italic text-blue-200">&quot;{content.voiceHook}&quot;</p>
+                            <div className="bg-black rounded-lg p-2 mb-2 border border-white">
+                              <p className="text-xs italic text-gray-400">&quot;{content.voiceHook}&quot;</p>
                             </div>
                           )}
                           
                         {content.description && (
-                            <p className="text-xs text-gray-300 mb-2 leading-relaxed">{content.description}</p>
+                            <p className="text-xs text-gray-400 mb-2 leading-relaxed">{content.description}</p>
                           )}
                           
                           {content.youtubeUrl && (
                             <div className="mb-2">
-                              <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
-                                🎥 YouTube Video
+                              <span className="text-xs bg-black border border-gray-700 text-gray-400 px-2 py-1 rounded flex items-center gap-1 inline-flex">
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                YouTube Video
                               </span>
                             </div>
                           )}
@@ -1429,14 +1725,17 @@ const SunburstVisualization: React.FC = () => {
                 {/* Glossary Terms */}
                 {sidePanelContent.glossaryTerms && sidePanelContent.glossaryTerms.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-semibold text-blue-300 mb-3 uppercase tracking-wide">
-                      📖 Glossary Entries ({sidePanelContent.glossaryTerms.length})
+                    <h3 className="text-sm font-semibold text-white mb-3 uppercase tracking-wide flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      Glossary Entr{sidePanelContent.glossaryTerms.length === 1 ? 'y' : 'ies'} ({sidePanelContent.glossaryTerms.length})
                     </h3>
                     <div className="space-y-3">
                       {sidePanelContent.glossaryTerms.map((term, index) => (
-                        <div key={term._id} className="bg-gray-800 rounded-lg p-3 border border-gray-700 border-l-4 border-l-blue-400">
+                        <div key={term._id} className="bg-black rounded-lg p-3 border border-white">
                           <div className="flex justify-between items-start mb-2">
-                            <h4 className="text-sm font-medium text-blue-300">
+                            <h4 className="text-sm font-medium text-white">
                               {term.title}
                               {sidePanelContent.glossaryTerms!.length > 1 && (
                                 <span className="text-xs text-gray-400 ml-2">
@@ -1445,7 +1744,7 @@ const SunburstVisualization: React.FC = () => {
                               )}
                             </h4>
                           </div>
-                          <p className="text-xs text-gray-300 leading-relaxed mb-2">{term.description}</p>
+                          <p className="text-xs text-gray-400 leading-relaxed mb-2">{term.description}</p>
                           {term.userId?.email && (
                             <p className="text-xs text-gray-500">by {term.userId.email}</p>
                           )}
@@ -1463,32 +1762,83 @@ const SunburstVisualization: React.FC = () => {
                 {/* Guest Speaker */}
                 {sidePanelContent.guestSpeaker && (
                   <div>
-                    <h3 className="text-sm font-semibold text-blue-300 mb-2 uppercase tracking-wide">Guest Speaker</h3>
-                    <div className="bg-gray-800 rounded-lg p-3 border border-gray-700 border-l-4 border-l-blue-400">
+                    <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">Guest Speaker</h3>
+                    <div className="bg-black rounded-lg p-3 border border-white">
                       <p className="text-sm font-medium text-white">{sidePanelContent.guestSpeaker.name}</p>
-                      <p className="text-xs text-gray-300">{sidePanelContent.guestSpeaker.title}</p>
+                      <p className="text-xs text-gray-400">{sidePanelContent.guestSpeaker.title}</p>
                       <p className="text-xs text-gray-400">{sidePanelContent.guestSpeaker.organization}</p>
                     </div>
             </div>
           )}
 
-                {/* Action Buttons - Only show if there are glossary terms */}
-                {sidePanelContent.glossaryTerms && sidePanelContent.glossaryTerms.length > 0 && (
-                <div className="pt-4 border-t border-gray-700">
-                    <button
-                      onClick={() => window.location.href = '/contribute?tab=glossary'}
-                      className="w-full text-xs bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded transition-colors"
-                    >
-                      View Full Glossary →
-                    </button>
-        </div>
-                )}
+
 
               </div>
             </div>
           </div>
         </>
       )}
+      </div>
+
+      {/* Collapsible Digital Inequalities Index - Right Side */}
+      <div className={`absolute top-8 right-0 z-30 flex transition-transform duration-300 ${
+        isInequalityPanelCollapsed ? 'translate-x-[calc(100%-24px)]' : 'translate-x-0'
+      }`}>
+        
+        {/* Toggle button/tab - attached and moves with panel */}
+        <button
+          onClick={() => setIsInequalityPanelCollapsed(!isInequalityPanelCollapsed)}
+          className="bg-black bg-opacity-80 backdrop-blur-sm border border-gray-700 border-r-0 hover:bg-gray-800 transition-colors flex items-center justify-center w-6 h-12 !rounded-none !m-0 !p-0 mt-3"
+          title={isInequalityPanelCollapsed ? "Show Digital Inequalities Index" : "Hide Digital Inequalities Index"}
+        >
+          <svg 
+            className={`w-3 h-3 text-white transition-transform duration-300 ${
+              isInequalityPanelCollapsed ? 'rotate-180' : ''
+            }`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        {/* Digital Inequalities Index Panel */}
+        <div className="w-50 bg-black bg-opacity-80 backdrop-blur-sm border-t border-r border-b border-gray-700 p-3 overflow-y-auto relative">
+          {/* Custom left border with cutout for button */}
+          <div className="absolute bottom-0 left-0 w-px bg-gray-700 h-[116px]"></div>
+          
+          <h3 className="text-sm font-semibold text-white mb-4 tracking-wide">
+            Digital Inequalities Index:
+          </h3>
+          
+          <div className="space-y-2">
+            {inequalityTypes.length > 0 ? (
+              inequalityTypes.map((inequality, index) => (
+                <div key={index} className="flex items-start gap-2 text-gray-300 hover:text-white transition-colors cursor-pointer">
+                  <svg className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span className="text-xs font-medium leading-relaxed">
+                    {inequality.includes('Community Marginalisation') 
+                      ? 'Community Marginalisation'
+                      : inequality.includes('Data Surveillance and Extractivism')
+                      ? 'Data Surveillance & Extractivism'
+                      : inequality.includes('Industry-Specific Inclusion and Exclusion')
+                      ? 'Industry-Specific Inclusion & Exclusion'
+                      : inequality
+                    }
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-400 text-xs py-4">
+                Loading...
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
