@@ -21,7 +21,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
           </div>
 
           {/* Main Content */}
-          <div className="max-w-4xl mx-auto mb-12">
+          <div className="max-w-3xl mx-auto mb-12">
             <p className="text-base text-gray-300 leading-relaxed text-center">
               A visual glossary and a shared knowledge space that connects disciplines, knowledge areas, and technologies for students, educators, practitioners, artists, and anyone interested in understanding how digital systems work and how they reproduce inequality.
             </p>

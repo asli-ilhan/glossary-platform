@@ -455,8 +455,8 @@ export default function Contribute() {
                 <div className="modal-content max-w-6xl w-full mx-4 p-10" onClick={(e) => e.stopPropagation()}>
                   {modalStep === 1 && (
                     <>
-                      <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold text-white">Propose a New Entry</h2>
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-white text-left">Propose a New Entry</h2>
                         <button 
                           onClick={handleModalClose}
                           className="text-gray-400 hover:text-white transition-colors"
@@ -466,19 +466,20 @@ export default function Contribute() {
                           </svg>
                         </button>
                       </div>
-                      <form onSubmit={handleStepSubmit} className="space-y-4">
+                      <form onSubmit={handleStepSubmit} className="space-y-6">
                         <input
                           type="text"
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
                           placeholder="Title of the entry"
                           required
+                          className="w-full p-3 border border-gray-600 rounded bg-black text-white"
                         />
                         <select
                           value={selectedTag}
                           onChange={(e) => setSelectedTag(e.target.value)}
                           required
-                          className="w-full p-2 border border-gray-600 rounded bg-gray-800 text-white"
+                          className="w-full p-3 border border-gray-600 rounded bg-black text-white text-sm"
                         >
                           <option value="">Select a layer</option>
                           <option value="discipline">Discipline</option>
@@ -490,54 +491,98 @@ export default function Contribute() {
                             {error}
                           </div>
                         )}
-                        <button type="submit" className="primary w-full">Continue</button>
+                        <div className="flex justify-end">
+                          <button 
+                            type="submit" 
+                            className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm inline-flex items-center gap-2"
+                          >
+                            Continue
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </div>
                       </form>
                     </>
                   )}
 
                   {modalStep === 2 && (
                     <>
-                      <h2 className="text-xl font-bold text-white mb-4">
-                        {isExpandingEntry ? `Expand: ${title}` : `New Entry: ${title}`}
-                      </h2>
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-white text-left">
+                          {isExpandingEntry ? `Expand: ${title}` : `New Entry: ${title}`}
+                        </h2>
+                        <button 
+                          onClick={handleModalClose}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
                       {isExpandingEntry && existingTerm && (
-                        <div className="mb-4 p-3 bg-blue-900/30 border border-blue-600 rounded">
-                          <p className="text-sm text-blue-300 mb-2">This entry already exists with {existingTerm.definitions.length} definition(s). You're adding a new perspective.</p>
+                        <div className="mb-6 p-3 bg-black border border-gray-600 rounded">
+                          <p className="text-sm text-gray-400 mb-2">This entry already exists with {existingTerm.definitions.length} definition{existingTerm.definitions.length === 1 ? '' : 's'}. You're adding a new perspective.</p>
                         </div>
                       )}
-                      <form onSubmit={handleStepSubmit} className="space-y-4">
+                      <form onSubmit={handleStepSubmit} className="space-y-6">
                         <textarea
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
                           placeholder="Your definition"
                           rows={4}
                           required
-                          className="w-full p-2 border border-gray-600 rounded bg-gray-800 text-white"
+                          className="w-full p-3 border border-gray-600 rounded bg-black text-white"
                         />
                         {error && (
                           <div className="bg-red-500 text-white p-2 rounded text-sm">
                             {error}
                           </div>
                         )}
-                        <button type="submit" className="primary w-full">Submit Entry</button>
-                        <button type="button" className="secondary w-full" onClick={() => setModalStep(1)}>
-                          Back
-                        </button>
+                        <div className="flex justify-between">
+                          <button 
+                            type="button" 
+                            className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm inline-flex items-center gap-2" 
+                            onClick={() => setModalStep(1)}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Back
+                          </button>
+                          <button 
+                            type="submit" 
+                            className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm inline-flex items-center gap-2"
+                          >
+                            Submit Entry
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </div>
                       </form>
                     </>
                   )}
 
                   {modalStep === 3 && (
                     <>
-                      <h2 className="text-xl font-bold text-white mb-4">Entry Submitted!</h2>
-                      <div className="bg-green-900/30 border border-green-600 rounded p-4 mb-4">
-                        <p className="text-green-300">
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-white text-left">Entry Submitted!</h2>
+                        <button 
+                          onClick={handleModalClose}
+                          className="text-gray-400 hover:text-white transition-colors"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="bg-black border border-gray-600 rounded p-4 mb-6">
+                        <p className="text-gray-400">
                           Thank you! Your contribution has been submitted. This entry is awaiting moderation.
                         </p>
                       </div>
-                      <button className="primary w-full" onClick={handleModalClose}>
-                        Close
-                      </button>
                     </>
                   )}
                 </div>
@@ -551,13 +596,13 @@ export default function Contribute() {
                                                           {/* Top row with back, edit and close icons */}
                     <div className="flex justify-between items-center mb-4 -mx-6">
                       <div>
-                        {isEditing && (
+                        {isEditing && editingDefinition && (
                           <button 
-                            onClick={handleEditCancel}
+                            onClick={() => handleDeleteTerm(editingDefinition._id)}
                             className="text-gray-400 hover:text-white transition-colors"
                           >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
                         )}
@@ -595,61 +640,62 @@ export default function Contribute() {
                     </div>
                   
                   {isEditing && editingDefinition ? (
-                    <div className="mb-8 p-6 bg-gray-800 border border-gray-700 rounded-lg">
-                      <h3 className="text-xl font-semibold text-green-400 mb-6">Edit Entry</h3>
-                      
+                    <div className="mb-8">
                       {error && (
                         <div className="bg-red-500 text-white p-2 rounded text-sm mb-4">
                           {error}
                         </div>
                       )}
                       
-                                              <div className="space-y-6">
-                          <div>
-                            <label className="block text-base font-medium text-gray-300 mb-3">Title</label>
-                            <input
-                              type="text"
-                              value={editTitle}
-                              onChange={(e) => setEditTitle(e.target.value)}
-                              className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-white text-base"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-base font-medium text-gray-300 mb-3">Description</label>
-                            <textarea
-                              value={editDescription}
-                              onChange={(e) => setEditDescription(e.target.value)}
-                              rows={5}
-                              className="w-full p-3 border border-gray-600 rounded bg-gray-800 text-white text-base"
-                            />
-                          </div>
-                        
-                                                </div>
-                        
-                        <div className="flex justify-center space-x-4 pt-6">
-                          <button 
-                            onClick={handleEditSave}
-                            className="primary px-6 py-3 text-base"
-                          >
-                            Save
-                          </button>
-                          <button 
-                            className="danger px-6 py-3 text-base" 
-                            onClick={() => handleDeleteTerm(editingDefinition._id)}
-                          >
-                            Delete
-                          </button>
+                      <div className="space-y-6">
+                        <div>
+                          <label className="block text-base font-medium text-gray-300 mb-3 text-left">Title</label>
+                          <input
+                            type="text"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            className="w-full p-3 border border-gray-600 rounded bg-black text-white text-base"
+                          />
                         </div>
+                        
+                        <div>
+                          <label className="block text-base font-medium text-gray-300 mb-3 text-left">Description</label>
+                          <textarea
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                            rows={5}
+                            className="w-full p-3 border border-gray-600 rounded bg-black text-white text-base"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between pt-6">
+                        <button 
+                          type="button" 
+                          className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm inline-flex items-center gap-2" 
+                          onClick={handleEditCancel}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                          Back
+                        </button>
+                        <button 
+                          onClick={handleEditSave}
+                          className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
+                        >
+                          Save
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className={`grid gap-6 ${selectedTerm.definitions.length === 1 ? 'grid-cols-1' : selectedTerm.definitions.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                       {selectedTerm.definitions.map((definition, index) => (
-                        <div key={definition._id} className={`p-6 bg-black border border-white rounded-lg ${selectedTerm.definitions.length === 1 ? 'w-full' : 'min-w-[300px] max-w-[400px]'}`}>
+                        <div key={definition._id} className={`p-6 bg-black border border-gray-600 rounded-lg ${selectedTerm.definitions.length === 1 ? 'w-full' : 'min-w-[300px] max-w-[400px]'}`}>
                           {/* Show pending review message for user's own unapproved entries */}
                           {definition.approved === false && definition.userId?._id === user?.id && (
-                            <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-600 rounded">
-                              <p className="text-sm text-yellow-300 text-left">Your entry is pending review.</p>
+                            <div className="mb-4 p-3 bg-black border border-gray-600 rounded">
+                              <p className="text-sm text-gray-400 text-left">Your entry is pending review.</p>
                             </div>
                           )}
                           
@@ -717,7 +763,7 @@ export default function Contribute() {
       {/* Sign-in Modal */}
       {showSignInModal && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-black rounded-lg shadow-2xl max-w-lg w-full mx-4 p-6 border border-white">
+                      <div className="bg-black rounded-lg shadow-2xl max-w-lg w-full mx-4 p-6 border border-gray-600">
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => setShowSignInModal(false)}

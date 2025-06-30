@@ -52,6 +52,10 @@ export default function Home() {
 
   const handleEnterPlatform = () => {
     setShowLanding(false);
+    // Show getting started instructions after a brief delay (same as TOOLKIT button)
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('showInstructions'));
+    }, 500);
   };
 
   if (status === 'loading') {

@@ -662,12 +662,7 @@ export default function AdminDashboard() {
   };
 
   const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin': return 'text-purple-600 bg-purple-100';
-      case 'contributor': return 'text-blue-600 bg-blue-100';
-      case 'student': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
+    return 'text-gray-400 bg-gray-600';
   };
 
   const getStatusBadge = (user: User) => {
@@ -705,39 +700,39 @@ export default function AdminDashboard() {
   const pendingUsersCount = pendingUsers.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800">
+    <div className="min-h-screen bg-black">
       <div className="max-w-7xl mx-auto px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
-          <p className="text-gray-300">Welcome, {user.email}</p>
+          <h1 className="text-4xl font-bold text-gray-300 mb-2">Admin Dashboard</h1>
+          <p className="text-gray-400">Welcome, {user.email}</p>
         </div>
 
         {/* Tab Navigation */}
         <div className="mb-8">
-          <div className="border-b border-gray-700">
+          <div className="border-b border-gray-600">
             <nav className="-mb-px flex justify-center space-x-4 overflow-x-auto">
               {[
                 { id: 'overview', name: 'Overview', count: null },
                 { id: 'users', name: 'User Management', count: pendingUsersCount },
-                { id: 'terms', name: 'Glossary Terms', count: pendingTerms },
-                { id: 'content', name: 'Content Modules', count: pendingContent },
-                { id: 'sunburst', name: 'Knowledge Map Data', count: null },
+                { id: 'terms', name: 'Glossary Entries', count: pendingTerms },
+                { id: 'content', name: 'Content Work', count: pendingContent },
+                { id: 'sunburst', name: 'Interactive Map Data', count: null },
                 { id: 'import', name: 'CSV Import', count: null },
-                { id: 'analytics', name: 'Content Analytics', count: null },
+                { id: 'analytics', name: 'Analytics', count: null },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-3 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-200 min-w-max ${
+                  className={`py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 rounded-sm min-w-max ${
                     activeTab === tab.id
-                      ? 'border-green-400 text-green-400'
-                      : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
+                      ? 'text-white border-white'
+                      : 'text-gray-400 hover:text-gray-300'
                   }`}
                 >
                   {tab.name}
                   {tab.count !== null && tab.count > 0 && (
-                    <span className="ml-2 bg-red-600 text-white text-xs rounded-full px-2 py-1">
+                    <span className="ml-2 bg-gray-600 text-gray-400 text-xs rounded-full px-2 py-1">
                       {tab.count}
                     </span>
                   )}
@@ -748,81 +743,71 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-gray-800 rounded-lg shadow-xl p-6">
+        <div className="bg-black border border-gray-600 rounded-lg shadow-xl p-6">
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-white mb-4">Dashboard Overview</h2>
+              <h2 className="text-2xl font-bold text-gray-300 mb-4">Dashboard Overview</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
-                  <h3 className="text-lg font-semibold mb-2">Total Entries</h3>
-                  <p className="text-3xl font-bold">{totalEntries}</p>
-                  <p className="text-blue-200 text-sm">Across all collections</p>
-                </div>
-                
-                <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-lg p-6 text-white">
-                  <h3 className="text-lg font-semibold mb-2">Pending Users</h3>
-                  <p className="text-3xl font-bold">{pendingUsersCount}</p>
-                  <p className="text-red-200 text-sm">Awaiting approval</p>
-                </div>
-                
-                <div className="bg-gradient-to-r from-yellow-600 to-yellow-700 rounded-lg p-6 text-white">
-                  <h3 className="text-lg font-semibold mb-2">Pending Terms</h3>
-                  <p className="text-3xl font-bold">{pendingTerms}</p>
-                  <p className="text-yellow-200 text-sm">Awaiting approval</p>
-                </div>
-                
-                <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg p-6 text-white">
-                  <h3 className="text-lg font-semibold mb-2">Pending Content</h3>
-                  <p className="text-3xl font-bold">{pendingContent}</p>
-                  <p className="text-purple-200 text-sm">Awaiting moderation</p>
-                </div>
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-700 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Data Breakdown</h3>
+                <div className="bg-black border border-gray-600 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-300 mb-4">Data Breakdown</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-300">Glossary Terms:</span>
-                      <span className="text-white font-semibold">{terms.length}</span>
+                      <span className="text-gray-400">Total Entries:</span>
+                      <span className="text-gray-300 font-semibold">{totalEntries}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-300">Content Modules:</span>
-                      <span className="text-white font-semibold">{contentModules.length}</span>
+                      <span className="text-gray-400">Pending Users:</span>
+                      <span className="text-gray-300 font-semibold">{pendingUsersCount}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-300">Knowledge Map Entries:</span>
-                      <span className="text-white font-semibold">{sunburstEntries.length}</span>
+                      <span className="text-gray-400">Pending Entries:</span>
+                      <span className="text-gray-300 font-semibold">{pendingTerms}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Pending Work:</span>
+                      <span className="text-gray-300 font-semibold">{pendingContent}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Glossary Terms:</span>
+                      <span className="text-gray-300 font-semibold">{terms.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Works:</span>
+                      <span className="text-gray-300 font-semibold">{contentModules.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Interactive Map Entries:</span>
+                      <span className="text-gray-300 font-semibold">{sunburstEntries.length}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gray-700 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                <div className="bg-black border border-gray-600 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-300 mb-4">Quick Actions</h3>
                   <div className="space-y-3">
                     <button 
                       onClick={() => setActiveTab('users')}
-                      className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition-colors"
+                      className="w-full py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                     >
                       Approve Users ({pendingUsersCount})
                     </button>
                     <button 
                       onClick={() => setActiveTab('terms')}
-                      className="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded transition-colors"
+                      className="w-full py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                     >
-                      Review Pending Terms
+                      Review Pending Entries
                     </button>
                     <button 
                       onClick={() => setActiveTab('content')}
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded transition-colors"
+                      className="w-full py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                     >
-                      Moderate Content
+                      Moderate Work
                     </button>
                     <button 
                       onClick={() => setActiveTab('import')}
-                      className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition-colors"
+                      className="w-full py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                     >
                       Import CSV Data
                     </button>
@@ -835,43 +820,52 @@ export default function AdminDashboard() {
           {/* User Management Tab */}
           {activeTab === 'users' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-white mb-4">User Management</h2>
+              <h2 className="text-2xl font-bold text-gray-300 mb-4">User Management</h2>
               
               {/* Pending Users Section */}
               <div className="mb-8">
-                <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                <h3 className="text-xl font-semibold text-gray-300 mb-4 flex items-center">
                   Pending User Approvals 
-                  <span className="ml-2 bg-red-600 text-white text-sm rounded-full px-2 py-1">
+                  <span className="ml-2 bg-black border border-gray-600 text-gray-400 text-sm rounded-full px-2 py-1">
                     {pendingUsersCount}
                   </span>
                 </h3>
                 
                 {pendingUsers.length === 0 ? (
-                  <div className="bg-gray-700 rounded-lg p-6 text-center">
+                  <div className="bg-black border border-gray-600 rounded-lg p-6 text-center">
                     <p className="text-gray-400">No pending user approvals</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {pendingUsers.map((user) => (
-                      <div key={user._id} className="bg-gray-700 rounded-lg p-6 border border-gray-600">
+                      <div key={user._id} className="bg-black border border-gray-600 rounded-lg p-6">
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
                             <div className="flex items-center space-x-3 mb-2">
-                              <h4 className="text-lg font-semibold text-white">{user.email}</h4>
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                user.role === 'student' ? 'bg-blue-600 text-blue-100' :
-                                user.role === 'contributor' ? 'bg-green-600 text-green-100' :
-                                'bg-gray-600 text-gray-100'
-                              }`}>
-                                {user.role === 'student' ? '📚 Student' : 
-                                 user.role === 'contributor' ? '✍️ Contributor' : user.role}
+                              <h4 className="text-lg font-semibold text-gray-300">{user.email}</h4>
+                              <span className="px-3 py-1 rounded-full text-xs font-medium bg-black border border-gray-600 text-gray-400 flex items-center">
+                                {user.role === 'student' ? (
+                                  <>
+                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                    Student
+                                  </>
+                                ) : user.role === 'contributor' ? (
+                                  <>
+                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                    Contributor
+                                  </>
+                                ) : user.role}
                               </span>
                             </div>
-                            <p className="text-gray-300 text-sm mb-3">
+                            <p className="text-gray-400 text-sm mb-3">
                               Registered: {new Date(user.createdAt).toLocaleDateString()}
                             </p>
                             {user.profile && (
-                              <div className="text-sm text-gray-400">
+                              <div className="text-sm text-gray-500">
                                 {user.profile.firstName && (
                                   <p>Name: {user.profile.firstName} {user.profile.lastName}</p>
                                 )}
@@ -885,9 +879,12 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => handleUserAction(user._id, 'approve')}
                               disabled={actionLoading === user._id}
-                              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                              className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm flex items-center"
                             >
-                              ✓ Approve
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              Approve
                             </button>
                             <button
                               onClick={() => {
@@ -897,9 +894,12 @@ export default function AdminDashboard() {
                                 }
                               }}
                               disabled={actionLoading === user._id}
-                              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                              className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm flex items-center"
                             >
-                              ✗ Reject
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              Reject
                             </button>
                           </div>
                         </div>
@@ -911,41 +911,50 @@ export default function AdminDashboard() {
 
               {/* Approved Users Section */}
               <div>
-                <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                <h3 className="text-xl font-semibold text-gray-300 mb-4 flex items-center">
                   Approved Users
-                  <span className="ml-2 bg-green-600 text-white text-sm rounded-full px-2 py-1">
+                  <span className="ml-2 bg-black border border-gray-600 text-gray-400 text-sm rounded-full px-2 py-1">
                     {approvedUsers.length}
                   </span>
                 </h3>
                 
                 {approvedUsers.length === 0 ? (
-                  <div className="bg-gray-700 rounded-lg p-6 text-center">
+                  <div className="bg-black border border-gray-600 rounded-lg p-6 text-center">
                     <p className="text-gray-400">No approved users</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {approvedUsers.map((user) => (
-                      <div key={user._id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                      <div key={user._id} className="bg-black border border-gray-600 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="text-sm font-semibold text-white truncate">{user.email}</h4>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            user.role === 'admin' ? 'bg-red-600 text-red-100' :
-                            user.role === 'student' ? 'bg-blue-600 text-blue-100' :
-                            user.role === 'contributor' ? 'bg-green-600 text-green-100' :
-                            'bg-gray-600 text-gray-100'
-                          }`}>
-                            {user.role === 'admin' ? '👑' :
-                             user.role === 'student' ? '📚' :
-                             user.role === 'contributor' ? '✍️' : '👤'}
+                          <h4 className="text-sm font-semibold text-gray-300 truncate">{user.email}</h4>
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-black border border-gray-600 text-gray-400 flex items-center">
+                            {user.role === 'admin' ? (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                              </svg>
+                            ) : user.role === 'student' ? (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                              </svg>
+                            ) : user.role === 'contributor' ? (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                            )}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-400 mb-2">
+                        <p className="text-xs text-gray-500 mb-2">
                           Approved: {user.approvedAt ? new Date(user.approvedAt).toLocaleDateString() : 'N/A'}
                         </p>
                         {user.role !== 'admin' && (
                           <button
                             onClick={() => handleDeleteUser(user._id)}
-                            className="text-red-400 hover:text-red-300 text-xs underline"
+                            className="py-1 px-2 border-b-2 border-transparent font-medium text-xs whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                           >
                             Delete User
                           </button>
@@ -961,21 +970,21 @@ export default function AdminDashboard() {
           {/* Glossary Terms Tab */}
           {activeTab === 'terms' && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white mb-4">Glossary Terms Management</h2>
+              <h2 className="text-2xl font-bold text-gray-300 mb-4">Glossary Entries Management</h2>
               
               {terms.length === 0 ? (
                 <p className="text-gray-400">No glossary terms found.</p>
               ) : (
                 terms.map((term) => (
-                  <div key={term._id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                  <div key={term._id} className="bg-black border border-gray-600 rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white">{term.title}</h3>
-                        <p className="text-gray-300 mt-2">{term.description}</p>
+                        <h3 className="text-xl font-bold text-gray-300">{term.title}</h3>
+                        <p className="text-gray-400 mt-2">{term.description}</p>
                         {term.tags && term.tags.length > 0 && (
                           <div className="mt-2">
                             {term.tags.map((tag, index) => (
-                              <span key={index} className="inline-block bg-blue-600 text-white text-xs px-2 py-1 rounded mr-2">
+                              <span key={index} className="inline-block bg-black border border-gray-600 text-gray-400 text-xs px-2 py-1 rounded mr-2">
                                 {tag}
                               </span>
                             ))}
@@ -983,15 +992,15 @@ export default function AdminDashboard() {
                         )}
                         <div className="flex items-center mt-2 space-x-4">
                           <span className={`px-2 py-1 rounded text-xs ${
-                            term.approved ? 'bg-green-600 text-white' : 'bg-yellow-600 text-white'
+                            term.approved ? 'bg-black border border-gray-600 text-gray-400' : 'bg-black border border-gray-600 text-gray-400'
                           }`}>
                             {term.approved ? 'Approved' : 'Pending'}
                           </span>
                           {term.category && (
-                            <span className="text-gray-400 text-sm">Category: {term.category}</span>
+                            <span className="text-gray-500 text-sm">Category: {term.category}</span>
                           )}
                           {term.difficulty && (
-                            <span className="text-gray-400 text-sm">Difficulty: {term.difficulty}</span>
+                            <span className="text-gray-500 text-sm">Difficulty: {term.difficulty}</span>
                           )}
                         </div>
                         {term.userId?.email && (
@@ -1002,20 +1011,20 @@ export default function AdminDashboard() {
                       <div className="ml-4 space-x-2 flex">
                         {!term.approved && (
                           <button 
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                            className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                             onClick={() => handleApprove(term._id)}
                           >
                             Approve
                           </button>
                         )}
                         <button 
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                          className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                           onClick={() => handleEdit(term)}
                         >
                           Edit
                         </button>
                         <button 
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                          className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                           onClick={() => handleDelete(term._id, 'term')}
                         >
                           Delete
@@ -1028,45 +1037,41 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Content Modules Tab */}
+          {/* Works Tab */}
           {activeTab === 'content' && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white mb-4">Content Modules Management</h2>
+              <h2 className="text-2xl font-bold text-gray-300 mb-4">Works Management</h2>
               
               {contentModules.length === 0 ? (
-                <p className="text-gray-400">No content modules found.</p>
+                <p className="text-gray-400">No works found.</p>
               ) : (
                 contentModules.map((content) => (
-                  <div key={content._id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                  <div key={content._id} className="bg-black border border-gray-600 rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white">{content.title}</h3>
-                        <p className="text-gray-300 mt-2">{content.description}</p>
+                        <h3 className="text-xl font-bold text-gray-300">{content.title}</h3>
+                        <p className="text-gray-400 mt-2">{content.description}</p>
                         <div className="mt-2 space-x-4">
-                          <span className="text-gray-400 text-sm">Type: {content.contentType}</span>
-                          <span className="text-gray-400 text-sm">Area: {content.knowledgeArea}</span>
-                          <span className="text-gray-400 text-sm">Discipline: {content.discipline}</span>
+                          <span className="text-gray-500 text-sm">Type: {content.contentType}</span>
+                          <span className="text-gray-500 text-sm">Area: {content.knowledgeArea}</span>
+                          <span className="text-gray-500 text-sm">Discipline: {content.discipline}</span>
                         </div>
                         {content.tags && content.tags.length > 0 && (
                           <div className="mt-2">
                             {content.tags.map((tag, index) => (
-                              <span key={index} className="inline-block bg-purple-600 text-white text-xs px-2 py-1 rounded mr-2">
+                              <span key={index} className="inline-block bg-black border border-gray-600 text-gray-400 text-xs px-2 py-1 rounded mr-2">
                                 {tag}
                               </span>
                             ))}
                           </div>
                         )}
                         <div className="flex items-center mt-2 space-x-4">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            content.moderationStatus === 'approved' ? 'bg-green-600 text-white' :
-                            content.moderationStatus === 'rejected' ? 'bg-red-600 text-white' :
-                            'bg-yellow-600 text-white'
-                          }`}>
+                          <span className="px-2 py-1 rounded text-xs bg-black border border-gray-600 text-gray-400">
                             {content.moderationStatus}
                           </span>
                           {content.youtubeUrl && (
                             <a href={content.youtubeUrl} target="_blank" rel="noopener noreferrer" 
-                               className="text-blue-400 hover:text-blue-300 text-sm">
+                               className="text-gray-400 hover:text-gray-300 text-sm underline">
                               View Video
                             </a>
                           )}
@@ -1079,16 +1084,16 @@ export default function AdminDashboard() {
                       <div className="ml-4 space-x-2 flex">
                         {content.moderationStatus === 'pending' && (
                           <>
-                            <button className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                            <button className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm">
                               Approve
                             </button>
-                            <button className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                            <button className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm">
                               Reject
                             </button>
                           </>
                         )}
                         <button 
-                          className="bg-red-700 hover:bg-red-800 text-white px-3 py-1 rounded text-sm transition-colors"
+                          className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                           onClick={() => handleDelete(content._id, 'content')}
                         >
                           Delete
@@ -1101,30 +1106,28 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Knowledge Map Data Tab */}
+          {/* Interactive Map Data Tab */}
           {activeTab === 'sunburst' && (
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-white mb-4">Knowledge Map Visualization Data</h2>
+              <h2 className="text-2xl font-bold text-gray-300 mb-4">Interactive Map Visualisation Data</h2>
               
               {sunburstEntries.length === 0 ? (
-                <p className="text-gray-400">No knowledge map entries found.</p>
+                <p className="text-gray-400">No interactive map entries found.</p>
               ) : (
                 sunburstEntries.map((entry) => (
-                  <div key={entry._id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                  <div key={entry._id} className="bg-black border border-gray-600 rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white">{entry.toolTechnology}</h3>
-                        <p className="text-gray-300 mt-2">{entry.description}</p>
+                        <h3 className="text-xl font-bold text-gray-300">{entry.toolTechnology}</h3>
+                        <p className="text-gray-400 mt-2">{entry.description}</p>
                         <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
-                          <span className="text-gray-400">Theme: <span className="text-white">{entry.themeCluster}</span></span>
-                          <span className="text-gray-400">Knowledge Area: <span className="text-white">{entry.knowledgeArea}</span></span>
-                          <span className="text-gray-400">Discipline: <span className="text-white">{entry.discipline}</span></span>
-                          <span className="text-gray-400">Role: <span className="text-white">{entry.roleSystemOrientation}</span></span>
+                          <span className="text-gray-500">Theme: <span className="text-gray-400">{entry.themeCluster}</span></span>
+                          <span className="text-gray-500">Knowledge Area: <span className="text-gray-400">{entry.knowledgeArea}</span></span>
+                          <span className="text-gray-500">Discipline: <span className="text-gray-400">{entry.discipline}</span></span>
+                          <span className="text-gray-500">Role: <span className="text-gray-400">{entry.roleSystemOrientation}</span></span>
                         </div>
                         <div className="flex items-center mt-2">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            entry.isActive ? 'bg-green-600 text-white' : 'bg-gray-600 text-white'
-                          }`}>
+                          <span className="px-2 py-1 rounded text-xs bg-black border border-gray-600 text-gray-400">
                             {entry.isActive ? 'Active' : 'Inactive'}
                           </span>
                         </div>
@@ -1135,7 +1138,7 @@ export default function AdminDashboard() {
                       
                       <div className="ml-4 space-x-2 flex">
                         <button 
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                          className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm"
                           onClick={() => handleDelete(entry._id, 'sunburst')}
                         >
                           Delete
@@ -1151,30 +1154,30 @@ export default function AdminDashboard() {
           {/* CSV Import Tab */}
           {activeTab === 'import' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-white mb-4">CSV Data Import</h2>
+              <h2 className="text-2xl font-bold text-gray-300 mb-4">CSV Data Import</h2>
               
               {/* Import Form */}
-              <div className="bg-gray-700 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Upload CSV File</h3>
+              <div className="bg-black border border-gray-600 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-300 mb-4">Upload CSV File</h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
                       Import Type
                     </label>
                     <select 
                       value={importType} 
                       onChange={(e) => setImportType(e.target.value as 'auto' | 'sunburst' | 'content')}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:border-green-400 focus:outline-none"
+                      className="w-full px-3 py-2 bg-black text-gray-300 rounded border border-gray-600 focus:border-gray-400 focus:outline-none"
                     >
                       <option value="auto">Auto-detect</option>
-                      <option value="sunburst">Knowledge Map Data</option>
-                      <option value="content">Content Modules</option>
+                                              <option value="sunburst">Interactive Map Data</option>
+                        <option value="content">Works</option>
                     </select>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
                       CSV File
                     </label>
                     <input
@@ -1182,10 +1185,10 @@ export default function AdminDashboard() {
                       type="file"
                       accept=".csv"
                       onChange={handleFileChange}
-                      className="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:border-green-400 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-600 file:text-white hover:file:bg-green-700"
+                      className="w-full px-3 py-2 bg-black text-gray-400 rounded border border-gray-600 focus:border-gray-400 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-gray-400 hover:file:bg-gray-500"
                     />
                     {csvFile && (
-                      <p className="text-sm text-green-400 mt-2">
+                      <p className="text-sm text-gray-400 mt-2">
                         Selected: {csvFile.name} ({(csvFile.size / 1024).toFixed(1)} KB)
                       </p>
                     )}
@@ -1195,30 +1198,41 @@ export default function AdminDashboard() {
                     <button
                       onClick={handleImport}
                       disabled={!csvFile || importing}
-                      className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded transition-colors flex items-center space-x-2"
+                      className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                     >
                       {importing ? (
                         <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
                           <span>Importing...</span>
                         </>
                       ) : (
-                        <span>Import CSV</span>
+                        <>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <span>Import CSV</span>
+                        </>
                       )}
                     </button>
                     
                     <button
                       onClick={() => downloadTemplate('sunburst')}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors text-sm"
+                      className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm flex items-center space-x-2"
                     >
-                      Download Knowledge Map Template
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Download Interactive Map Data Template</span>
                     </button>
                     
                     <button
                       onClick={() => downloadTemplate('content')}
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors text-sm"
+                      className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm flex items-center space-x-2"
                     >
-                      Download Content Template
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span>Download Work Submission Template</span>
                     </button>
                   </div>
                 </div>
@@ -1226,41 +1240,37 @@ export default function AdminDashboard() {
 
               {/* Import Results */}
               {importResult && (
-                <div className={`rounded-lg p-6 ${
-                  importResult.success ? 'bg-green-900 border border-green-700' : 'bg-red-900 border border-red-700'
-                }`}>
-                  <h3 className={`text-lg font-semibold mb-4 ${
-                    importResult.success ? 'text-green-300' : 'text-red-300'
-                  }`}>
+                <div className="bg-black border border-gray-600 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-4 text-gray-300">
                     Import Results
                   </h3>
                   
                   <div className="space-y-4">
-                    <p className="text-white">{importResult.message}</p>
+                    <p className="text-gray-400">{importResult.message}</p>
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="bg-gray-800 rounded p-3">
-                        <p className="text-gray-400 text-sm">Total Rows</p>
-                        <p className="text-white font-bold text-lg">{importResult.stats.totalRows}</p>
+                      <div className="bg-black border border-gray-600 rounded p-3">
+                        <p className="text-gray-500 text-sm">Total Rows</p>
+                        <p className="text-gray-300 font-bold text-lg">{importResult.stats.totalRows}</p>
                       </div>
-                      <div className="bg-green-800 rounded p-3">
-                        <p className="text-green-200 text-sm">Inserted</p>
-                        <p className="text-white font-bold text-lg">{importResult.stats.inserted}</p>
+                      <div className="bg-black border border-gray-600 rounded p-3">
+                        <p className="text-gray-500 text-sm">Inserted</p>
+                        <p className="text-gray-300 font-bold text-lg">{importResult.stats.inserted}</p>
                       </div>
-                      <div className="bg-yellow-800 rounded p-3">
-                        <p className="text-yellow-200 text-sm">Duplicates</p>
-                        <p className="text-white font-bold text-lg">{importResult.stats.duplicates}</p>
+                      <div className="bg-black border border-gray-600 rounded p-3">
+                        <p className="text-gray-500 text-sm">Duplicates</p>
+                        <p className="text-gray-300 font-bold text-lg">{importResult.stats.duplicates}</p>
                       </div>
-                      <div className="bg-red-800 rounded p-3">
-                        <p className="text-red-200 text-sm">Errors</p>
-                        <p className="text-white font-bold text-lg">{importResult.stats.errors}</p>
+                      <div className="bg-black border border-gray-600 rounded p-3">
+                        <p className="text-gray-500 text-sm">Errors</p>
+                        <p className="text-gray-300 font-bold text-lg">{importResult.stats.errors}</p>
                       </div>
                     </div>
                     
                     {importResult.details.errors.length > 0 && (
                       <div>
-                        <h4 className="text-red-300 font-semibold mb-2">Errors:</h4>
-                        <ul className="text-red-200 text-sm space-y-1 max-h-40 overflow-y-auto">
+                        <h4 className="text-gray-400 font-semibold mb-2">Errors:</h4>
+                        <ul className="text-gray-500 text-sm space-y-1 max-h-40 overflow-y-auto">
                           {importResult.details.errors.map((error, index) => (
                             <li key={index}>• {error}</li>
                           ))}
@@ -1270,8 +1280,8 @@ export default function AdminDashboard() {
                     
                     {importResult.details.duplicates.length > 0 && (
                       <div>
-                        <h4 className="text-yellow-300 font-semibold mb-2">Duplicates:</h4>
-                        <ul className="text-yellow-200 text-sm space-y-1 max-h-40 overflow-y-auto">
+                        <h4 className="text-gray-400 font-semibold mb-2">Duplicates:</h4>
+                        <ul className="text-gray-500 text-sm space-y-1 max-h-40 overflow-y-auto">
                           {importResult.details.duplicates.map((duplicate, index) => (
                             <li key={index}>• {duplicate}</li>
                           ))}
@@ -1283,14 +1293,14 @@ export default function AdminDashboard() {
               )}
 
               {/* Import Instructions */}
-              <div className="bg-gray-700 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">CSV Format Requirements</h3>
+              <div className="bg-black border border-gray-600 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-300 mb-4">CSV Format Requirements</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="text-green-400 font-medium mb-2">Knowledge Map Data CSV</h4>
-                    <p className="text-gray-300 text-sm mb-2">Required columns:</p>
-                    <ul className="text-gray-400 text-sm space-y-1">
+                    <h4 className="text-gray-400 font-medium mb-2">Interactive Map Data CSV</h4>
+                    <p className="text-gray-400 text-sm mb-2">Required columns:</p>
+                    <ul className="text-gray-500 text-sm space-y-1">
                       <li>• Theme Cluster</li>
                       <li>• Knowledge Area</li>
                       <li>• Discipline</li>
@@ -1300,9 +1310,9 @@ export default function AdminDashboard() {
                   </div>
                   
                   <div>
-                    <h4 className="text-purple-400 font-medium mb-2">Content Modules CSV</h4>
-                    <p className="text-gray-300 text-sm mb-2">Required columns:</p>
-                    <ul className="text-gray-400 text-sm space-y-1">
+                    <h4 className="text-gray-400 font-medium mb-2">Works CSV</h4>
+                    <p className="text-gray-400 text-sm mb-2">Required columns:</p>
+                    <ul className="text-gray-500 text-sm space-y-1">
                       <li>• Type</li>
                       <li>• Title</li>
                       <li>• Narrative</li>
@@ -1313,18 +1323,24 @@ export default function AdminDashboard() {
                 </div>
                 
                 <div className="mt-4 space-y-3">
-                  <div className="p-4 bg-blue-900 rounded">
-                    <p className="text-blue-200 text-sm">
-                      💡 <strong>Tip:</strong> Download the template files above to see the exact format expected. 
-                      The system can auto-detect the CSV type based on the headers.
+                  <div className="p-4 bg-black border border-gray-600 rounded">
+                    <p className="text-gray-400 text-sm flex items-start space-x-2">
+                      <svg className="w-5 h-5 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                      <span><strong>Tip:</strong> Download the template files above to see the exact format expected. 
+                      The system can auto-detect the CSV type based on the headers.</span>
                     </p>
                   </div>
                   
-                  <div className="p-4 bg-orange-900 rounded border border-orange-700">
-                    <p className="text-orange-200 text-sm">
-                      ⚠️ <strong>Important:</strong> When importing Knowledge Map Data, all existing knowledge map entries will be 
+                  <div className="p-4 bg-black border border-gray-600 rounded">
+                    <p className="text-gray-400 text-sm flex items-start space-x-2">
+                      <svg className="w-5 h-5 text-gray-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <span><strong>Important:</strong> When importing Interactive Map Data, all existing interactive map entries will be 
                       automatically cleared and replaced with the new hierarchical structure from your CSV. This ensures 
-                      optimal performance and prevents data conflicts.
+                      optimal performance and prevents data conflicts.</span>
                     </p>
                   </div>
                 </div>
@@ -1332,59 +1348,59 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Content Analytics Tab */}
+          {/* Analytics Tab */}
           {activeTab === 'analytics' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-white mb-4">Content Analytics</h2>
+              <h2 className="text-2xl font-bold text-gray-300 mb-4">Analytics</h2>
               
               {analyticsLoading ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-400 mx-auto"></div>
                   <p className="mt-4 text-gray-400">Loading analytics...</p>
                 </div>
               ) : (
                 <>
                   {/* Overall Statistics */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
-                      <h3 className="text-lg font-semibold mb-2">Active Contributors</h3>
-                      <p className="text-3xl font-bold">{userContributions.length}</p>
-                      <p className="text-blue-200 text-sm">Users with content</p>
+                    <div className="bg-black border border-gray-600 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold mb-2 text-gray-300">Active Contributors</h3>
+                      <p className="text-3xl font-bold text-gray-300">{userContributions.length}</p>
+                      <p className="text-gray-500 text-sm">Users submitted entries or works</p>
                     </div>
                     
-                    <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-lg p-6 text-white">
-                      <h3 className="text-lg font-semibold mb-2">Total Contributions</h3>
-                      <p className="text-3xl font-bold">
+                    <div className="bg-black border border-gray-600 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold mb-2 text-gray-300">Total Contributions</h3>
+                      <p className="text-3xl font-bold text-gray-300">
                         {userContributions.reduce((sum, user) => sum + user.totalContributions, 0)}
                       </p>
-                      <p className="text-green-200 text-sm">All content types</p>
+                      <p className="text-gray-500 text-sm">All content types</p>
                     </div>
                     
-                    <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg p-6 text-white">
-                      <h3 className="text-lg font-semibold mb-2">Most Active User</h3>
-                      <p className="text-lg font-bold truncate">
+                    <div className="bg-black border border-gray-600 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold mb-2 text-gray-300">Most Active User</h3>
+                      <p className="text-lg font-bold truncate text-gray-300">
                         {userContributions.length > 0 ? userContributions[0].userEmail.split('@')[0] : 'N/A'}
                       </p>
-                      <p className="text-purple-200 text-sm">
+                      <p className="text-gray-500 text-sm">
                         {userContributions.length > 0 ? `${userContributions[0].totalContributions} contributions` : 'No data'}
                       </p>
                     </div>
                     
-                    <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg p-6 text-white">
-                      <h3 className="text-lg font-semibold mb-2">Avg per User</h3>
-                      <p className="text-3xl font-bold">
+                    <div className="bg-black border border-gray-600 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold mb-2 text-gray-300">Avg per User</h3>
+                      <p className="text-3xl font-bold text-gray-300">
                         {userContributions.length > 0 
                           ? Math.round(userContributions.reduce((sum, user) => sum + user.totalContributions, 0) / userContributions.length)
                           : 0
                         }
                       </p>
-                      <p className="text-orange-200 text-sm">Contributions</p>
+                      <p className="text-gray-500 text-sm">Contributions</p>
                     </div>
                   </div>
 
                   {/* User Contributions Table */}
-                  <div className="bg-gray-700 rounded-lg p-6">
-                    <h3 className="text-xl font-semibold text-white mb-4">User Contributions Overview</h3>
+                  <div className="bg-black border border-gray-600 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-gray-300 mb-4">User Contributions Overview</h3>
                     
                     {userContributions.length === 0 ? (
                       <div className="text-center py-8">
@@ -1395,21 +1411,21 @@ export default function AdminDashboard() {
                         <table className="w-full text-left">
                           <thead>
                             <tr className="border-b border-gray-600">
-                              <th className="py-3 px-4 text-gray-300 font-medium">User</th>
-                              <th className="py-3 px-4 text-gray-300 font-medium">Role</th>
-                              <th className="py-3 px-4 text-gray-300 font-medium">Glossary Terms</th>
-                              <th className="py-3 px-4 text-gray-300 font-medium">Content Modules</th>
-                              <th className="py-3 px-4 text-gray-300 font-medium">Knowledge Map Entries</th>
-                              <th className="py-3 px-4 text-gray-300 font-medium">Total</th>
-                              <th className="py-3 px-4 text-gray-300 font-medium">Last Activity</th>
-                              <th className="py-3 px-4 text-gray-300 font-medium">Actions</th>
+                              <th className="py-3 px-4 text-gray-400 font-medium">User</th>
+                              <th className="py-3 px-4 text-gray-400 font-medium">Role</th>
+                              <th className="py-3 px-4 text-gray-400 font-medium">Glossary Entries</th>
+                              <th className="py-3 px-4 text-gray-400 font-medium">Works</th>
+                              <th className="py-3 px-4 text-gray-400 font-medium">Interactive Map Entries</th>
+                              <th className="py-3 px-4 text-gray-400 font-medium">Total</th>
+                              <th className="py-3 px-4 text-gray-400 font-medium">Last Activity</th>
+                              <th className="py-3 px-4 text-gray-400 font-medium">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
                             {userContributions.map((contribution) => (
-                              <tr key={contribution.userId} className="border-b border-gray-600 hover:bg-gray-600">
+                              <tr key={contribution.userId} className="border-b border-gray-600 hover:bg-gray-900">
                                 <td className="py-3 px-4">
-                                  <div className="text-white font-medium">{contribution.userEmail}</div>
+                                  <div className="text-gray-300 font-medium">{contribution.userEmail}</div>
                                 </td>
                                 <td className="py-3 px-4">
                                   <span className={`px-2 py-1 rounded text-xs font-medium ${getRoleColor(contribution.userRole)}`}>
@@ -1417,18 +1433,18 @@ export default function AdminDashboard() {
                                   </span>
                                 </td>
                                 <td className="py-3 px-4 text-center">
-                                  <span className="text-blue-400 font-semibold">{contribution.glossaryTerms}</span>
+                                  <span className="text-gray-400 font-semibold">{contribution.glossaryTerms}</span>
                                 </td>
                                 <td className="py-3 px-4 text-center">
-                                  <span className="text-green-400 font-semibold">{contribution.contentModules}</span>
+                                  <span className="text-gray-400 font-semibold">{contribution.contentModules}</span>
                                 </td>
                                 <td className="py-3 px-4 text-center">
-                                  <span className="text-purple-400 font-semibold">{contribution.sunburstEntries}</span>
+                                  <span className="text-gray-400 font-semibold">{contribution.sunburstEntries}</span>
                                 </td>
                                 <td className="py-3 px-4 text-center">
-                                  <span className="text-yellow-400 font-bold">{contribution.totalContributions}</span>
+                                  <span className="text-gray-300 font-bold">{contribution.totalContributions}</span>
                                 </td>
-                                <td className="py-3 px-4 text-gray-300 text-sm">
+                                <td className="py-3 px-4 text-gray-400 text-sm">
                                   {contribution.totalContributions > 0 
                                     ? formatDate(contribution.recentActivity.toISOString())
                                     : 'No activity'
@@ -1437,9 +1453,18 @@ export default function AdminDashboard() {
                                 <td className="py-3 px-4">
                                   <button
                                     onClick={() => setSelectedUser(selectedUser === contribution.userId ? null : contribution.userId)}
-                                    className="text-blue-400 hover:text-blue-300 text-sm underline"
+                                    className="py-2 px-3 border-b-2 border-transparent font-medium text-sm whitespace-nowrap transition-colors duration-200 text-gray-400 hover:text-gray-300 hover:border-gray-300 rounded-sm flex items-center space-x-1"
                                   >
-                                    {selectedUser === contribution.userId ? 'Hide Details' : 'View Details'}
+                                    <span>{selectedUser === contribution.userId ? 'Hide Details' : 'View Details'}</span>
+                                    {selectedUser === contribution.userId ? (
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                      </svg>
+                                    ) : (
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                      </svg>
+                                    )}
                                   </button>
                                 </td>
                               </tr>
@@ -1452,8 +1477,8 @@ export default function AdminDashboard() {
 
                   {/* Detailed User Entries */}
                   {selectedUser && (
-                    <div className="bg-gray-700 rounded-lg p-6">
-                      <h3 className="text-xl font-semibold text-white mb-4">
+                    <div className="bg-black border border-gray-600 rounded-lg p-6">
+                      <h3 className="text-xl font-semibold text-gray-300 mb-4">
                         Detailed Entries for {userContributions.find(u => u.userId === selectedUser)?.userEmail}
                       </h3>
                       
@@ -1463,31 +1488,31 @@ export default function AdminDashboard() {
 
                         return (
                           <div className="space-y-6">
-                            {/* Glossary Terms */}
+                            {/* Glossary Entries */}
                             {selectedContribution.entries.glossaryTerms.length > 0 && (
                               <div>
-                                <h4 className="text-lg font-medium text-blue-400 mb-3">
-                                  Glossary Terms ({selectedContribution.entries.glossaryTerms.length})
+                                <h4 className="text-lg font-medium text-gray-400 mb-3">
+                                  Glossary Entries ({selectedContribution.entries.glossaryTerms.length})
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   {selectedContribution.entries.glossaryTerms.map((term) => (
-                                    <div key={term._id} className="bg-gray-600 rounded-lg p-4 border border-gray-500">
+                                    <div key={term._id} className="bg-black border border-gray-600 rounded-lg p-4">
                                       <div className="flex justify-between items-start mb-2">
-                                        <h5 className="font-medium text-white truncate">{term.title}</h5>
+                                        <h5 className="font-medium text-gray-300 truncate">{term.title}</h5>
                                         <span className={`px-2 py-1 rounded text-xs ${
-                                          term.approved ? 'bg-green-600 text-green-100' : 'bg-yellow-600 text-yellow-100'
+                                          term.approved ? 'bg-gray-600 text-gray-300' : 'bg-gray-700 text-gray-400'
                                         }`}>
                                           {term.approved ? 'Approved' : 'Pending'}
                                         </span>
                                       </div>
-                                      <p className="text-gray-300 text-sm mb-3 line-clamp-2">{term.description}</p>
+                                      <p className="text-gray-400 text-sm mb-3 line-clamp-2">{term.description}</p>
                                       <div className="flex justify-between items-center">
-                                        <span className="text-xs text-gray-400">
+                                        <span className="text-xs text-gray-500">
                                           {formatDate(term.createdAt)}
                                         </span>
                                         <a
                                           href={`/contribute?tab=glossary&search=${encodeURIComponent(term.title)}`}
-                                          className="text-blue-400 hover:text-blue-300 text-xs underline"
+                                          className="text-gray-400 hover:text-gray-300 text-xs underline"
                                         >
                                           View in Glossary →
                                         </a>
@@ -1498,32 +1523,42 @@ export default function AdminDashboard() {
                               </div>
                             )}
 
-                            {/* Content Modules */}
+                            {/* Works */}
                             {selectedContribution.entries.contentModules.length > 0 && (
                               <div>
-                                <h4 className="text-lg font-medium text-green-400 mb-3">
-                                  Content Modules ({selectedContribution.entries.contentModules.length})
+                                <h4 className="text-lg font-medium text-gray-400 mb-3">
+                                  Works ({selectedContribution.entries.contentModules.length})
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   {selectedContribution.entries.contentModules.map((content) => (
-                                    <div key={content._id} className="bg-gray-600 rounded-lg p-4 border border-gray-500">
+                                    <div key={content._id} className="bg-black border border-gray-600 rounded-lg p-4">
                                       <div className="flex justify-between items-start mb-2">
-                                        <h5 className="font-medium text-white truncate">{content.title}</h5>
+                                        <h5 className="font-medium text-gray-300 truncate">{content.title}</h5>
                                         <span className={`px-2 py-1 rounded text-xs ${
-                                          content.moderationStatus === 'approved' ? 'bg-green-600 text-green-100' :
-                                          content.moderationStatus === 'rejected' ? 'bg-red-600 text-red-100' :
-                                          'bg-yellow-600 text-yellow-100'
+                                          content.moderationStatus === 'approved' ? 'bg-gray-600 text-gray-300' :
+                                          content.moderationStatus === 'rejected' ? 'bg-gray-700 text-gray-400' :
+                                          'bg-gray-700 text-gray-400'
                                         }`}>
                                           {content.moderationStatus}
                                         </span>
                                       </div>
-                                      <p className="text-gray-300 text-sm mb-2 line-clamp-2">{content.description}</p>
-                                      <div className="text-xs text-gray-400 mb-3">
-                                        <span className="inline-block mr-2">📚 {content.knowledgeArea}</span>
-                                        <span className="inline-block">🎯 {content.discipline}</span>
+                                      <p className="text-gray-400 text-sm mb-2 line-clamp-2">{content.description}</p>
+                                      <div className="text-xs text-gray-500 mb-3 flex items-center space-x-3">
+                                        <span className="inline-flex items-center">
+                                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                          </svg>
+                                          {content.knowledgeArea}
+                                        </span>
+                                        <span className="inline-flex items-center">
+                                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                          </svg>
+                                          {content.discipline}
+                                        </span>
                                       </div>
                                       <div className="flex justify-between items-center">
-                                        <span className="text-xs text-gray-400">
+                                        <span className="text-xs text-gray-500">
                                           {formatDate(content.createdAt)}
                                         </span>
                                         {content.youtubeUrl && (
@@ -1531,7 +1566,7 @@ export default function AdminDashboard() {
                                             href={content.youtubeUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-green-400 hover:text-green-300 text-xs underline"
+                                            className="text-gray-400 hover:text-gray-300 text-xs underline"
                                           >
                                             View Content →
                                           </a>
@@ -1543,37 +1578,48 @@ export default function AdminDashboard() {
                               </div>
                             )}
 
-                            {/* Knowledge Map Entries */}
+                            {/* Interactive Map Entries */}
                             {selectedContribution.entries.sunburstEntries.length > 0 && (
                               <div>
-                                <h4 className="text-lg font-medium text-purple-400 mb-3">
-                                  Knowledge Map Entries ({selectedContribution.entries.sunburstEntries.length})
+                                <h4 className="text-lg font-medium text-gray-400 mb-3">
+                                  Interactive Map Entries ({selectedContribution.entries.sunburstEntries.length})
                                 </h4>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   {selectedContribution.entries.sunburstEntries.map((entry) => (
-                                    <div key={entry._id} className="bg-gray-600 rounded-lg p-4 border border-gray-500">
+                                    <div key={entry._id} className="bg-black border border-gray-600 rounded-lg p-4">
                                       <div className="flex justify-between items-start mb-2">
-                                        <h5 className="font-medium text-white truncate">{entry.themeCluster}</h5>
+                                        <h5 className="font-medium text-gray-300 truncate">{entry.themeCluster}</h5>
                                         <span className={`px-2 py-1 rounded text-xs ${
-                                          entry.isActive ? 'bg-green-600 text-green-100' : 'bg-gray-600 text-gray-100'
+                                          entry.isActive ? 'bg-gray-600 text-gray-300' : 'bg-gray-700 text-gray-400'
                                         }`}>
                                           {entry.isActive ? 'Active' : 'Inactive'}
                                         </span>
                                       </div>
-                                      <p className="text-gray-300 text-sm mb-2 line-clamp-2">{entry.description}</p>
-                                      <div className="text-xs text-gray-400 mb-3 space-y-1">
-                                        <div>🎯 {entry.knowledgeArea} → {entry.discipline}</div>
-                                        <div>🔧 {entry.toolTechnology}</div>
+                                      <p className="text-gray-400 text-sm mb-2 line-clamp-2">{entry.description}</p>
+                                      <div className="text-xs text-gray-500 mb-3 space-y-1">
+                                        <div className="flex items-center">
+                                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                          </svg>
+                                          {entry.knowledgeArea} → {entry.discipline}
+                                        </div>
+                                        <div className="flex items-center">
+                                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                          </svg>
+                                          {entry.toolTechnology}
+                                        </div>
                                       </div>
                                       <div className="flex justify-between items-center">
-                                        <span className="text-xs text-gray-400">
+                                        <span className="text-xs text-gray-500">
                                           {formatDate(entry.createdAt)}
                                         </span>
                                         <a
                                           href="/"
-                                          className="text-purple-400 hover:text-purple-300 text-xs underline"
+                                          className="text-gray-400 hover:text-gray-300 text-xs underline"
                                         >
-                                          View Knowledge Map →
+                                          View Interactive Map →
                                         </a>
                                       </div>
                                     </div>

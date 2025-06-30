@@ -124,7 +124,7 @@ const SunburstVisualization: React.FC = () => {
   const [transform, setTransform] = useState({ x: 0, y: 0, k: 1 });
   const [inequalityTypes, setInequalityTypes] = useState<string[]>([]);
   const [isStatsPanelCollapsed, setIsStatsPanelCollapsed] = useState(false);
-  const [isInequalityPanelCollapsed, setIsInequalityPanelCollapsed] = useState(false);
+
 
   const [visualizationStats, setVisualizationStats] = useState({
     totalDataPoints: 0,
@@ -1610,7 +1610,7 @@ const SunburstVisualization: React.FC = () => {
                   
                   return connectedNodes.length > 0 && (
                   <div>
-                      <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">Connected Data Points</h3>
+                      <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">Connected Entr{connectedNodes.length === 1 ? 'y' : 'ies'}</h3>
                       <div className="flex flex-wrap gap-1">
                         {connectedNodes.map((nodeName, index) => (
                           <span 
@@ -1621,6 +1621,36 @@ const SunburstVisualization: React.FC = () => {
                           </span>
                         ))}
                   </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Digital Inequalities Index for this data point */}
+                {(() => {
+                  const currentNode = radialNodes.find(n => n.name === sidePanelContent.name);
+                  const inequalities = currentNode ? Array.from(currentNode.connectionInequalities.values()).filter(Boolean) : [];
+                  const uniqueInequalities = [...new Set(inequalities)];
+                  
+                  return uniqueInequalities.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">Digital Inequalities Index:</h3>
+                      <div className="flex flex-wrap gap-1">
+                        {uniqueInequalities.map((inequality, index) => (
+                          <span 
+                            key={index}
+                            className="inline-block bg-black text-gray-400 text-xs px-2 py-1 rounded border border-gray-700"
+                          >
+                            {inequality.includes('Community Marginalisation') 
+                              ? 'Community Marginalisation'
+                              : inequality.includes('Data Surveillance and Extractivism')
+                              ? 'Data Surveillance & Extractivism'
+                              : inequality.includes('Industry-Specific Inclusion and Exclusion')
+                              ? 'Industry-Specific Inclusion & Exclusion'
+                              : inequality
+                            }
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   );
                 })()}
@@ -1638,7 +1668,7 @@ const SunburstVisualization: React.FC = () => {
                 {/* Description */}
                 {sidePanelContent.description && (
                   <div>
-                    <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">Description</h3>
+                    <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">Definition</h3>
                     <p className="text-sm text-gray-400 leading-relaxed">{sidePanelContent.description}</p>
             </div>
           )}
@@ -1780,65 +1810,7 @@ const SunburstVisualization: React.FC = () => {
       )}
       </div>
 
-      {/* Collapsible Digital Inequalities Index - Right Side */}
-      <div className={`absolute top-8 right-0 z-30 flex transition-transform duration-300 ${
-        isInequalityPanelCollapsed ? 'translate-x-[calc(100%-24px)]' : 'translate-x-0'
-      }`}>
-        
-        {/* Toggle button/tab - attached and moves with panel */}
-        <button
-          onClick={() => setIsInequalityPanelCollapsed(!isInequalityPanelCollapsed)}
-          className="bg-black bg-opacity-80 backdrop-blur-sm border border-gray-700 border-r-0 hover:bg-gray-800 transition-colors flex items-center justify-center w-6 h-12 !rounded-none !m-0 !p-0 mt-3"
-          title={isInequalityPanelCollapsed ? "Show Digital Inequalities Index" : "Hide Digital Inequalities Index"}
-        >
-          <svg 
-            className={`w-3 h-3 text-white transition-transform duration-300 ${
-              isInequalityPanelCollapsed ? 'rotate-180' : ''
-            }`} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
 
-        {/* Digital Inequalities Index Panel */}
-        <div className="w-50 bg-black bg-opacity-80 backdrop-blur-sm border-t border-r border-b border-gray-700 p-3 overflow-y-auto relative">
-          {/* Custom left border with cutout for button */}
-          <div className="absolute bottom-0 left-0 w-px bg-gray-700 h-[116px]"></div>
-          
-          <h3 className="text-sm font-semibold text-white mb-4 tracking-wide">
-            Digital Inequalities Index:
-          </h3>
-          
-          <div className="space-y-2">
-            {inequalityTypes.length > 0 ? (
-              inequalityTypes.map((inequality, index) => (
-                <div key={index} className="flex items-start gap-2 text-gray-300 hover:text-white transition-colors cursor-pointer">
-                  <svg className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  <span className="text-xs font-medium leading-relaxed">
-                    {inequality.includes('Community Marginalisation') 
-                      ? 'Community Marginalisation'
-                      : inequality.includes('Data Surveillance and Extractivism')
-                      ? 'Data Surveillance & Extractivism'
-                      : inequality.includes('Industry-Specific Inclusion and Exclusion')
-                      ? 'Industry-Specific Inclusion & Exclusion'
-                      : inequality
-                    }
-                  </span>
-                </div>
-              ))
-            ) : (
-              <div className="text-gray-400 text-xs py-4">
-                Loading...
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
